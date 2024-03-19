@@ -38,7 +38,6 @@ class AuthenticationController(
         val message = userService.prepareEmail(user, url)
         mailSender.send(message)
 
-        //todo change url
         return Redirect(url)
     }
 

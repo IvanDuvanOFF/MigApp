@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -54,11 +53,10 @@ class UserServiceImpl(
 
     override fun saveUser(signRequest: SignRequest, request: HttpServletRequest): User {
         if (userExists(signRequest.login))
-            throw NullPointerException("Username or email is already taken")
-
+            throw UserAlreadyExistsException("Username or email is already taken")
 
         val role = roleRepository.findById(ERole.ROLE_USER.name)
-            .orElseThrow { NullPointerException("No role ${ERole.ROLE_USER.name} does not exist") }
+            .orElseThrow { RoleNotFoundException("No role ${ERole.ROLE_USER.name} does not exist") }
 
         val user = User(
             username = signRequest.login,
@@ -85,10 +83,10 @@ class UserServiceImpl(
 
     override fun blockUser(email: String?): User {
         if (email == null)
-            throw UsernameNullException("Email cannot be null")
+            throw BadCredentialsException("Email cannot be null")
 
         return userRepository.findUserByEmail(email)
-            .orElseThrow { UserNotFoundException("User with email $email not found") }
+            .orElseThrow { BadCredentialsException("User with email $email not found") }
             .block()
     }
 
@@ -117,49 +115,32 @@ class UserServiceImpl(
         if (user.using2Fa) {
             totpService.generateCode(user)
 
+
             return SignResponse(tfaEnabled = true)
         }
 
-        val jwt = jwtService.generateToken(userDetails)
-        val refreshToken = jwtService.generateRefreshToken(HashMap(), userDetails)
-
-        return SignResponse(
-            token = jwt,
-            refreshToken = refreshToken
-        )
+        return user.generateSignResponse()
     }
 
-    // todo exceptions
-    // todo userDetails -> user in jwtService
-    fun verifyCode(verificationRequest: VerificationRequest): SignResponse {
+    override fun verifyCode(verificationRequest: VerificationRequest): SignResponse {
         val user = userRepository.findUserByUsername(verificationRequest.username)
-            .orElseThrow { UserNotFoundException("User with username ${verificationRequest.username} not found") }
+            .orElseThrow { BadCredentialsException("User with username ${verificationRequest.username} not found") }
 
         if (!totpService.validateCode(user, verificationRequest.code))
             throw BadCredentialsException("Code not correct")
 
-        val userDetails = user.toSpringUser()
-        return SignResponse(
-            token = jwtService.generateToken(userDetails),
-            refreshToken = jwtService.generateRefreshToken(HashMap(), userDetails)
-        )
+        return user.generateSignResponse()
     }
 
     override fun refreshToken(refreshTokenRequest: RefreshTokenRequest): SignResponse {
         val username = jwtService.extractUsername(refreshTokenRequest.refreshToken)
-        val userDetails = userRepository.findUserByUsername(username)
-            .orElseThrow { NullPointerException("No user found") }.toSpringUser()
+        val user = userRepository.findUserByUsername(username)
+            .orElseThrow { UserNotFoundException("No user found") }
 
-        if (!jwtService.isTokenValid(refreshTokenRequest.refreshToken, userDetails))
-            throw NullPointerException("Token expired")
+        if (!jwtService.isTokenValid(refreshTokenRequest.refreshToken, user))
+            throw VerificationTokenExpiredException("Token expired")
 
-        val jwt = jwtService.generateToken(userDetails)
-        val refreshToken = jwtService.generateRefreshToken(HashMap(), userDetails)
-
-        return SignResponse(
-            token = jwt,
-            refreshToken = refreshToken
-        )
+        return user.generateSignResponse()
     }
 
     override fun prepareEmail(user: User, url: String): SimpleMailMessage {
@@ -195,6 +176,16 @@ class UserServiceImpl(
             throw VerificationTokenExpiredException("Verification token has been expired")
 
         return verificationToken.get()
+    }
+
+    private fun User.generateSignResponse(): SignResponse {
+        val jwt = jwtService.generateToken(this)
+        val refreshToken = jwtService.generateRefreshToken(HashMap(), this)
+
+        return SignResponse(
+            token = jwt,
+            refreshToken = refreshToken
+        )
     }
 
     @Throws(exceptionClasses = [PersistenceException::class])

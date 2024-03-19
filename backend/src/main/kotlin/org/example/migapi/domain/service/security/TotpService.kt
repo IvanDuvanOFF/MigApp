@@ -1,5 +1,6 @@
 package org.example.migapi.domain.service.security
 
+import jakarta.persistence.PersistenceException
 import org.example.migapi.domain.model.entity.TfaCode
 import org.example.migapi.domain.model.entity.User
 import org.example.migapi.repository.TfaCodeRepository
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.security.SecureRandom
+import java.time.DateTimeException
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -25,8 +27,8 @@ class TotpService(
         private const val CAPACITY = 6
     }
 
-    //todo exception check
-    fun generateCode(user: User) {
+    @Throws(exceptionClasses = [DateTimeException::class, PersistenceException::class])
+    fun generateCode(user: User): TfaCode {
         val code =
             StringBuilder(CAPACITY).apply { repeat(CAPACITY) { this.append(SOURCE[random.nextInt(SOURCE.length)]) } }
                 .toString()
@@ -39,10 +41,10 @@ class TotpService(
                 .toLocalDateTime()
         )
 
-        tfaCodeRepository.save(tfaCode)
+        return tfaCodeRepository.save(tfaCode)
     }
 
-    // todo exceptions
+    @Throws(exceptionClasses = [PersistenceException::class])
     fun validateCode(user: User, code: String): Boolean {
         val tfaCode = tfaCodeRepository.findTfaCodeByTfaId(TfaCode.TfaCodeId(code, user))
 
