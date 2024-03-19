@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: mig-api
+  datasource:
+    username: ivan
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/mig
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ivan.duvanov.3@gmail.com
+    password: pilnamucvqamgbnz
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  flyway:
+    locations:
+      - classpath:/db/migration
+#      - classpath:/db/callback
+
+mig:
+  jwt:
+    secret: nevergonnagiveyouupnevergonnaletyoudownnevergonnarunaroundanddesertyou
+    expiration-ms: 1440000
+    refresh-expiration: 10080000
+    verification-expiration: 1440000
+  tfa:
+    expiration-ms: 600000
+server:
+  port: 8080
