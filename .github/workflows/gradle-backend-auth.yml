@@ -20,14 +20,17 @@ jobs:
           distribution: 'temurin'
 
       - name: Grand executive permission for gradlew
-        run: chmod +x ./backend/gradlew && cd ./backend
+        run: chmod +x ./backend/gradlew
+
+      - name: Change dir
+        run: cd ./backend
 
       - name: Gradlew clean
-        run: ./backend/gradlew clean
+        run: ./gradlew clean
 
       - name: Gradlew test run
         id: test
-        run: ./backend/gradlew test
+        run: ./gradlew test
 
       - name: Successful tests
         if: steps.test.outcome != 'success'
