@@ -26,5 +26,7 @@ mig:
     expiration-ms: 1440000
     refresh-expiration: 10080000
     verification-expiration: 1440000
+  tfa:
+    expiration-ms: 600000
 server:
   port: 8080
