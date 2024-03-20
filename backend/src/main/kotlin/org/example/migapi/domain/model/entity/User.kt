@@ -55,7 +55,7 @@ data class User(
     var status: StudentStatus = StudentStatus(),
 
     @Column(name = "tfa_enabled")
-    var using2Fa: Boolean = false
+    var tfaEnabled: Boolean = false
 ) {
     fun toSpringUser(): UserDetails = SpringUser.builder()
         .username(username)

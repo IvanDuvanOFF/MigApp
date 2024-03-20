@@ -6,17 +6,19 @@ import org.example.migapi.domain.model.entity.User
 import org.example.migapi.repository.TfaCodeRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 import java.security.SecureRandom
 import java.time.DateTimeException
 import java.time.Instant
-import java.time.LocalDateTime
 import java.time.ZoneId
 
 @Component
 class TotpService(
     @Autowired
     private val tfaCodeRepository: TfaCodeRepository,
+    @Autowired
+    private val passwordEncoder: BCryptPasswordEncoder,
     @Value("\${mig.tfa.expiration-ms}")
     private val expiration: Int
 ) {
@@ -28,26 +30,32 @@ class TotpService(
     }
 
     @Throws(exceptionClasses = [DateTimeException::class, PersistenceException::class])
-    fun generateCode(user: User): TfaCode {
+    fun generateCode(user: User): String {
         val code =
             StringBuilder(CAPACITY).apply { repeat(CAPACITY) { this.append(SOURCE[random.nextInt(SOURCE.length)]) } }
                 .toString()
 
         val tfaCode = TfaCode(
-            tfaId = TfaCode.TfaCodeId(code, user),
+            tfaId = TfaCode.TfaCodeId(passwordEncoder.encode(code), user),
             expirationDate = Instant
                 .ofEpochMilli(System.currentTimeMillis() + expiration)
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime()
         )
+        tfaCodeRepository.save(tfaCode)
 
-        return tfaCodeRepository.save(tfaCode)
+        return code
     }
 
     @Throws(exceptionClasses = [PersistenceException::class])
     fun validateCode(user: User, code: String): Boolean {
-        val tfaCode = tfaCodeRepository.findTfaCodeByTfaId(TfaCode.TfaCodeId(code, user))
+        tfaCodeRepository.findTfaCodesByTfaIdUser(user).forEach {
+            if (passwordEncoder.matches(code, it.tfaId.code)) {
+                tfaCodeRepository.delete(it)
 
-        return !(tfaCode.isEmpty || LocalDateTime.now() > tfaCode.get().expirationDate)
+                return true
+            }
+        }
+        return false
     }
 }

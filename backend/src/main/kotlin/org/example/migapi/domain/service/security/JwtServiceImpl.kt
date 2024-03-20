@@ -7,6 +7,7 @@ import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import org.example.migapi.domain.model.entity.User
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import java.security.Key
 import java.util.*
@@ -41,6 +42,12 @@ class JwtServiceImpl(
         val username = extractUsername(token)
 
         return (username == user.username && !isTokenExpired(token))
+    }
+
+    override fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
+        val username = extractUsername(token)
+
+        return (username == userDetails.username && !isTokenExpired(token))
     }
 
     private fun isTokenExpired(token: String): Boolean = extractClaim(token, Claims::getExpiration).before(Date())

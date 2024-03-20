@@ -2,6 +2,7 @@ package org.example.migapi.controller.advice
 
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
+import jakarta.mail.MessagingException
 import jakarta.persistence.PersistenceException
 import org.example.migapi.exception.core.MigApplicationException
 import org.springframework.http.HttpStatus
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 
 import org.example.migapi.domain.dto.util.Error
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.mail.MailSendException
+import java.net.SocketException
 
 @ControllerAdvice
 class GlobalExceptionHandler {
@@ -27,13 +30,20 @@ class GlobalExceptionHandler {
             BadCredentialsException::class,
             AuthenticationException::class,
             HttpMessageNotReadableException::class,
+            MessagingException::class,
+            MailSendException::class,
+            SocketException::class,
             Exception::class
         ]
     )
     fun processException(e: Exception): ResponseEntity<Error> {
         val status = when (e) {
             is MigApplicationException -> e.httpStatus
-            is PersistenceException -> HttpStatus.INTERNAL_SERVER_ERROR
+            is PersistenceException,
+            is MailSendException,
+            is MessagingException,
+            is SocketException -> HttpStatus.INTERNAL_SERVER_ERROR
+
             is DisabledException -> HttpStatus.LOCKED
             is BadCredentialsException -> HttpStatus.FORBIDDEN
             is AuthenticationException -> HttpStatus.NOT_FOUND

@@ -13,7 +13,9 @@ import org.example.migapi.exception.*
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.security.authentication.DisabledException
 import org.springframework.security.authentication.LockedException
+import org.springframework.stereotype.Service
 
+@Service
 interface UserService {
     @Throws(
         exceptionClasses = [
@@ -60,7 +62,7 @@ interface UserService {
             PersistenceException::class
         ]
     )
-    fun blockUser(email: String?): User
+    fun blockUser4Restore(email: String, httpServletRequest: HttpServletRequest)
 
     @Throws(exceptionClasses = [PersistenceException::class])
     fun prepareEmail(user: User, url: String): SimpleMailMessage

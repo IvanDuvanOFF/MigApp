@@ -11,12 +11,14 @@ import org.example.migapi.domain.model.SpringUser
 import org.example.migapi.domain.model.entity.User
 import org.example.migapi.domain.model.entity.VerificationToken
 import org.example.migapi.domain.model.enums.ERole
+import org.example.migapi.domain.service.security.EmailService
 import org.example.migapi.domain.service.security.JwtService
 import org.example.migapi.domain.service.security.TotpService
 import org.example.migapi.exception.*
 import org.example.migapi.repository.RoleRepository
 import org.example.migapi.repository.UserRepository
 import org.example.migapi.repository.VerificationTokenRepository
+import org.example.migapi.utils.MigUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.mail.SimpleMailMessage
@@ -47,6 +49,10 @@ class UserServiceImpl(
     private val jwtService: JwtService,
     @Autowired
     private val totpService: TotpService,
+    @Autowired
+    private val emailService: EmailService,
+    @Autowired
+    private val migUtils: MigUtils,
     @Value("\${mig.jwt.verification-expiration}")
     private val verificationTokenExpiration: Int
 ) : UserService {
@@ -81,13 +87,19 @@ class UserServiceImpl(
         return userRepository.save(user)
     }
 
-    override fun blockUser(email: String?): User {
-        if (email == null)
-            throw BadCredentialsException("Email cannot be null")
-
-        return userRepository.findUserByEmail(email)
+    override fun blockUser4Restore(email: String, httpServletRequest: HttpServletRequest) {
+        val user = userRepository.findUserByEmail(email)
             .orElseThrow { BadCredentialsException("User with email $email not found") }
             .block()
+
+        val verificationToken = verificationTokenRepository.save(
+            VerificationToken(
+                expirationDate = LocalDateTime.now().plus(verificationTokenExpiration.toLong(), ChronoUnit.MILLIS),
+                user = user
+            )
+        )
+
+        emailService.sendRestoreEmail(user, verificationToken.token.toString(), migUtils.getHostUrl(httpServletRequest))
     }
 
     override fun restoreUser(token: String, password: String) {
@@ -112,9 +124,9 @@ class UserServiceImpl(
 
         val user = userRepository.findUserByUsername(userDetails.username).get()
 
-        if (user.using2Fa) {
-            totpService.generateCode(user)
-
+        if (user.tfaEnabled) {
+            val totp = totpService.generateCode(user)
+            emailService.sendTfaEmail(user, totp)
 
             return SignResponse(tfaEnabled = true)
         }
@@ -125,6 +137,9 @@ class UserServiceImpl(
     override fun verifyCode(verificationRequest: VerificationRequest): SignResponse {
         val user = userRepository.findUserByUsername(verificationRequest.username)
             .orElseThrow { BadCredentialsException("User with username ${verificationRequest.username} not found") }
+
+        if (user.tfaEnabled.not())
+            throw TfaNotEnabledException()
 
         if (!totpService.validateCode(user, verificationRequest.code))
             throw BadCredentialsException("Code not correct")
@@ -184,7 +199,8 @@ class UserServiceImpl(
 
         return SignResponse(
             token = jwt,
-            refreshToken = refreshToken
+            refreshToken = refreshToken,
+            tfaEnabled = tfaEnabled
         )
     }
 
