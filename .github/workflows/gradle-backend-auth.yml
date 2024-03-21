@@ -33,7 +33,7 @@ jobs:
 
       - name: Gradlew test run
         id: test
-        run: ./backend/gradlew test
+        run: ./gradlew test
 
       - name: Successful tests
         if: steps.test.outcome != 'success'
