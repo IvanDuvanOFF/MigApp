@@ -22,10 +22,13 @@ jobs:
       - name: Grand executive permission for gradlew
         run: chmod +x ./backend/gradlew
 
+      - name: Echo files
+        run: ls
+
       - name: Change dir
         run: cd ./backend
 
-      - name: Echo files
+      - name: Echo files twice
         run: ls
 
       - name: Gradlew clean
