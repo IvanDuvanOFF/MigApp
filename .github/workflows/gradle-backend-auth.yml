@@ -20,13 +20,16 @@ jobs:
           distribution: 'temurin'
 
       - name: Grand executive permission for gradlew
-        run: chmod +x ./backend/gradlew
+        working-directory: ./backend
+        run: chmod +x ./gradlew
 
       - name: Echo files
+        working-directory: ./backend
         run: ls
 
       - name: Gradlew clean
-        run: ./backend/gradlew clean
+        working-directory: ./backend
+        run: ./gradlew clean
 
       - name: Gradlew test run
         id: test
