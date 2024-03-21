@@ -25,6 +25,9 @@ jobs:
       - name: Change dir
         run: cd ./backend
 
+      - name: Echo files
+        run: ll
+
       - name: Gradlew clean
         run: ./gradlew clean
 
