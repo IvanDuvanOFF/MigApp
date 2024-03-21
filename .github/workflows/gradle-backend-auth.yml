@@ -25,18 +25,12 @@ jobs:
       - name: Echo files
         run: ls
 
-      - name: Change dir
-        run: cd ./backend
-
-      - name: Echo files twice
-        run: ls
-
       - name: Gradlew clean
-        run: ./gradlew clean
+        run: ./backend/gradlew clean
 
       - name: Gradlew test run
         id: test
-        run: ./gradlew test
+        run: ./backend/gradlew test
 
       - name: Successful tests
         if: steps.test.outcome != 'success'
