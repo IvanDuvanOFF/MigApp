@@ -2,23 +2,24 @@ package org.example.migapi.core.config.controller.advice
 
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.jsonwebtoken.JwtException
 import jakarta.mail.MessagingException
 import jakarta.persistence.PersistenceException
 import org.example.migapi.core.config.exception.MigApplicationException
+import org.example.migapi.core.domain.dto.Error
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.security.authentication.DisabledException
-import org.springframework.security.core.AuthenticationException
-import org.springframework.web.bind.annotation.ControllerAdvice
-import org.springframework.web.bind.annotation.ExceptionHandler
-
-import org.example.migapi.core.domain.dto.Error
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.mail.MailSendException
+import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.authentication.DisabledException
+import org.springframework.security.authentication.LockedException
+import org.springframework.security.core.AuthenticationException
+import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.RestControllerAdvice
 import java.net.SocketException
 
-@ControllerAdvice
+@RestControllerAdvice
 class GlobalExceptionHandler {
     private val logger: KLogger = KotlinLogging.logger { }
 
@@ -27,6 +28,7 @@ class GlobalExceptionHandler {
             MigApplicationException::class,
             PersistenceException::class,
             DisabledException::class,
+            JwtException::class,
             BadCredentialsException::class,
             AuthenticationException::class,
             HttpMessageNotReadableException::class,
@@ -44,10 +46,12 @@ class GlobalExceptionHandler {
             is MessagingException,
             is SocketException -> HttpStatus.INTERNAL_SERVER_ERROR
 
-            is DisabledException -> HttpStatus.LOCKED
-            is BadCredentialsException -> HttpStatus.FORBIDDEN
-            is AuthenticationException -> HttpStatus.NOT_FOUND
+            is DisabledException, is LockedException -> HttpStatus.LOCKED
+            is BadCredentialsException,
+            is JwtException,
             is HttpMessageNotReadableException -> HttpStatus.BAD_REQUEST
+
+            is AuthenticationException -> HttpStatus.NOT_FOUND
             else -> {
                 logger.error { e.stackTrace }
                 HttpStatus.I_AM_A_TEAPOT

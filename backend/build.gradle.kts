@@ -63,6 +63,13 @@ dependencies {
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 
+//	swagger
+//	implementation("org.springdoc:springdoc-openapi-starter-common:2.2.0")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
+	implementation("io.swagger.core.v3:swagger-annotations:2.2.20")
+	implementation("org.springdoc:springdoc-openapi-ui:1.7.0")
+	implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
+
 //	database
 	runtimeOnly("org.postgresql:postgresql")
 

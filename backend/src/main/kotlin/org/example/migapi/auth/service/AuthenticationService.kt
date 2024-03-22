@@ -60,7 +60,6 @@ class AuthenticationService(
 
     @Throws(
         exceptionClasses = [
-            UserNotFoundException::class,
             BadCredentialsException::class,
             PersistenceException::class
         ]
@@ -94,6 +93,7 @@ class AuthenticationService(
     @Throws(
         exceptionClasses = [
             UserNotFoundException::class,
+            BadCredentialsException::class,
             DisabledException::class,
             LockedException::class,
             PersistenceException::class

@@ -23,11 +23,20 @@ spring:
       - classpath:/db/migration
 #      - classpath:/db/callback
 
+
 mig:
   jwt:
     secret: nevergonnagiveyouupnevergonnaletyoudownnevergonnarunaroundanddesertyou
     expiration-ms: 1440000
     refresh-expiration: 10080000
     verification-expiration: 1440000
+  tfa:
+    expiration-ms: 600000
 server:
   port: 8080
+springdoc:
+  swagger-ui:
+    path: /swagger/swagger-ui
+  api-docs:
+    enabled: true
+    path: /swagger/api-docs

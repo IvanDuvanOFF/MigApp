@@ -1,8 +1,6 @@
 package org.example.migapi.auth
 
-import org.example.migapi.auth.controller.AuthenticationController
 import org.example.migapi.auth.dto.SignRequest
-import org.example.migapi.auth.service.AuthenticationService
 import org.example.migapi.core.domain.dto.UserDto
 import org.example.migapi.core.domain.model.enums.ERole
 import org.example.migapi.core.domain.service.DtoService
@@ -11,7 +9,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder

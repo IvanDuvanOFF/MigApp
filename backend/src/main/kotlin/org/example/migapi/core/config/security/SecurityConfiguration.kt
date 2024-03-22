@@ -26,6 +26,7 @@ class SecurityConfiguration(
     @Autowired
     private val jwtAuthenticationFilter: JwtAuthenticationFilter
 ) {
+
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http.csrf { it.disable() }
@@ -33,7 +34,11 @@ class SecurityConfiguration(
             .authorizeHttpRequests {
                 it
                     .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers("/api-docs/**").permitAll()
                     .requestMatchers("/index/**").permitAll()
+                    .requestMatchers("/swagger/**").permitAll()
+                    .requestMatchers("/swagger-resources/**").permitAll()
+                    .requestMatchers("/swagger-resources").permitAll()
                     .anyRequest().authenticated()
             }
             .authenticationProvider(authenticationProvider())
