@@ -39,7 +39,7 @@ class UserServiceImpl(
             username = userDto.username,
             password = userDto.password,
             role = role,
-            isActive = false
+            isActive = userDto.isActive
         )
 
         return userRepository.save(user)
@@ -51,8 +51,10 @@ class UserServiceImpl(
     override fun userExists(username: String): Boolean =
         userRepository.findUserByUsername(username).isPresent
 
-    override fun findRoleByName(roleName: String): Role = roleRepository.findById(roleName)
-        .orElseThrow { RoleNotFoundException("No role ${ERole.ROLE_USER.name} does not exist") }
+    override fun findRoleByName(roleName: String): Role = findRoleByERole(ERole.valueOf(roleName))
+
+    override fun findRoleByERole(roleEnum: ERole): Role = roleRepository.findById(roleEnum)
+        .orElseThrow { RoleNotFoundException("No role $roleEnum found") }
 
     override fun createVerificationToken(email: String): VerificationToken {
         val user = userRepository.findUserByEmail(email)
@@ -78,4 +80,14 @@ class UserServiceImpl(
 
         return verificationToken.get()
     }
+
+    override fun enableTfa(id: UUID) {
+        val user = userRepository.findById(id).orElseThrow { UserNotFoundException("User not found") }
+
+        user.tfaEnabled = true
+
+        userRepository.save(user)
+    }
+
+    override fun dropTable() = userRepository.deleteAll()
 }

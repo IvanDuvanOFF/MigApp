@@ -9,5 +9,5 @@ import org.example.migapi.core.domain.model.Model
 @Table(name = "countries")
 data class Country(
     @Id
-    val name: String = "None"
+    val name: String = "NONE"
 ) : Model
