@@ -25,6 +25,7 @@ class UserServiceImpl(
 
         val user = User(
             username = userDto.username,
+            email = userDto.email,
             password = userDto.password,
             role = role,
             isActive = userDto.isActive,
@@ -35,6 +36,9 @@ class UserServiceImpl(
     }
 
     override fun saveUser(user: User): User = userRepository.save(user)
+
+    override fun findById(id: UUID): User =
+        userRepository.findById(id).orElseThrow { UserNotFoundException("User not found") }
 
     override fun findUserByUsername(username: String): User = userRepository.findUserByUsername(username)
         .orElseThrow { UserNotFoundException("User with username $username doesn't exists") }

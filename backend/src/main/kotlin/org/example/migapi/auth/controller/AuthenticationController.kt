@@ -6,9 +6,8 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import jakarta.servlet.http.HttpServletRequest
 import org.example.migapi.auth.dto.*
-import org.example.migapi.core.domain.dto.Error
-import org.example.migapi.auth.exception.BadCredentialsException
 import org.example.migapi.auth.service.AuthenticationService
+import org.example.migapi.core.domain.dto.Error
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 
@@ -179,10 +178,6 @@ class AuthenticationController(
             )
         ]
     )
-    fun restore(@PathVariable token: String, @RequestBody passwords: Passwords) {
-        if (passwords.password != passwords.confirmation)
-            throw BadCredentialsException("Passwords are not equal")
-
+    fun restore(@PathVariable token: String, @RequestBody passwords: Passwords) =
         authenticationService.restoreUser(token, passwords)
-    }
 }

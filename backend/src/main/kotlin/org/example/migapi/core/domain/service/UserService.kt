@@ -20,6 +20,9 @@ interface UserService {
     fun saveUser(user: User): User
 
     @Throws(exceptionClasses = [UserNotFoundException::class, PersistenceException::class])
+    fun findById(id: UUID): User
+
+    @Throws(exceptionClasses = [UserNotFoundException::class, PersistenceException::class])
     fun findUserByUsername(username: String): User
 
     @Throws(exceptionClasses = [PersistenceException::class])

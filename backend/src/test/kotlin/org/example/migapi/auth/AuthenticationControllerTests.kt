@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.gson.Gson
 import org.assertj.core.api.Assertions
 import org.example.migapi.auth.dto.*
+import org.example.migapi.auth.exception.VerificationTokenExpiredException
+import org.example.migapi.auth.exception.VerificationTokenNotFoundException
 import org.example.migapi.auth.service.EmailService
 import org.example.migapi.auth.service.TotpService
 import org.example.migapi.auth.service.VerificationTokenService
@@ -446,12 +448,154 @@ class AuthenticationControllerTests(
         user = userService.findUserByUsername(userDto.username)
         Assertions.assertThat(user.isActive).isFalse()
 
-        Mockito.`when`(verificationTokenService.deleteVerificationToken(any())).thenReturn(verificationToken)
+        Mockito.`when`(verificationTokenService.deleteVerificationToken(eq(token.toString())))
+            .thenReturn(verificationToken)
 
         mockMvc.post("/api/auth/restore/$token") {
             contentType = MediaType.APPLICATION_JSON
             accept = MediaType.APPLICATION_JSON
             content = mapper.writeValueAsString(Passwords("newpass", "newpass"))
         }.andExpect { status { isOk() } }
+    }
+
+    @Test
+    fun userCannotRestoreIncorrectPasswords() {
+        val userDto = UserDto(
+            username = "test",
+            email = "test@test.com",
+            password = passwordEncoder.encode("test"),
+            role = ERole.ROLE_USER.name,
+            isActive = true
+        )
+        val token = UUID.randomUUID()
+        var user = userService.saveUser(userDto)
+        val verificationToken = VerificationToken(
+            token = token,
+            expirationDate = LocalDateTime.now().plus(verificationExpiration.toLong(), ChronoUnit.MILLIS),
+            user = user
+        )
+
+        Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
+
+        mockMvc.post("/api/auth/restore") {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
+            content = mapper.writeValueAsString(mutableMapOf("email" to userDto.email))
+        }.andExpect { status { isOk() } }
+
+        user = userService.findUserByUsername(userDto.username)
+        Assertions.assertThat(user.isActive).isFalse()
+
+        mockMvc.post("/api/auth/restore/$token") {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
+            content = mapper.writeValueAsString(Passwords("newpass", "fakepass"))
+        }.andExpect { status { isBadRequest() } }
+    }
+
+    @Test
+    fun userCannotRestoreUserRestored() {
+        val userDto = UserDto(
+            username = "test",
+            email = "test@test.com",
+            password = passwordEncoder.encode("test"),
+            role = ERole.ROLE_USER.name,
+            isActive = true
+        )
+        val token = UUID.randomUUID()
+        val user = userService.saveUser(userDto)
+        val verificationToken = VerificationToken(
+            token = token,
+            expirationDate = LocalDateTime.now().plus(verificationExpiration.toLong(), ChronoUnit.MILLIS),
+            user = user
+        )
+
+        Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
+
+        mockMvc.post("/api/auth/restore") {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
+            content = mapper.writeValueAsString(mutableMapOf("email" to userDto.email))
+        }.andExpect { status { isOk() } }
+
+        user.isActive = true
+
+        Mockito.`when`(verificationTokenService.deleteVerificationToken(any())).thenReturn(verificationToken)
+
+        mockMvc.post("/api/auth/restore/$token") {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
+            content = mapper.writeValueAsString(Passwords("newpass", "newpass"))
+        }.andExpect { status { isConflict() } }
+    }
+
+    @Test
+    fun userCannotRestoreTokenNotFound() {
+        val userDto = UserDto(
+            username = "test",
+            email = "test@test.com",
+            password = passwordEncoder.encode("test"),
+            role = ERole.ROLE_USER.name,
+            isActive = true
+        )
+        val token = UUID.randomUUID()
+        val user = userService.saveUser(userDto)
+        val verificationToken = VerificationToken(
+            token = token,
+            expirationDate = LocalDateTime.now().plus(verificationExpiration.toLong(), ChronoUnit.MILLIS),
+            user = user
+        )
+
+        Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
+
+        mockMvc.post("/api/auth/restore") {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
+            content = mapper.writeValueAsString(mutableMapOf("email" to userDto.email))
+        }.andExpect { status { isOk() } }
+
+        Mockito.`when`(verificationTokenService.deleteVerificationToken(any()))
+            .thenThrow(VerificationTokenNotFoundException("Token not found"))
+
+        mockMvc.post("/api/auth/restore/$token") {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
+            content = mapper.writeValueAsString(Passwords("newpass", "newpass"))
+        }.andExpect { status { isNotFound() } }
+    }
+
+    @Test
+    fun userCannotRestoreTokenExpired() {
+        val userDto = UserDto(
+            username = "test",
+            email = "test@test.com",
+            password = passwordEncoder.encode("test"),
+            role = ERole.ROLE_USER.name,
+            isActive = true
+        )
+        val token = UUID.randomUUID()
+        val user = userService.saveUser(userDto)
+        val verificationToken = VerificationToken(
+            token = token,
+            expirationDate = LocalDateTime.now().plus(verificationExpiration.toLong(), ChronoUnit.MILLIS),
+            user = user
+        )
+
+        Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
+
+        mockMvc.post("/api/auth/restore") {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
+            content = mapper.writeValueAsString(mutableMapOf("email" to userDto.email))
+        }.andExpect { status { isOk() } }
+
+        Mockito.`when`(verificationTokenService.deleteVerificationToken(any()))
+            .thenThrow(VerificationTokenExpiredException("Verification token has been expired"))
+
+        mockMvc.post("/api/auth/restore/$token") {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
+            content = mapper.writeValueAsString(Passwords("newpass", "newpass"))
+        }.andExpect { status { isGone() } }
     }
 }
