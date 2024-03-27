@@ -2,13 +2,13 @@ package org.example.migapi.auth
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.gson.Gson
-import org.example.migapi.auth.dto.RefreshTokenRequest
-import org.example.migapi.auth.dto.SignRequest
-import org.example.migapi.auth.dto.SignResponse
-import org.example.migapi.auth.dto.VerificationRequest
+import org.assertj.core.api.Assertions
+import org.example.migapi.auth.dto.*
 import org.example.migapi.auth.service.EmailService
 import org.example.migapi.auth.service.TotpService
+import org.example.migapi.auth.service.VerificationTokenService
 import org.example.migapi.core.domain.dto.UserDto
+import org.example.migapi.core.domain.model.entity.VerificationToken
 import org.example.migapi.core.domain.model.enums.ERole
 import org.example.migapi.core.domain.service.UserService
 import org.hamcrest.Matchers
@@ -26,12 +26,18 @@ import org.springframework.http.MediaType
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
+import java.util.*
 
 @SpringBootTest
 @AutoConfigureMockMvc
 class AuthenticationControllerTests(
     @Value("\${mig.jwt.refresh-expiration}")
-    private val refreshExpiration: Int
+    private val refreshExpiration: Int,
+
+    @Value("\${mig.jwt.verification-expiration}")
+    private val verificationExpiration: Int
 ) {
     @Autowired
     private lateinit var mapper: ObjectMapper
@@ -54,6 +60,9 @@ class AuthenticationControllerTests(
     @MockBean
     private lateinit var emailService: EmailService
 
+    @MockBean
+    private lateinit var verificationTokenService: VerificationTokenService
+
     @BeforeEach
     fun clearDb() = userService.dropTable()
 
@@ -61,6 +70,7 @@ class AuthenticationControllerTests(
     fun userCanSignInNoTfa() {
         val userDto = UserDto(
             username = "test",
+            email = "test@test.com",
             password = passwordEncoder.encode("test"),
             role = ERole.ROLE_USER.name,
             isActive = true
@@ -94,6 +104,7 @@ class AuthenticationControllerTests(
     fun userCannotSignInNoTfaIncorrectPassword() {
         val userDto = UserDto(
             username = "test",
+            email = "test@test.com",
             password = passwordEncoder.encode("test"),
             role = ERole.ROLE_USER.name,
             isActive = true
@@ -120,6 +131,7 @@ class AuthenticationControllerTests(
     fun userCannotSignInNoTfaIncorrectLogin() {
         val userDto = UserDto(
             username = "test",
+            email = "test@test.com",
             password = passwordEncoder.encode("test"),
             role = ERole.ROLE_USER.name,
             isActive = true
@@ -146,6 +158,7 @@ class AuthenticationControllerTests(
     fun userCanSignInTfa() {
         val userDto = UserDto(
             username = "test",
+            email = "test@test.com",
             password = passwordEncoder.encode("test"),
             role = ERole.ROLE_USER.name,
             isActive = true,
@@ -197,6 +210,7 @@ class AuthenticationControllerTests(
     fun userCannotSignInTfaIncorrectUsername() {
         val userDto = UserDto(
             username = "test",
+            email = "test@test.com",
             password = passwordEncoder.encode("test"),
             role = ERole.ROLE_USER.name,
             isActive = true,
@@ -241,6 +255,7 @@ class AuthenticationControllerTests(
     fun userCannotSignInTfaIncorrectCode() {
         val userDto = UserDto(
             username = "test",
+            email = "test@test.com",
             password = passwordEncoder.encode("test"),
             role = ERole.ROLE_USER.name,
             isActive = true,
@@ -283,6 +298,7 @@ class AuthenticationControllerTests(
     fun userCanRefreshToken() {
         val userDto = UserDto(
             username = "test",
+            email = "test@test.com",
             password = passwordEncoder.encode("test"),
             role = ERole.ROLE_USER.name,
             isActive = true
@@ -328,6 +344,7 @@ class AuthenticationControllerTests(
     fun userCannotRefreshTokenIncorrectToken() {
         val userDto = UserDto(
             username = "test",
+            email = "test@test.com",
             password = passwordEncoder.encode("test"),
             role = ERole.ROLE_USER.name,
             isActive = true
@@ -364,6 +381,7 @@ class AuthenticationControllerTests(
     fun userCannotRefreshTokenExpired() {
         val userDto = UserDto(
             username = "test",
+            email = "test@test.com",
             password = passwordEncoder.encode("test"),
             role = ERole.ROLE_USER.name,
             isActive = true
@@ -398,5 +416,42 @@ class AuthenticationControllerTests(
                 )
             }
         }
+    }
+
+    @Test
+    fun userCanRestore() {
+        val userDto = UserDto(
+            username = "test",
+            email = "test@test.com",
+            password = passwordEncoder.encode("test"),
+            role = ERole.ROLE_USER.name,
+            isActive = true
+        )
+        val token = UUID.randomUUID()
+        var user = userService.saveUser(userDto)
+        val verificationToken = VerificationToken(
+            token = token,
+            expirationDate = LocalDateTime.now().plus(verificationExpiration.toLong(), ChronoUnit.MILLIS),
+            user = user
+        )
+
+        Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
+
+        mockMvc.post("/api/auth/restore") {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
+            content = mapper.writeValueAsString(mutableMapOf("email" to userDto.email))
+        }.andExpect { status { isOk() } }
+
+        user = userService.findUserByUsername(userDto.username)
+        Assertions.assertThat(user.isActive).isFalse()
+
+        Mockito.`when`(verificationTokenService.deleteVerificationToken(any())).thenReturn(verificationToken)
+
+        mockMvc.post("/api/auth/restore/$token") {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
+            content = mapper.writeValueAsString(Passwords("newpass", "newpass"))
+        }.andExpect { status { isOk() } }
     }
 }

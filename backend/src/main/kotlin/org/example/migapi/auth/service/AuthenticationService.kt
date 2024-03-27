@@ -27,6 +27,8 @@ class AuthenticationService(
     @Autowired
     private val totpService: TotpService,
     @Autowired
+    private val verificationTokenService: VerificationTokenService,
+    @Autowired
     private val authenticationManager: AuthenticationManager,
     @Autowired
     private val emailService: EmailService,
@@ -51,6 +53,7 @@ class AuthenticationService(
 
         val userDto = UserDto(
             username = signRequest.login,
+            email = "NONE",
             password = passwordEncoder.encode(signRequest.password),
             role = ERole.ROLE_USER.name
         )
@@ -65,8 +68,9 @@ class AuthenticationService(
         ]
     )
     fun blockUser4Restore(email: String, httpServletRequest: HttpServletRequest) {
-        val verificationToken = userService.createVerificationToken(email)
+        val verificationToken = verificationTokenService.createVerificationToken(email)
         verificationToken.user.block()
+        userService.saveUser(verificationToken.user)
 
         emailService.sendRestoreEmail(
             email,
@@ -87,7 +91,10 @@ class AuthenticationService(
         if (passwords.password != passwords.confirmation)
             throw BadCredentialsException()
 
-        userService.deleteVerificationToken(token).user.activate()
+        val user = verificationTokenService.deleteVerificationToken(token).user
+        user.activate()
+
+        userService.saveUser(user)
     }
 
     @Throws(

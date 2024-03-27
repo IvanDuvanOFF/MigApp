@@ -36,6 +36,7 @@ class DtoServiceImpl(
     override fun userToUserDto(user: User): UserDto = UserDto(
         id = user.id.toString(),
         username = user.username,
+        email = user.email,
         password = user.password,
         isActive = user.isActive,
         role = user.role.name.name
@@ -44,6 +45,7 @@ class DtoServiceImpl(
     override fun userToAdminDto(user: User): AdminDto = AdminDto(
         id = user.id.toString(),
         username = user.username,
+        email = user.email,
         password = user.password,
         isActive = user.isActive,
         name = user.name,
