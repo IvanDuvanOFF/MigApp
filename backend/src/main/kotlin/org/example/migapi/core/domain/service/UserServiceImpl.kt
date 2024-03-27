@@ -39,7 +39,8 @@ class UserServiceImpl(
             username = userDto.username,
             password = userDto.password,
             role = role,
-            isActive = userDto.isActive
+            isActive = userDto.isActive,
+            tfaEnabled = userDto.tfaEnabled
         )
 
         return userRepository.save(user)

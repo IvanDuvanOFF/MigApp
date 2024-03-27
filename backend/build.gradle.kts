@@ -78,6 +78,7 @@ dependencies {
 
 //	mock
 	testImplementation("io.rest-assured:spring-mock-mvc:3.0.0")
+	testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
 
 //	rest assured
 	testImplementation("io.rest-assured:rest-assured:5.3.2")
