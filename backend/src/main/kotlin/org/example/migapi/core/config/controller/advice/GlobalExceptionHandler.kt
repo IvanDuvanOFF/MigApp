@@ -2,6 +2,7 @@ package org.example.migapi.core.config.controller.advice
 
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.JwtException
 import jakarta.mail.MessagingException
 import jakarta.persistence.PersistenceException
@@ -29,6 +30,7 @@ class GlobalExceptionHandler {
             PersistenceException::class,
             DisabledException::class,
             JwtException::class,
+            ExpiredJwtException::class,
             BadCredentialsException::class,
             AuthenticationException::class,
             HttpMessageNotReadableException::class,
@@ -46,6 +48,7 @@ class GlobalExceptionHandler {
             is MessagingException,
             is SocketException -> HttpStatus.INTERNAL_SERVER_ERROR
 
+            is ExpiredJwtException -> HttpStatus.GONE
             is DisabledException, is LockedException -> HttpStatus.LOCKED
             is BadCredentialsException,
             is JwtException,

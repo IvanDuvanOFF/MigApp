@@ -1,9 +1,10 @@
 package org.example.migapi.auth
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.gson.Gson
-import io.github.oshai.kotlinlogging.KLogger
-import io.github.oshai.kotlinlogging.KotlinLogging
+import org.example.migapi.auth.dto.RefreshTokenRequest
 import org.example.migapi.auth.dto.SignRequest
+import org.example.migapi.auth.dto.SignResponse
 import org.example.migapi.auth.dto.VerificationRequest
 import org.example.migapi.auth.service.EmailService
 import org.example.migapi.auth.service.TotpService
@@ -32,6 +33,8 @@ class AuthenticationControllerTests(
     @Value("\${mig.jwt.refresh-expiration}")
     private val refreshExpiration: Int
 ) {
+    @Autowired
+    private lateinit var mapper: ObjectMapper
 
     @Autowired
     private lateinit var gson: Gson
@@ -286,6 +289,51 @@ class AuthenticationControllerTests(
         )
         userService.saveUser(userDto)
 
+        val refreshToken = mockMvc.post("/api/auth/signing") {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
+            content = gson.toJson(SignRequest(userDto.username, "test"))
+        }.andExpect {
+            status { isOk() }
+            content { contentType(MediaType.APPLICATION_JSON) }
+            content { jsonPath("$.tfa_enabled", Matchers.`is`(false)) }
+        }.andReturn().response.contentAsString.let {
+            return@let mapper.readValue(it, SignResponse::class.java)
+        }.refreshToken
+
+        mockMvc.post("/api/auth/refresh") {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
+            content = mapper.writeValueAsString(RefreshTokenRequest(refreshToken))
+        }.andExpect {
+            status { isOk() }
+            content { contentType(MediaType.APPLICATION_JSON) }
+            content {
+                jsonPath(
+                    "$.access_token",
+                    Matchers.matchesPattern("^([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+/=]*)\$")
+                )
+            }
+            content {
+                jsonPath(
+                    "$.refresh_token",
+                    Matchers.matchesPattern("^([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+/=]*)\$")
+                )
+            }
+            content { jsonPath("$.tfa_enabled", Matchers.`is`(false)) }
+        }
+    }
+
+    @Test
+    fun userCannotRefreshTokenIncorrectToken() {
+        val userDto = UserDto(
+            username = "test",
+            password = passwordEncoder.encode("test"),
+            role = ERole.ROLE_USER.name,
+            isActive = true
+        )
+        userService.saveUser(userDto)
+
         mockMvc.post("/api/auth/signing") {
             contentType = MediaType.APPLICATION_JSON
             accept = MediaType.APPLICATION_JSON
@@ -296,6 +344,59 @@ class AuthenticationControllerTests(
             content { jsonPath("$.tfa_enabled", Matchers.`is`(false)) }
         }
 
+        mockMvc.post("/api/auth/refresh") {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
+            content = gson.toJson(RefreshTokenRequest("fake"))
+        }.andExpect {
+            status { isBadRequest() }
+            content { contentType(MediaType.APPLICATION_JSON) }
+            content {
+                jsonPath(
+                    "$.status.code",
+                    Matchers.`is`(400)
+                )
+            }
+        }
+    }
 
+    @Test
+    fun userCannotRefreshTokenExpired() {
+        val userDto = UserDto(
+            username = "test",
+            password = passwordEncoder.encode("test"),
+            role = ERole.ROLE_USER.name,
+            isActive = true
+        )
+        userService.saveUser(userDto)
+
+        val refreshToken = mockMvc.post("/api/auth/signing") {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
+            content = mapper.writeValueAsString(SignRequest(userDto.username, "test"))
+        }.andExpect {
+            status { isOk() }
+            content { contentType(MediaType.APPLICATION_JSON) }
+            content { jsonPath("$.tfa_enabled", Matchers.`is`(false)) }
+        }.andReturn().response.contentAsString.let {
+            return@let mapper.readValue(it, SignResponse::class.java)
+        }.refreshToken
+
+        Thread.sleep((refreshExpiration * 3).toLong())
+
+        mockMvc.post("/api/auth/refresh") {
+            contentType = MediaType.APPLICATION_JSON
+            accept = MediaType.APPLICATION_JSON
+            content = mapper.writeValueAsString(RefreshTokenRequest(refreshToken))
+        }.andExpect {
+            status { isGone() }
+            content { contentType(MediaType.APPLICATION_JSON) }
+            content {
+                jsonPath(
+                    "$.status.code",
+                    Matchers.`is`(410)
+                )
+            }
+        }
     }
 }

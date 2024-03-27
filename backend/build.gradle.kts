@@ -62,6 +62,8 @@ dependencies {
 //	kotlin
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
+	runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.8.0")
 
 //	swagger
 //	implementation("org.springdoc:springdoc-openapi-starter-common:2.2.0")
