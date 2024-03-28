@@ -27,6 +27,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.ResultActionsDsl
 import org.springframework.test.web.servlet.post
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -68,22 +69,30 @@ class AuthenticationControllerTests(
     @BeforeEach
     fun clearDb() = userService.dropTable()
 
+    fun generateTestUser(isActive: Boolean = true, tfaEnabled: Boolean = false): UserDto = UserDto(
+        username = "test",
+        email = "test@test.test",
+        password = passwordEncoder.encode("test"),
+        role = ERole.ROLE_USER.name,
+        isActive = isActive,
+        tfaEnabled = tfaEnabled
+    )
+
+    fun performRequest(url: String, requestBody: Any?): ResultActionsDsl = mockMvc.post(url) {
+        contentType = MediaType.APPLICATION_JSON
+        accept = MediaType.APPLICATION_JSON
+        content = gson.toJson(requestBody)
+    }
+
     @Test
     fun userCanSignInNoTfa() {
-        val userDto = UserDto(
-            username = "test",
-            email = "test@test.com",
-            password = passwordEncoder.encode("test"),
-            role = ERole.ROLE_USER.name,
-            isActive = true
-        )
+        val userDto = generateTestUser()
         userService.saveUser(userDto)
 
-        mockMvc.post("/api/auth/signing") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = gson.toJson(SignRequest(userDto.username, "test"))
-        }.andExpect {
+        performRequest(
+            "/api/auth/signing",
+            SignRequest(userDto.username, "test")
+        ).andExpect {
             status { isOk() }
             content { contentType(MediaType.APPLICATION_JSON) }
             content {
