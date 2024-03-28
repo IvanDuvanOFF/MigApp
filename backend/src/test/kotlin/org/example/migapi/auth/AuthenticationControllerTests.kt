@@ -1,7 +1,6 @@
 package org.example.migapi.auth
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.gson.Gson
 import org.assertj.core.api.Assertions
 import org.example.migapi.auth.dto.*
 import org.example.migapi.auth.exception.VerificationTokenExpiredException
@@ -46,9 +45,6 @@ class AuthenticationControllerTests(
     private lateinit var mapper: ObjectMapper
 
     @Autowired
-    private lateinit var gson: Gson
-
-    @Autowired
     private lateinit var mockMvc: MockMvc
 
     @Autowired
@@ -69,6 +65,10 @@ class AuthenticationControllerTests(
     @BeforeEach
     fun clearDb() = userService.dropTable()
 
+    companion object {
+        const val JWT_REGEX = "^([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+/=]*)\$"
+    }
+
     fun generateTestUser(isActive: Boolean = true, tfaEnabled: Boolean = false): UserDto = UserDto(
         username = "test",
         email = "test@test.test",
@@ -81,7 +81,7 @@ class AuthenticationControllerTests(
     fun performRequest(url: String, requestBody: Any?): ResultActionsDsl = mockMvc.post(url) {
         contentType = MediaType.APPLICATION_JSON
         accept = MediaType.APPLICATION_JSON
-        content = gson.toJson(requestBody)
+        content = mapper.writeValueAsString(requestBody)
     }
 
     @Test
@@ -89,144 +89,74 @@ class AuthenticationControllerTests(
         val userDto = generateTestUser()
         userService.saveUser(userDto)
 
-        performRequest(
-            "/api/auth/signing",
-            SignRequest(userDto.username, "test")
-        ).andExpect {
-            status { isOk() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content {
-                jsonPath(
-                    "$.access_token",
-                    Matchers.matchesPattern("^([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+/=]*)\$")
-                )
+        performRequest("/api/auth/signing", SignRequest(userDto.username, "test"))
+            .andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.access_token", Matchers.matchesPattern(JWT_REGEX)) }
+                content { jsonPath("$.refresh_token", Matchers.matchesPattern(JWT_REGEX)) }
+                content { jsonPath("$.tfa_enabled") { value(false) } }
             }
-            content {
-                jsonPath(
-                    "$.refresh_token",
-                    Matchers.matchesPattern("^([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+/=]*)\$")
-                )
-            }
-            content { jsonPath("$.tfa_enabled", Matchers.`is`(false)) }
-        }
     }
 
     @Test
     fun userCannotSignInNoTfaIncorrectPassword() {
-        val userDto = UserDto(
-            username = "test",
-            email = "test@test.com",
-            password = passwordEncoder.encode("test"),
-            role = ERole.ROLE_USER.name,
-            isActive = true
-        )
+        val userDto = generateTestUser(true)
         userService.saveUser(userDto)
 
-        mockMvc.post("/api/auth/signing") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = gson.toJson(SignRequest(userDto.username, "incorrect password"))
-        }.andExpect {
-            status { isBadRequest() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content {
-                jsonPath(
-                    "$.status.code",
-                    Matchers.`is`(400)
-                )
+        performRequest("/api/auth/signing", SignRequest(userDto.username, "incorrect password"))
+            .andExpect {
+                status { isBadRequest() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.status.code") { value(400) } }
             }
-        }
     }
 
     @Test
     fun userCannotSignInNoTfaIncorrectLogin() {
-        val userDto = UserDto(
-            username = "test",
-            email = "test@test.com",
-            password = passwordEncoder.encode("test"),
-            role = ERole.ROLE_USER.name,
-            isActive = true
-        )
+        val userDto = generateTestUser(true)
         userService.saveUser(userDto)
 
-        mockMvc.post("/api/auth/signing") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = gson.toJson(SignRequest("incorrect", "test"))
-        }.andExpect {
-            status { isNotFound() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content {
-                jsonPath(
-                    "$.status.code",
-                    Matchers.`is`(404)
-                )
+        performRequest("/api/auth/signing", SignRequest("incorrect", "test"))
+            .andExpect {
+                status { isNotFound() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.status.code") { value(404) } }
             }
-        }
     }
 
     @Test
     fun userCanSignInTfa() {
-        val userDto = UserDto(
-            username = "test",
-            email = "test@test.com",
-            password = passwordEncoder.encode("test"),
-            role = ERole.ROLE_USER.name,
-            isActive = true,
-            tfaEnabled = true
-        )
-        val user = userService.saveUser(userDto)
+        val userDto = generateTestUser(isActive = true, tfaEnabled = true)
+        userService.saveUser(userDto)
         val request = SignRequest(userDto.username, "test")
 
         val totp = "666777"
 
         Mockito.`when`(totpService.validateCode(any(), eq(totp))).thenReturn(true)
 
-        mockMvc.post("/api/auth/signing") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = gson.toJson(request)
-        }.andExpect {
-            status { isOk() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content { jsonPath("$.access_token") { doesNotExist() } }
-            content { jsonPath("$.refresh_token") { doesNotExist() } }
-            content { jsonPath("$.tfa_enabled", Matchers.`is`(true)) }
-        }
+        performRequest("/api/auth/signing", request)
+            .andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.access_token") { doesNotExist() } }
+                content { jsonPath("$.refresh_token") { doesNotExist() } }
+                content { jsonPath("$.tfa_enabled") { value(true) } }
+            }
 
-        mockMvc.post("/api/auth/signing/tfa") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = gson.toJson(VerificationRequest(user.username, totp))
-        }.andExpect {
-            status { isOk() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content {
-                jsonPath(
-                    "$.access_token",
-                    Matchers.matchesPattern("^([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+/=]*)\$")
-                )
+        performRequest("/api/auth/signing/tfa", VerificationRequest(userDto.username, totp))
+            .andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.access_token", Matchers.matchesPattern(JWT_REGEX)) }
+                content { jsonPath("$.refresh_token", Matchers.matchesPattern(JWT_REGEX)) }
+                content { jsonPath("$.tfa_enabled") { value(true) } }
             }
-            content {
-                jsonPath(
-                    "$.refresh_token",
-                    Matchers.matchesPattern("^([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+/=]*)\$")
-                )
-            }
-            content { jsonPath("$.tfa_enabled", Matchers.`is`(true)) }
-        }
     }
 
     @Test
     fun userCannotSignInTfaIncorrectUsername() {
-        val userDto = UserDto(
-            username = "test",
-            email = "test@test.com",
-            password = passwordEncoder.encode("test"),
-            role = ERole.ROLE_USER.name,
-            isActive = true,
-            tfaEnabled = true
-        )
+        val userDto = generateTestUser(isActive = true, tfaEnabled = true)
         userService.saveUser(userDto)
         val request = SignRequest(userDto.username, "test")
 
@@ -234,212 +164,120 @@ class AuthenticationControllerTests(
 
         Mockito.`when`(totpService.validateCode(any(), eq(totp))).thenReturn(true)
 
-        mockMvc.post("/api/auth/signing") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = gson.toJson(request)
-        }.andExpect {
-            status { isOk() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content { jsonPath("$.access_token") { doesNotExist() } }
-            content { jsonPath("$.refresh_token") { doesNotExist() } }
-            content { jsonPath("$.tfa_enabled", Matchers.`is`(true)) }
-        }
-
-        mockMvc.post("/api/auth/signing/tfa") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = gson.toJson(VerificationRequest("fake", totp))
-        }.andExpect {
-            status { isNotFound() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content {
-                jsonPath(
-                    "$.status.code",
-                    Matchers.`is`(404)
-                )
+        performRequest("/api/auth/signing", request)
+            .andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.access_token") { doesNotExist() } }
+                content { jsonPath("$.refresh_token") { doesNotExist() } }
+                content { jsonPath("$.tfa_enabled") { value(true) } }
             }
-        }
+
+        performRequest("/api/auth/signing/tfa", VerificationRequest("fake", totp))
+            .andExpect {
+                status { isNotFound() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.status.code") { value(404) } }
+            }
     }
 
     @Test
     fun userCannotSignInTfaIncorrectCode() {
-        val userDto = UserDto(
-            username = "test",
-            email = "test@test.com",
-            password = passwordEncoder.encode("test"),
-            role = ERole.ROLE_USER.name,
-            isActive = true,
-            tfaEnabled = true
-        )
+        val userDto = generateTestUser(true, tfaEnabled = true)
         userService.saveUser(userDto)
         val request = SignRequest(userDto.username, "test")
 
         val totp = "666777"
-
         Mockito.`when`(totpService.validateCode(any(), eq(totp))).thenReturn(true)
 
-        mockMvc.post("/api/auth/signing") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = gson.toJson(request)
-        }.andExpect {
-            status { isOk() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content { jsonPath("$.tfa_enabled", Matchers.`is`(true)) }
-        }
-
-        mockMvc.post("/api/auth/signing/tfa") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = gson.toJson(VerificationRequest(request.login, "fake"))
-        }.andExpect {
-            status { isBadRequest() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content {
-                jsonPath(
-                    "$.status.code",
-                    Matchers.`is`(400)
-                )
+        performRequest("/api/auth/signing", request)
+            .andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.tfa_enabled") { value(true) } }
             }
-        }
+
+        performRequest("/api/auth/signing/tfa", VerificationRequest(request.login, "fake"))
+            .andExpect {
+                status { isBadRequest() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.status.code") { value(400) } }
+            }
     }
 
     @Test
     fun userCanRefreshToken() {
-        val userDto = UserDto(
-            username = "test",
-            email = "test@test.com",
-            password = passwordEncoder.encode("test"),
-            role = ERole.ROLE_USER.name,
-            isActive = true
-        )
+        val userDto = generateTestUser()
         userService.saveUser(userDto)
 
-        val refreshToken = mockMvc.post("/api/auth/signing") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = gson.toJson(SignRequest(userDto.username, "test"))
-        }.andExpect {
-            status { isOk() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content { jsonPath("$.tfa_enabled", Matchers.`is`(false)) }
-        }.andReturn().response.contentAsString.let {
-            return@let mapper.readValue(it, SignResponse::class.java)
-        }.refreshToken
+        val refreshToken = performRequest("/api/auth/signing", SignRequest(userDto.username, "test"))
+            .andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.tfa_enabled") { value(false) } }
+            }.andReturn().response.contentAsString.let {
+                return@let mapper.readValue(it, SignResponse::class.java)
+            }.refreshToken
 
-        mockMvc.post("/api/auth/refresh") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = mapper.writeValueAsString(RefreshTokenRequest(refreshToken))
-        }.andExpect {
-            status { isOk() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content {
-                jsonPath(
-                    "$.access_token",
-                    Matchers.matchesPattern("^([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+/=]*)\$")
-                )
+        performRequest("/api/auth/refresh", RefreshTokenRequest(refreshToken))
+            .andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.access_token", Matchers.matchesPattern(JWT_REGEX)) }
+                content { jsonPath("$.refresh_token", Matchers.matchesPattern(JWT_REGEX)) }
+                content { jsonPath("$.tfa_enabled") { value(false) } }
             }
-            content {
-                jsonPath(
-                    "$.refresh_token",
-                    Matchers.matchesPattern("^([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+/=]*)\$")
-                )
-            }
-            content { jsonPath("$.tfa_enabled", Matchers.`is`(false)) }
-        }
     }
 
     @Test
     fun userCannotRefreshTokenIncorrectToken() {
-        val userDto = UserDto(
-            username = "test",
-            email = "test@test.com",
-            password = passwordEncoder.encode("test"),
-            role = ERole.ROLE_USER.name,
-            isActive = true
-        )
+        val userDto = generateTestUser()
         userService.saveUser(userDto)
 
-        mockMvc.post("/api/auth/signing") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = gson.toJson(SignRequest(userDto.username, "test"))
-        }.andExpect {
-            status { isOk() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content { jsonPath("$.tfa_enabled", Matchers.`is`(false)) }
-        }
-
-        mockMvc.post("/api/auth/refresh") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = gson.toJson(RefreshTokenRequest("fake"))
-        }.andExpect {
-            status { isBadRequest() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content {
-                jsonPath(
-                    "$.status.code",
-                    Matchers.`is`(400)
-                )
+        performRequest("/api/auth/signing", SignRequest(userDto.username, "test"))
+            .andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.tfa_enabled") { value(false) } }
             }
-        }
+
+        performRequest("/api/auth/refresh", RefreshTokenRequest("fake"))
+            .andExpect {
+                status { isBadRequest() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.status.code") { value(400) } }
+            }
     }
 
     @Test
     fun userCannotRefreshTokenExpired() {
-        val userDto = UserDto(
-            username = "test",
-            email = "test@test.com",
-            password = passwordEncoder.encode("test"),
-            role = ERole.ROLE_USER.name,
-            isActive = true
-        )
+        val userDto = generateTestUser()
         userService.saveUser(userDto)
 
-        val refreshToken = mockMvc.post("/api/auth/signing") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = mapper.writeValueAsString(SignRequest(userDto.username, "test"))
-        }.andExpect {
-            status { isOk() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content { jsonPath("$.tfa_enabled", Matchers.`is`(false)) }
-        }.andReturn().response.contentAsString.let {
-            return@let mapper.readValue(it, SignResponse::class.java)
-        }.refreshToken
+        val refreshToken = performRequest("/api/auth/signing", SignRequest(userDto.username, "test"))
+            .andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.tfa_enabled") { value(false) } }
+            }.andReturn().response.contentAsString.let {
+                return@let mapper.readValue(it, SignResponse::class.java)
+            }.refreshToken
 
         Thread.sleep((refreshExpiration * 3).toLong())
 
-        mockMvc.post("/api/auth/refresh") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = mapper.writeValueAsString(RefreshTokenRequest(refreshToken))
-        }.andExpect {
-            status { isGone() }
-            content { contentType(MediaType.APPLICATION_JSON) }
-            content {
-                jsonPath(
-                    "$.status.code",
-                    Matchers.`is`(410)
-                )
+        performRequest("/api/auth/refresh", RefreshTokenRequest(refreshToken))
+            .andExpect {
+                status { isGone() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+                content { jsonPath("$.status.code") { value(410) } }
             }
-        }
     }
 
     @Test
     fun userCanRestore() {
-        val userDto = UserDto(
-            username = "test",
-            email = "test@test.com",
-            password = passwordEncoder.encode("test"),
-            role = ERole.ROLE_USER.name,
-            isActive = true
-        )
+        val userDto = generateTestUser()
+        val user = userService.saveUser(userDto)
         val token = UUID.randomUUID()
-        var user = userService.saveUser(userDto)
         val verificationToken = VerificationToken(
             token = token,
             expirationDate = LocalDateTime.now().plus(verificationExpiration.toLong(), ChronoUnit.MILLIS),
@@ -448,69 +286,19 @@ class AuthenticationControllerTests(
 
         Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
 
-        mockMvc.post("/api/auth/restore") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = mapper.writeValueAsString(mutableMapOf("email" to userDto.email))
-        }.andExpect { status { isOk() } }
+        performRequest("/api/auth/restore", mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
 
-        user = userService.findUserByUsername(userDto.username)
         Assertions.assertThat(user.isActive).isFalse()
 
         Mockito.`when`(verificationTokenService.deleteVerificationToken(eq(token.toString())))
             .thenReturn(verificationToken)
 
-        mockMvc.post("/api/auth/restore/$token") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = mapper.writeValueAsString(Passwords("newpass", "newpass"))
-        }.andExpect { status { isOk() } }
+        performRequest("/api/auth/restore/$token", Passwords("newpass", "newpass")).andExpect { status { isOk() } }
     }
 
     @Test
     fun userCannotRestoreIncorrectPasswords() {
-        val userDto = UserDto(
-            username = "test",
-            email = "test@test.com",
-            password = passwordEncoder.encode("test"),
-            role = ERole.ROLE_USER.name,
-            isActive = true
-        )
-        val token = UUID.randomUUID()
-        var user = userService.saveUser(userDto)
-        val verificationToken = VerificationToken(
-            token = token,
-            expirationDate = LocalDateTime.now().plus(verificationExpiration.toLong(), ChronoUnit.MILLIS),
-            user = user
-        )
-
-        Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
-
-        mockMvc.post("/api/auth/restore") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = mapper.writeValueAsString(mutableMapOf("email" to userDto.email))
-        }.andExpect { status { isOk() } }
-
-        user = userService.findUserByUsername(userDto.username)
-        Assertions.assertThat(user.isActive).isFalse()
-
-        mockMvc.post("/api/auth/restore/$token") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = mapper.writeValueAsString(Passwords("newpass", "fakepass"))
-        }.andExpect { status { isBadRequest() } }
-    }
-
-    @Test
-    fun userCannotRestoreUserRestored() {
-        val userDto = UserDto(
-            username = "test",
-            email = "test@test.com",
-            password = passwordEncoder.encode("test"),
-            role = ERole.ROLE_USER.name,
-            isActive = true
-        )
+        val userDto = generateTestUser()
         val token = UUID.randomUUID()
         val user = userService.saveUser(userDto)
         val verificationToken = VerificationToken(
@@ -521,32 +309,40 @@ class AuthenticationControllerTests(
 
         Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
 
-        mockMvc.post("/api/auth/restore") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = mapper.writeValueAsString(mutableMapOf("email" to userDto.email))
-        }.andExpect { status { isOk() } }
+        performRequest("/api/auth/restore", mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
+
+        Assertions.assertThat(user.isActive).isFalse()
+
+        performRequest("/api/auth/restore/$token", Passwords("newpass", "fakepass"))
+            .andExpect { status { isBadRequest() } }
+    }
+
+    @Test
+    fun userCannotRestoreUserRestored() {
+        val userDto = generateTestUser()
+        val token = UUID.randomUUID()
+        val user = userService.saveUser(userDto)
+        val verificationToken = VerificationToken(
+            token = token,
+            expirationDate = LocalDateTime.now().plus(verificationExpiration.toLong(), ChronoUnit.MILLIS),
+            user = user
+        )
+
+        Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
+
+        performRequest("/api/auth/restore", mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
 
         user.isActive = true
 
         Mockito.`when`(verificationTokenService.deleteVerificationToken(any())).thenReturn(verificationToken)
 
-        mockMvc.post("/api/auth/restore/$token") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = mapper.writeValueAsString(Passwords("newpass", "newpass"))
-        }.andExpect { status { isConflict() } }
+        performRequest("/api/auth/restore/$token", Passwords("newpass", "newpass"))
+            .andExpect { status { isConflict() } }
     }
 
     @Test
     fun userCannotRestoreTokenNotFound() {
-        val userDto = UserDto(
-            username = "test",
-            email = "test@test.com",
-            password = passwordEncoder.encode("test"),
-            role = ERole.ROLE_USER.name,
-            isActive = true
-        )
+        val userDto = generateTestUser()
         val token = UUID.randomUUID()
         val user = userService.saveUser(userDto)
         val verificationToken = VerificationToken(
@@ -557,31 +353,18 @@ class AuthenticationControllerTests(
 
         Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
 
-        mockMvc.post("/api/auth/restore") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = mapper.writeValueAsString(mutableMapOf("email" to userDto.email))
-        }.andExpect { status { isOk() } }
+        performRequest("/api/auth/restore", mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
 
         Mockito.`when`(verificationTokenService.deleteVerificationToken(any()))
             .thenThrow(VerificationTokenNotFoundException("Token not found"))
 
-        mockMvc.post("/api/auth/restore/$token") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = mapper.writeValueAsString(Passwords("newpass", "newpass"))
-        }.andExpect { status { isNotFound() } }
+        performRequest("/api/auth/restore/$token", Passwords("newpass", "newpass"))
+            .andExpect { status { isNotFound() } }
     }
 
     @Test
     fun userCannotRestoreTokenExpired() {
-        val userDto = UserDto(
-            username = "test",
-            email = "test@test.com",
-            password = passwordEncoder.encode("test"),
-            role = ERole.ROLE_USER.name,
-            isActive = true
-        )
+        val userDto = generateTestUser()
         val token = UUID.randomUUID()
         val user = userService.saveUser(userDto)
         val verificationToken = VerificationToken(
@@ -592,19 +375,11 @@ class AuthenticationControllerTests(
 
         Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
 
-        mockMvc.post("/api/auth/restore") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = mapper.writeValueAsString(mutableMapOf("email" to userDto.email))
-        }.andExpect { status { isOk() } }
+        performRequest("/api/auth/restore", mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
 
         Mockito.`when`(verificationTokenService.deleteVerificationToken(any()))
             .thenThrow(VerificationTokenExpiredException("Verification token has been expired"))
 
-        mockMvc.post("/api/auth/restore/$token") {
-            contentType = MediaType.APPLICATION_JSON
-            accept = MediaType.APPLICATION_JSON
-            content = mapper.writeValueAsString(Passwords("newpass", "newpass"))
-        }.andExpect { status { isGone() } }
+        performRequest("/api/auth/restore/$token", Passwords("newpass", "newpass")).andExpect { status { isGone() } }
     }
 }
