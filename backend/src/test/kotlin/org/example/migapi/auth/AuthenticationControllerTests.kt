@@ -67,6 +67,18 @@ class AuthenticationControllerTests(
 
     companion object {
         const val JWT_REGEX = "^([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+=.]+)\\.([A-Za-z0-9-_+/=]*)\$"
+
+        private const val BASIC_URL = "/api/auth"
+
+        const val SIGN_URL = "$BASIC_URL/signing"
+        const val SIGN_TFA_URL = "$SIGN_URL/tfa"
+        const val REFRESH_URL = "$BASIC_URL/refresh"
+        const val RESTORE_URL = "$BASIC_URL/restore"
+
+        const val ACCESS_TOKEN = "$.access_token"
+        const val REFRESH_TOKEN = "$.refresh_token"
+        const val TFA_ENABLED = "$.tfa_enabled"
+        const val STATUS_CODE = "$.status.code"
     }
 
     fun generateTestUser(isActive: Boolean = true, tfaEnabled: Boolean = false): UserDto = UserDto(
@@ -89,13 +101,13 @@ class AuthenticationControllerTests(
         val userDto = generateTestUser()
         userService.saveUser(userDto)
 
-        performRequest("/api/auth/signing", SignRequest(userDto.username, "test"))
+        performRequest(SIGN_URL, SignRequest(userDto.username, "test"))
             .andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
-                content { jsonPath("$.access_token", Matchers.matchesPattern(JWT_REGEX)) }
-                content { jsonPath("$.refresh_token", Matchers.matchesPattern(JWT_REGEX)) }
-                content { jsonPath("$.tfa_enabled") { value(false) } }
+                content { jsonPath(ACCESS_TOKEN, Matchers.matchesPattern(JWT_REGEX)) }
+                content { jsonPath(REFRESH_TOKEN, Matchers.matchesPattern(JWT_REGEX)) }
+                content { jsonPath(TFA_ENABLED) { value(false) } }
             }
     }
 
@@ -104,11 +116,11 @@ class AuthenticationControllerTests(
         val userDto = generateTestUser(true)
         userService.saveUser(userDto)
 
-        performRequest("/api/auth/signing", SignRequest(userDto.username, "incorrect password"))
+        performRequest(SIGN_URL, SignRequest(userDto.username, "incorrect password"))
             .andExpect {
                 status { isBadRequest() }
                 content { contentType(MediaType.APPLICATION_JSON) }
-                content { jsonPath("$.status.code") { value(400) } }
+                content { jsonPath(STATUS_CODE) { value(400) } }
             }
     }
 
@@ -117,11 +129,11 @@ class AuthenticationControllerTests(
         val userDto = generateTestUser(true)
         userService.saveUser(userDto)
 
-        performRequest("/api/auth/signing", SignRequest("incorrect", "test"))
+        performRequest(SIGN_URL, SignRequest("incorrect", "test"))
             .andExpect {
                 status { isNotFound() }
                 content { contentType(MediaType.APPLICATION_JSON) }
-                content { jsonPath("$.status.code") { value(404) } }
+                content { jsonPath(STATUS_CODE) { value(404) } }
             }
     }
 
@@ -135,22 +147,22 @@ class AuthenticationControllerTests(
 
         Mockito.`when`(totpService.validateCode(any(), eq(totp))).thenReturn(true)
 
-        performRequest("/api/auth/signing", request)
+        performRequest(SIGN_URL, request)
             .andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
-                content { jsonPath("$.access_token") { doesNotExist() } }
-                content { jsonPath("$.refresh_token") { doesNotExist() } }
-                content { jsonPath("$.tfa_enabled") { value(true) } }
+                content { jsonPath(ACCESS_TOKEN) { doesNotExist() } }
+                content { jsonPath(REFRESH_TOKEN) { doesNotExist() } }
+                content { jsonPath(TFA_ENABLED) { value(true) } }
             }
 
-        performRequest("/api/auth/signing/tfa", VerificationRequest(userDto.username, totp))
+        performRequest(SIGN_TFA_URL, VerificationRequest(userDto.username, totp))
             .andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
-                content { jsonPath("$.access_token", Matchers.matchesPattern(JWT_REGEX)) }
-                content { jsonPath("$.refresh_token", Matchers.matchesPattern(JWT_REGEX)) }
-                content { jsonPath("$.tfa_enabled") { value(true) } }
+                content { jsonPath(ACCESS_TOKEN, Matchers.matchesPattern(JWT_REGEX)) }
+                content { jsonPath(REFRESH_TOKEN, Matchers.matchesPattern(JWT_REGEX)) }
+                content { jsonPath(TFA_ENABLED) { value(true) } }
             }
     }
 
@@ -164,20 +176,20 @@ class AuthenticationControllerTests(
 
         Mockito.`when`(totpService.validateCode(any(), eq(totp))).thenReturn(true)
 
-        performRequest("/api/auth/signing", request)
+        performRequest(SIGN_URL, request)
             .andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
-                content { jsonPath("$.access_token") { doesNotExist() } }
-                content { jsonPath("$.refresh_token") { doesNotExist() } }
-                content { jsonPath("$.tfa_enabled") { value(true) } }
+                content { jsonPath(ACCESS_TOKEN) { doesNotExist() } }
+                content { jsonPath(REFRESH_TOKEN) { doesNotExist() } }
+                content { jsonPath(TFA_ENABLED) { value(true) } }
             }
 
-        performRequest("/api/auth/signing/tfa", VerificationRequest("fake", totp))
+        performRequest(SIGN_TFA_URL, VerificationRequest("fake", totp))
             .andExpect {
                 status { isNotFound() }
                 content { contentType(MediaType.APPLICATION_JSON) }
-                content { jsonPath("$.status.code") { value(404) } }
+                content { jsonPath(STATUS_CODE) { value(404) } }
             }
     }
 
@@ -190,18 +202,18 @@ class AuthenticationControllerTests(
         val totp = "666777"
         Mockito.`when`(totpService.validateCode(any(), eq(totp))).thenReturn(true)
 
-        performRequest("/api/auth/signing", request)
+        performRequest(SIGN_URL, request)
             .andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
-                content { jsonPath("$.tfa_enabled") { value(true) } }
+                content { jsonPath(TFA_ENABLED) { value(true) } }
             }
 
-        performRequest("/api/auth/signing/tfa", VerificationRequest(request.login, "fake"))
+        performRequest(SIGN_TFA_URL, VerificationRequest(request.login, "fake"))
             .andExpect {
                 status { isBadRequest() }
                 content { contentType(MediaType.APPLICATION_JSON) }
-                content { jsonPath("$.status.code") { value(400) } }
+                content { jsonPath(STATUS_CODE) { value(400) } }
             }
     }
 
@@ -210,22 +222,22 @@ class AuthenticationControllerTests(
         val userDto = generateTestUser()
         userService.saveUser(userDto)
 
-        val refreshToken = performRequest("/api/auth/signing", SignRequest(userDto.username, "test"))
+        val refreshToken = performRequest(SIGN_URL, SignRequest(userDto.username, "test"))
             .andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
-                content { jsonPath("$.tfa_enabled") { value(false) } }
+                content { jsonPath(TFA_ENABLED) { value(false) } }
             }.andReturn().response.contentAsString.let {
                 return@let mapper.readValue(it, SignResponse::class.java)
             }.refreshToken
 
-        performRequest("/api/auth/refresh", RefreshTokenRequest(refreshToken))
+        performRequest(REFRESH_URL, RefreshTokenRequest(refreshToken))
             .andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
-                content { jsonPath("$.access_token", Matchers.matchesPattern(JWT_REGEX)) }
-                content { jsonPath("$.refresh_token", Matchers.matchesPattern(JWT_REGEX)) }
-                content { jsonPath("$.tfa_enabled") { value(false) } }
+                content { jsonPath(ACCESS_TOKEN, Matchers.matchesPattern(JWT_REGEX)) }
+                content { jsonPath(REFRESH_TOKEN, Matchers.matchesPattern(JWT_REGEX)) }
+                content { jsonPath(TFA_ENABLED) { value(false) } }
             }
     }
 
@@ -234,18 +246,18 @@ class AuthenticationControllerTests(
         val userDto = generateTestUser()
         userService.saveUser(userDto)
 
-        performRequest("/api/auth/signing", SignRequest(userDto.username, "test"))
+        performRequest(SIGN_URL, SignRequest(userDto.username, "test"))
             .andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
-                content { jsonPath("$.tfa_enabled") { value(false) } }
+                content { jsonPath(TFA_ENABLED) { value(false) } }
             }
 
-        performRequest("/api/auth/refresh", RefreshTokenRequest("fake"))
+        performRequest(REFRESH_URL, RefreshTokenRequest("fake"))
             .andExpect {
                 status { isBadRequest() }
                 content { contentType(MediaType.APPLICATION_JSON) }
-                content { jsonPath("$.status.code") { value(400) } }
+                content { jsonPath(STATUS_CODE) { value(400) } }
             }
     }
 
@@ -254,22 +266,22 @@ class AuthenticationControllerTests(
         val userDto = generateTestUser()
         userService.saveUser(userDto)
 
-        val refreshToken = performRequest("/api/auth/signing", SignRequest(userDto.username, "test"))
+        val refreshToken = performRequest(SIGN_URL, SignRequest(userDto.username, "test"))
             .andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
-                content { jsonPath("$.tfa_enabled") { value(false) } }
+                content { jsonPath(TFA_ENABLED) { value(false) } }
             }.andReturn().response.contentAsString.let {
                 return@let mapper.readValue(it, SignResponse::class.java)
             }.refreshToken
 
         Thread.sleep((refreshExpiration * 3).toLong())
 
-        performRequest("/api/auth/refresh", RefreshTokenRequest(refreshToken))
+        performRequest(REFRESH_URL, RefreshTokenRequest(refreshToken))
             .andExpect {
                 status { isGone() }
                 content { contentType(MediaType.APPLICATION_JSON) }
-                content { jsonPath("$.status.code") { value(410) } }
+                content { jsonPath(STATUS_CODE) { value(410) } }
             }
     }
 
@@ -286,14 +298,14 @@ class AuthenticationControllerTests(
 
         Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
 
-        performRequest("/api/auth/restore", mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
+        performRequest(RESTORE_URL, mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
 
         Assertions.assertThat(user.isActive).isFalse()
 
         Mockito.`when`(verificationTokenService.deleteVerificationToken(eq(token.toString())))
             .thenReturn(verificationToken)
 
-        performRequest("/api/auth/restore/$token", Passwords("newpass", "newpass")).andExpect { status { isOk() } }
+        performRequest("$RESTORE_URL/$token", Passwords("newpass", "newpass")).andExpect { status { isOk() } }
     }
 
     @Test
@@ -309,11 +321,11 @@ class AuthenticationControllerTests(
 
         Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
 
-        performRequest("/api/auth/restore", mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
+        performRequest(RESTORE_URL, mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
 
         Assertions.assertThat(user.isActive).isFalse()
 
-        performRequest("/api/auth/restore/$token", Passwords("newpass", "fakepass"))
+        performRequest("$RESTORE_URL/$token", Passwords("newpass", "fakepass"))
             .andExpect { status { isBadRequest() } }
     }
 
@@ -330,13 +342,13 @@ class AuthenticationControllerTests(
 
         Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
 
-        performRequest("/api/auth/restore", mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
+        performRequest(RESTORE_URL, mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
 
         user.isActive = true
 
         Mockito.`when`(verificationTokenService.deleteVerificationToken(any())).thenReturn(verificationToken)
 
-        performRequest("/api/auth/restore/$token", Passwords("newpass", "newpass"))
+        performRequest("$RESTORE_URL/$token", Passwords("newpass", "newpass"))
             .andExpect { status { isConflict() } }
     }
 
@@ -353,12 +365,12 @@ class AuthenticationControllerTests(
 
         Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
 
-        performRequest("/api/auth/restore", mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
+        performRequest(RESTORE_URL, mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
 
         Mockito.`when`(verificationTokenService.deleteVerificationToken(any()))
             .thenThrow(VerificationTokenNotFoundException("Token not found"))
 
-        performRequest("/api/auth/restore/$token", Passwords("newpass", "newpass"))
+        performRequest("$RESTORE_URL/$token", Passwords("newpass", "newpass"))
             .andExpect { status { isNotFound() } }
     }
 
@@ -375,11 +387,11 @@ class AuthenticationControllerTests(
 
         Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
 
-        performRequest("/api/auth/restore", mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
+        performRequest(RESTORE_URL, mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
 
         Mockito.`when`(verificationTokenService.deleteVerificationToken(any()))
             .thenThrow(VerificationTokenExpiredException("Verification token has been expired"))
 
-        performRequest("/api/auth/restore/$token", Passwords("newpass", "newpass")).andExpect { status { isGone() } }
+        performRequest("$RESTORE_URL/$token", Passwords("newpass", "newpass")).andExpect { status { isGone() } }
     }
 }

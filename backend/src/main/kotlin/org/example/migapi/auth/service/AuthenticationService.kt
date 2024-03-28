@@ -40,6 +40,7 @@ class AuthenticationService(
     private val passwordEncoder: BCryptPasswordEncoder
 ) {
 
+    @Suppress("unused")
     @Throws(
         exceptionClasses = [
             UserAlreadyExistsException::class,
