@@ -37,3 +37,9 @@ mig:
     expiration-ms: 600000
 server:
   port: 8080
+springdoc:
+  swagger-ui:
+    path: /swagger/swagger-ui
+  api-docs:
+    enabled: true
+    path: /swagger/api-docs

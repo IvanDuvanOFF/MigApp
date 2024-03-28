@@ -34,6 +34,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-mail")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 
 //    validation
@@ -61,12 +62,33 @@ dependencies {
 //	kotlin
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
+	runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.8.0")
+
+//	swagger
+//	implementation("org.springdoc:springdoc-openapi-starter-common:2.2.0")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
+	implementation("io.swagger.core.v3:swagger-annotations:2.2.20")
+	implementation("org.springdoc:springdoc-openapi-ui:1.7.0")
+	implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
 
 //	database
 	runtimeOnly("org.postgresql:postgresql")
 
 //	test
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+//	mock
+	testImplementation("io.rest-assured:spring-mock-mvc:3.0.0")
+	testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
+
+//	rest assured
+	testImplementation("io.rest-assured:rest-assured:5.3.2")
+	testImplementation("io.rest-assured:json-path:5.3.2")
+	testImplementation("io.rest-assured:json-schema-validator:5.3.2")
+	testImplementation("io.rest-assured:spring-mock-mvc:5.3.2")
+	testImplementation("io.rest-assured:spring-web-test-client:5.3.2")
+	testImplementation("io.rest-assured:kotlin-extensions:5.3.2")
 
 //	test containers
 	testImplementation("org.testcontainers:postgresql:1.19.6")
