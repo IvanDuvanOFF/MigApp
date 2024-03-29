@@ -1,3 +1,5 @@
 package org.example.migapi.core.domain.model
 
-interface Model
+import java.io.Serializable
+
+interface Model : Serializable

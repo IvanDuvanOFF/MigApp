@@ -1,7 +1,6 @@
 package org.example.migapi.auth
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.redis.testcontainers.RedisContainer
 import org.assertj.core.api.Assertions
 import org.example.migapi.auth.dto.*
 import org.example.migapi.auth.exception.VerificationTokenExpiredException
@@ -9,12 +8,12 @@ import org.example.migapi.auth.exception.VerificationTokenNotFoundException
 import org.example.migapi.auth.service.EmailService
 import org.example.migapi.auth.service.TotpService
 import org.example.migapi.auth.service.VerificationTokenService
+import org.example.migapi.config.TestRedisConfiguration
 import org.example.migapi.core.domain.dto.UserDto
 import org.example.migapi.core.domain.model.entity.VerificationToken
 import org.example.migapi.core.domain.model.enums.ERole
 import org.example.migapi.core.domain.service.UserService
 import org.hamcrest.Matchers
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
@@ -22,24 +21,31 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration
+import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration
+import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.cache.annotation.EnableCaching
 import org.springframework.http.MediaType
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultActionsDsl
 import org.springframework.test.web.servlet.post
-import org.testcontainers.junit.jupiter.Testcontainers
-import org.testcontainers.utility.DockerImageName
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
 
 
-@SpringBootTest
+@SpringBootTest(classes = [TestRedisConfiguration::class])
 @AutoConfigureMockMvc
-@Testcontainers
+@EnableCaching
+@ImportAutoConfiguration(classes = [
+    CacheAutoConfiguration::class,
+    RedisAutoConfiguration::class
+])
+//@Testcontainers
 class AuthenticationControllerTests(
     @Value("\${mig.jwt.refresh-expiration}")
     private val refreshExpiration: Int,
@@ -86,15 +92,15 @@ class AuthenticationControllerTests(
         const val TFA_ENABLED = "$.tfa_enabled"
         const val STATUS_CODE = "$.status.code"
 
-        lateinit var redis: RedisContainer
-
-        @JvmStatic
-        @BeforeAll
-        fun redisSetUp() {
-            redis = RedisContainer(DockerImageName.parse("redis:6.2.6")).withExposedPorts(6379).apply {
-                start()
-            }
-        }
+//        lateinit var redis: RedisContainer
+//
+//        @JvmStatic
+//        @BeforeAll
+//        fun redisSetUp() {
+//            redis = RedisContainer(DockerImageName.parse("redis:6.2.6")).withExposedPorts(6379).apply {
+//                start()
+//            }
+//        }
     }
 
     fun generateTestUser(isActive: Boolean = true, tfaEnabled: Boolean = false): UserDto = UserDto(

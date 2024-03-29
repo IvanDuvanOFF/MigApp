@@ -16,7 +16,7 @@ interface RoleRepository : JpaRepository<Role, ERole> {
     @Cacheable(key = "#entity.name")
     override fun <S : Role> save(entity: S): S
 
-    @Cacheable(key = "#id")
+    @Cacheable(key = "#id", unless = "#result == null")
     override fun findById(id: ERole): Optional<Role>
 
     @CacheEvict(key = "#entity.name")

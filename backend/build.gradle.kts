@@ -93,12 +93,9 @@ dependencies {
 
 //	test containers
 	implementation(platform("org.testcontainers:testcontainers-bom:1.19.7")) //import bom
-	testImplementation("com.redis:testcontainers-redis:2.2.1")
 	testImplementation("org.testcontainers:postgresql")
-//	testImplementation("org.testcontainers:testcontainers:1.19.6")
+	testImplementation("com.github.codemonstur:embedded-redis:1.4.2")
 	testImplementation("org.testcontainers:junit-jupiter")
-	testImplementation("com.redis.testcontainers:testcontainers-redis:1.6.4")
-	testImplementation("com.redis.testcontainers:testcontainers-redis-junit:1.6.4")
 }
 
 tasks.withType<KotlinCompile> {

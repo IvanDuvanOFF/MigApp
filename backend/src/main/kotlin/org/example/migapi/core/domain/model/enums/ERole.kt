@@ -1,6 +1,8 @@
 package org.example.migapi.core.domain.model.enums
 
-enum class ERole {
+import java.io.Serializable
+
+enum class ERole : Serializable {
     ROLE_USER,
     ROLE_ADMIN
 }
