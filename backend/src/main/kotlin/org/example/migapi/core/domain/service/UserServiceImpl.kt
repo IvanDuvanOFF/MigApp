@@ -9,14 +9,10 @@ import org.example.migapi.core.domain.model.enums.ERole
 import org.example.migapi.core.domain.repo.RoleRepository
 import org.example.migapi.core.domain.repo.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.cache.annotation.CacheConfig
-import org.springframework.cache.annotation.CachePut
-import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-@CacheConfig(cacheNames = ["users", "roles"])
 class UserServiceImpl(
     @Autowired
     private val userRepository: UserRepository,
@@ -24,7 +20,6 @@ class UserServiceImpl(
     private val roleRepository: RoleRepository
 ) : UserService {
 
-    @CachePut(value = ["users"], key = "#userDto.username")
     override fun saveUser(userDto: UserDto): User {
         val role = findRoleByName(ERole.ROLE_USER.name)
 
@@ -40,14 +35,11 @@ class UserServiceImpl(
         return userRepository.save(user)
     }
 
-    @CachePut(value = ["users"], key = "#user.id")
     override fun saveUser(user: User): User = userRepository.save(user)
 
-    @Cacheable(value = ["users"], key = "#id")
     override fun findById(id: UUID): User =
         userRepository.findById(id).orElseThrow { UserNotFoundException("User not found") }
 
-    @Cacheable(value = ["users"], key = "#username")
     override fun findUserByUsername(username: String): User = userRepository.findUserByUsername(username)
         .orElseThrow { UserNotFoundException("User with username $username doesn't exists") }
 
@@ -56,7 +48,6 @@ class UserServiceImpl(
 
     override fun findRoleByName(roleName: String): Role = findRoleByERole(ERole.valueOf(roleName))
 
-    @Cacheable(value = ["roles"], key = "#roleEnum")
     override fun findRoleByERole(roleEnum: ERole): Role = roleRepository.findById(roleEnum)
         .orElseThrow { RoleNotFoundException("No role $roleEnum found") }
 
