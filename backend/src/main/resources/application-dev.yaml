@@ -18,6 +18,12 @@ spring:
           starttls:
             enable: true
             required: true
+  cache:
+    type: redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
   flyway:
     locations:
       - classpath:/db/migration
