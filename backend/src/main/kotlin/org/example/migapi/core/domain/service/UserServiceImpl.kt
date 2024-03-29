@@ -51,6 +51,7 @@ class UserServiceImpl(
     override fun findRoleByERole(roleEnum: ERole): Role = roleRepository.findById(roleEnum)
         .orElseThrow { RoleNotFoundException("No role $roleEnum found") }
 
+
     override fun enableTfa(id: UUID) {
         val user = userRepository.findById(id).orElseThrow { UserNotFoundException("User not found") }
 

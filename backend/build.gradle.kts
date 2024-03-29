@@ -30,6 +30,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+	implementation("org.springframework.boot:spring-boot-starter-cache")
 	implementation("org.springframework.boot:spring-boot-starter-jdbc")
 	implementation("org.springframework.boot:spring-boot-starter-mail")
 	implementation("org.springframework.boot:spring-boot-starter-web")
@@ -91,9 +92,10 @@ dependencies {
 	testImplementation("io.rest-assured:kotlin-extensions:5.3.2")
 
 //	test containers
-	testImplementation("org.testcontainers:postgresql:1.19.6")
-	testImplementation("org.testcontainers:testcontainers:1.19.6")
-	testImplementation("org.testcontainers:junit-jupiter:1.19.6")
+	implementation(platform("org.testcontainers:testcontainers-bom:1.19.7")) //import bom
+	testImplementation("org.testcontainers:postgresql")
+	testImplementation("com.github.codemonstur:embedded-redis:1.4.2")
+	testImplementation("org.testcontainers:junit-jupiter")
 }
 
 tasks.withType<KotlinCompile> {

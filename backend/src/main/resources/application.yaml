@@ -18,6 +18,8 @@ spring:
           starttls:
             enable: true
             required: true
+  cache:
+    type: redis
   data:
     redis:
       host: localhost

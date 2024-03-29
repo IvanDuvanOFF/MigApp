@@ -1,6 +1,7 @@
 package org.example.migapi.core.domain.model.entity
 
 import jakarta.persistence.*
+import org.example.migapi.core.domain.model.Model
 import java.io.Serializable
 import java.time.LocalDateTime
 
@@ -12,7 +13,7 @@ data class TfaCode(
 
     @Column(name = "expiration_date", nullable = false)
     val expirationDate: LocalDateTime
-) {
+) : Model {
     @Embeddable
     class TfaCodeId(
         val code: String,

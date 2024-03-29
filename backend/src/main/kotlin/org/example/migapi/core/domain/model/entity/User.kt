@@ -1,6 +1,7 @@
 package org.example.migapi.core.domain.model.entity
 
 import jakarta.persistence.*
+import org.example.migapi.core.domain.model.Model
 import org.example.migapi.core.domain.model.SpringUser
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -56,7 +57,7 @@ data class User(
 
     @Column(name = "tfa_enabled")
     var tfaEnabled: Boolean = false
-) {
+) : Model {
     fun toSpringUser(): UserDetails = SpringUser.builder()
         .username(username)
         .password(password)
