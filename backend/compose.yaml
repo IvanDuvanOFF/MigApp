@@ -1,23 +1,27 @@
-version: '0.0.8'
+version: '0.0.9'
 
 services:
   app:
     container_name: app
     image: 'mig-api:latest'
     build:
-      dockerfile: ./docker/default/Dockerfile
+      dockerfile: ./docker/dev/Dockerfile
       context: .
     expose:
       - 8080
     depends_on:
       - db
       - nginx
+      - redis
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/mig
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
     networks:
       - app-network
+      - redis_app_net
+    volumes:
+      - /tmp/mig-api:/tmp/mig-api
 
   db:
     image: 'postgres:15-alpine'
@@ -32,12 +36,12 @@ services:
       - app-network
 
   redis:
-    image: 'redis/redis-stack-server:latest'
+    image: redis
     container_name: redis
     ports:
-      - 6379:6379
+      - "6379:6379"
     networks:
-      - app-network
+      - redis_app_net
 
   nginx:
     container_name: nginx
@@ -50,5 +54,7 @@ services:
       - app-network
 
 networks:
+  redis_app_net:
+    driver: bridge
   app-network:
     driver: bridge

@@ -2,10 +2,10 @@ spring:
   application:
     name: mig-api
   datasource:
-    username: postgres
-    password: 25d45DbD3f5CA3b3F-gD6E*CaaEgBbb*
+    username: ivan # postgres
+    password: 1234 # 25d45DbD3f5CA3b3F-gD6E*CaaEgBbb*
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://viaduct.proxy.rlwy.net:11498/mig
+    url: jdbc:postgresql://localhost:5432/mig # jdbc:postgresql://viaduct.proxy.rlwy.net:11498/mig
   mail:
     host: smtp.gmail.com
     port: 587
@@ -22,13 +22,13 @@ spring:
     type: redis
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
+      ttl: 10000
   flyway:
     locations:
       - classpath:/db/migration
 #      - classpath:/db/callback
-
 
 mig:
   jwt:
