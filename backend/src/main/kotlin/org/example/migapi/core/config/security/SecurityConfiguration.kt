@@ -39,6 +39,7 @@ class SecurityConfiguration(
                     .requestMatchers("/swagger/**").permitAll()
                     .requestMatchers("/swagger-resources/**").permitAll()
                     .requestMatchers("/swagger-resources").permitAll()
+                    .requestMatchers("/actuator/**").permitAll()
                     .anyRequest().authenticated()
             }
             .authenticationProvider(authenticationProvider())
