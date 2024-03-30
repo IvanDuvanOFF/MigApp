@@ -45,3 +45,10 @@ springdoc:
   api-docs:
     enabled: true
     path: /swagger/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      base-path: /actuator

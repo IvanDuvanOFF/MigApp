@@ -19,21 +19,28 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-#      - name: Grand executive permission for gradlew
-#        run: chmod +x ./gradlew
-#
-#      - name: Gradlew clean
-#        run: ./gradlew clean
-#
-#      - name: Gradlew test run
-#        id: test
-#        run: ./gradlew test
-#
-#      - name: Successful tests
-#        if: steps.test.outcome != 'success'
-#        run: |
-#          echo "Tests error"
-#          exit 1
+      - name: Grand executive permission for gradlew
+        working-directory: ./backend
+        run: chmod +x ./gradlew
+
+      - name: Echo files
+        working-directory: ./backend
+        run: ls
+
+      - name: Gradlew clean
+        working-directory: ./backend
+        run: ./gradlew clean
+
+      - name: Gradlew test run
+        id: test
+        working-directory: ./backend
+        run: ./gradlew test
+
+      - name: Successful tests
+        if: steps.test.outcome != 'success'
+        run: |
+          echo "Tests error"
+          exit 1
 
       - name: Successful build
         uses: appleboy/telegram-action@master
@@ -42,7 +49,7 @@ jobs:
           token: ${{ secrets.TELEGRAM_NOT }}
           message: |
             ✅ Application build done
-            Check report on https://github.com/IvanDuvanOFF/mig-api/actions
+            Check report on https://github.com/IvanDuvanOFF/MigApp/actions
 
       - name: Send alert in Telegram
         if: failure()
@@ -52,4 +59,11 @@ jobs:
           token: ${{ secrets.TELEGRAM_NOT }}
           message: |
             ❌ Failed to build
-            Check report on https://github.com/IvanDuvanOFF/mig-api/actions
+            Check report on https://github.com/IvanDuvanOFF/MigApp/actions
+
+  update_draft_release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: release-drafter/release-drafter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
