@@ -60,10 +60,3 @@ jobs:
           message: |
             ❌ Failed to build
             Check report on https://github.com/IvanDuvanOFF/MigApp/actions
-
-  update_draft_release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: release-drafter/release-drafter@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
