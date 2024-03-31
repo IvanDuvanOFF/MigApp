@@ -5,7 +5,7 @@ docker pull "${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}"
 mkdir -p /app/mig-api
 mkdir -p /tmp/mig-api
 
-cd /app/mig-api
+cd /app/mig-api/backend
 
 CONTAINER_NAME=${DOCKER_IMAGE}
 if [ "$(docker ps -qa -f name="$CONTAINER_NAME")" ]; then

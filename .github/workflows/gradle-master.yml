@@ -148,4 +148,4 @@ jobs:
           envs: DOCKERHUB_USER,DOCKER_IMAGE
           script: |
             echo "I am $DOCKERHUB_USERNAME"
-            bash ./deploy.sh > log.txt
+            bash ./backend/deploy.sh > log.txt
