@@ -148,4 +148,11 @@ jobs:
           envs: DOCKERHUB_USER,DOCKER_IMAGE
           script: |
             echo "I am $DOCKERHUB_USERNAME"
-            bash ./backend/deploy.sh > log.txt
+            docker pull "${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}"
+            
+            mkdir -p /app/mig-api
+            mkdir -p /tmp/mig-api
+
+            cd /app/mig-api/backend
+
+            docker compose up
