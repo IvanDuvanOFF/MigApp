@@ -75,7 +75,7 @@ jobs:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
-          bash ./send-compose.sh
+          scp -i ./key.pub ./README.md root@"${{ secrets.SERVER_HOST }}":/app/mig-api/README.md
 
   docker-build:
 
