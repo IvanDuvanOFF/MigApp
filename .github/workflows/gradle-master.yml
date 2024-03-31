@@ -155,4 +155,4 @@ jobs:
 
             cd /app/mig-api/backend
 
-            docker compose up
+            docker compose up -d
