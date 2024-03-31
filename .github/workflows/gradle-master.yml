@@ -155,4 +155,4 @@ jobs:
 
             cd /app/mig-api/backend
 
-            docker compose up -d --build
+            docker compose up -d > logs.txt
