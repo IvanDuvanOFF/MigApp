@@ -62,8 +62,8 @@ jobs:
             ❌ Failed to build
             Check report on https://github.com/IvanDuvanOFF/MigApp/actions
 
-  send-compose:
-    name: Sends compose.yaml to server
+  send-project:
+    name: Sends project to server
 
     runs-on: ubuntu-latest
     needs:
@@ -85,7 +85,7 @@ jobs:
 
     runs-on: ubuntu-latest
     needs:
-      - send-compose
+      - build-test
 
     steps:
       - uses: actions/checkout@v3
@@ -131,7 +131,7 @@ jobs:
     name: Deploy project to server
 
     needs:
-      - docker-build
+      - send-project
 
     runs-on: ubuntu-latest
     steps:
@@ -155,4 +155,4 @@ jobs:
 
             cd /app/mig-api/backend
 
-            docker compose up -d
+            docker compose up -d --build
