@@ -170,7 +170,7 @@ jobs:
           message: |
             ✅ Application deploy done
             Check it on link:
-            http://${{ SERVER_HOST }}/actuator/health
+            http://${{ secrets.SERVER_HOST }}/actuator/health
 
       - name: Send alert in Telegram
         if: failure()
