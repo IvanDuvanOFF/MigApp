@@ -3,7 +3,7 @@
 start=$(date +"%s")
 
 ssh ${SERVER_USER}@${SERVER_HOST} -i key.txt -t -t -o StrictHostKeyChecking=no << 'ENDSSH'
-docker pull "${DOCKER_USER}/${DOCKER_IMAGE}"
+docker pull "${DOCKERHUB_USER}/${DOCKER_IMAGE}"
 
 mkdir -p /app/mig-api
 mkdir -p /tmp/mig-api

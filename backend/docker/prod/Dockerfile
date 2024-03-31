@@ -1,12 +1,26 @@
-FROM openjdk:17-alpine
+FROM gradle:8.7-jdk17-alpine AS build
+
 LABEL authors="Ivan Duvanov"
 
-ENV JAVA_OPTS="-Dspring.profiles.active=dev"
+RUN mkdir /mig-api
+
+COPY . /project
+WORKDIR /project
+
+RUN gradle clean build -x test
+
+FROM amazoncorretto:17-alpine-jdk AS run
+
+RUN mkdir /mig-api
+RUN addgroup -g 1001 ivangroup && \
+    adduser -S ivan -u 1001
+
+COPY --from=build /project/build/libs/*SNAPSHOT.jar /mig-api/app.jar
+
 VOLUME /tmp/mig-api
 
-WORKDIR /mig-api
-COPY ./build/libs/*SNAPSHOT.jar ./app.jar
+ENV JAVA_OPTS="-Dspring.profiles.active=dev"
 
 EXPOSE 8080
 
-CMD java "$JAVA_OPTS" -jar ./app.jar
+CMD java "$JAVA_OPTS" -jar /mig-api/app.jar
