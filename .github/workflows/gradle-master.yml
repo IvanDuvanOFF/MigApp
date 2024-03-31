@@ -73,7 +73,7 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
           source: "./README.md"
-          target: "/app/mig-api/README.md"
+          target: "/app/mig-api"
 
   send-compose:
     runs-on: ubuntu-latest
