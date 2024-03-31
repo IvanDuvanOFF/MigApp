@@ -75,7 +75,6 @@ jobs:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
-          set -e
           bash ./send-compose.sh
 
   docker-build:
