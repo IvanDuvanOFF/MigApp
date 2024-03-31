@@ -3,10 +3,10 @@ version: '0.0.9'
 services:
   app:
     container_name: app
-    image: 'mig-api:latest'
-    build:
-      dockerfile: ./docker/dev/Dockerfile
-      context: .
+    image: 'ivanch1ck/mig-api:latest'
+#    build:
+#      dockerfile: ./docker/dev/Dockerfile
+#      context: .
     expose:
       - 8080
     depends_on:
