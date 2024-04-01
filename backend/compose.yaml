@@ -21,7 +21,7 @@ services:
       - app-network
       - redis_app_net
     volumes:
-      - /tmp/mig-api/api:/tmp/mig-api/api
+      - ./tmp/api:/tmp/mig-api/api
 
   db:
     image: 'postgres:15-alpine'
@@ -40,7 +40,7 @@ services:
       - POSTGRES_DB=mig
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
-      - /tmp/mig-api/pgdata:/var/lib/postgresql/data/pgdata
+      - ./tmp/pgdata:/var/lib/postgresql/data/pgdata
     ports:
       - 5432:5432
     healthcheck:
@@ -61,7 +61,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: "pASSword"
       PGADMIN_CONFIG_SERVER_MODE: "False"
     volumes:
-      - /tmp/mig-api/pgadmin:/var/lib/pgadmin
+      - ./tmp/pgadmin:/var/lib/pgadmin
     ports:
       - "5050:80"
     restart: unless-stopped
@@ -70,6 +70,8 @@ services:
         limits:
           cpus: "0.25"
           memory: 256M
+    depends_on:
+      - db
     networks:
       - app-network
 
