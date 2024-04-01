@@ -15,23 +15,61 @@ services:
       - redis
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/mig
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_DATASOURCE_USERNAME=ivan
+      - SPRING_DATASOURCE_PASSWORD=pASSword
     networks:
       - app-network
       - redis_app_net
     volumes:
-      - /tmp/mig-api:/tmp/mig-api
+      - /tmp/mig-api/api:/tmp/mig-api/api
 
   db:
     image: 'postgres:15-alpine'
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=10"
+      - "-c"
+      - "log_min_duration_statement=200ms"
+      - "-c"
+      - "idle_in_transaction_session_timeout=10s"
     container_name: db
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=ivan
+      - POSTGRES_PASSWORD=pASSword
       - POSTGRES_DB=mig
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - /tmp/mig-api/pgdata:/var/lib/postgresql/data/pgdata
     ports:
       - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ivan -d mig"]
+      interval: 120s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    restart: on-failure:5
+    networks:
+      - app-network
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "ivan.duvanov.3@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "pASSword"
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    volumes:
+      - /tmp/mig-api/pgadmin:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
     networks:
       - app-network
 
