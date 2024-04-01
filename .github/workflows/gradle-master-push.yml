@@ -153,8 +153,9 @@ jobs:
             mkdir -p /tmp/mig-api
 
             cd /app/mig-api/backend
+            mkdir -p ./tmp && chmod 666 ./tmp
 
-            docker compose up -d > logs.txt
+            docker compose up -d --build > logs.txt
 
       - name: Successful tests
         if: steps.deploy.outcome != 'success'

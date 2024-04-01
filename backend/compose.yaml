@@ -17,8 +17,10 @@ services:
       - SPRING_DATASOURCE_USERNAME=ivan
       - SPRING_DATASOURCE_PASSWORD=pASSword
     networks:
-      - app-network
-      - redis_app_net
+      app-network:
+        ipv4_address: 192.168.112.3
+      redis-network:
+        ipv4_address: 192.168.128.3
     volumes:
       - ./tmp/api:/tmp/mig-api/api
 
@@ -26,8 +28,6 @@ services:
     image: 'postgres:15-alpine'
     command:
       - "postgres"
-      - "-c"
-      - "max_connections=10"
       - "-c"
       - "log_min_duration_statement=200ms"
       - "-c"
@@ -50,11 +50,15 @@ services:
       start_period: 90s
     restart: on-failure:5
     networks:
-      - app-network
+      app-network:
+        ipv4_address: 192.168.112.2
+
 
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4
+    links:
+      - db
     environment:
       PGADMIN_DEFAULT_EMAIL: "ivan.duvanov.3@gmail.com"
       PGADMIN_DEFAULT_PASSWORD: "pASSword"
@@ -72,7 +76,10 @@ services:
     depends_on:
       - db
     networks:
-      - app-network
+      pg-network:
+        ipv4_address: 192.168.144.2
+      app-network:
+        ipv4_address: 192.168.112.4
 
   redis:
     image: redis
@@ -80,7 +87,8 @@ services:
     ports:
       - "6379:6379"
     networks:
-      - redis_app_net
+      redis-network:
+        ipv4_address: 192.168.128.2
 
   nginx:
     container_name: nginx
@@ -92,10 +100,25 @@ services:
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
     networks:
-      - app-network
+      app-network:
+        ipv4_address: 192.168.112.5
 
 networks:
-  redis_app_net:
+  redis-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.128.0/20
+          gateway: 192.168.128.1
   app-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.112.0/20
+          gateway: 192.168.112.1
+  pg-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.144.0/20
+          gateway: 192.168.144.1
