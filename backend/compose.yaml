@@ -11,7 +11,6 @@ services:
       - 8080
     depends_on:
       - db
-      - nginx
       - redis
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/mig
@@ -86,6 +85,8 @@ services:
   nginx:
     container_name: nginx
     image: nginx:latest
+    depends_on:
+      - app
     ports:
       - 80:80
     volumes:
