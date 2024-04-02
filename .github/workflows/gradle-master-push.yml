@@ -153,7 +153,7 @@ jobs:
             mkdir -p /tmp/mig-api
 
             cd /app/mig-api/backend
-            mkdir -p ./tmp && chmod 666 ./tmp
+            mkdir -p ./tmp && chmod -R 666 ./tmp && chown -R :docker ./tmp 
 
             docker compose up -d --build > logs.txt
 
