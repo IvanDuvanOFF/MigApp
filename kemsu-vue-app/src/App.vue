@@ -1,16 +1,13 @@
 <template>
   <img alt="Vue logo" src="./assets/logo.png">
-  <AuthComponent></AuthComponent>
+  <div class="container">
+      <router-view />
+    </div>
 </template>
 
 <script>
-import AuthComponent from './components/AuthComponent.vue'
-
 export default {
-  name: 'App',
-  components: {
-    AuthComponent
-  }
+  name: 'App'  
 }
 </script>
 

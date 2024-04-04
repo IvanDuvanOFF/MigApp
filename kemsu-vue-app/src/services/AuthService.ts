@@ -3,9 +3,11 @@ import axios from 'axios'
 const AUTH_API_BASE_URL = "http://localhost:8080/api/auth"
 
 class AuthService{    
-    signing(login, password){
+    signing(user){
+        // return user;
+
         return axios.post(AUTH_API_BASE_URL + "/signing", {
-            params: { login: login, password: password }
+            params: { login: user.userName, password: user.password }
         });
     }
     
@@ -31,6 +33,10 @@ class AuthService{
         return axios.post(AUTH_API_BASE_URL + `/signing/{token}`, {
             params: { refresh_token: refresh_token }
         });
+    }
+
+    logout(){
+        localStorage.removeItem('user');
     }
 }
 

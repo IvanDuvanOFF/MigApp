@@ -4,9 +4,9 @@ const USER_API_BASE_URL = "http://localhost:8080/api/users"
 
 class UserService{
     // Аутентифицировать пользователя
-    auth(user: User){
-        return axios.get(USER_API_BASE_URL, {
-            params: { user: User }
+    signing(login, password){
+        return axios.post(USER_API_BASE_URL, {
+            params: { login: login, password: password }
         });
     }
 
