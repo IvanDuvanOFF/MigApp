@@ -16,9 +16,9 @@ class Student{
     status: string;
 }
 
-class User{
-    userName: string;
-    password: string;
-    role: string;
-}
+//class User{
+ //   userName: string;
+  //  password: string;
+   // role: string;
+//}
 
