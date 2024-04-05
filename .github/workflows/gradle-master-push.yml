@@ -140,7 +140,8 @@ jobs:
             su admin
 
             cd /home/admin/app/mig-api/backend
-            mkdir -p ./tmp && chmod -R 666 ./tmp
+            mkdir -p ./tmp/api ./tmp/pgadmin/sessions ./tmp/pgdata
+            chmod -R 666 ./tmp
 
             docker compose up -d --build > logs.txt
 
