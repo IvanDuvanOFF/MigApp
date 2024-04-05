@@ -76,7 +76,7 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
           source: "./backend"
-          target: "/app/mig-api"
+          target: "/home/admin/app/mig-api"
 
   docker-build:
     name: Build docker image and send it to DockerHub
@@ -92,18 +92,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-
-      - name: Grand executive permission for gradlew
-        working-directory: ./backend
-        run: chmod +x ./gradlew
-
-      - name: Gradlew clean
-        working-directory: ./backend
-        run: ./gradlew clean
-
-      - name: Gradlew bootable jar
-        working-directory: ./backend
-        run: ./gradlew bootJar
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -149,11 +137,10 @@ jobs:
             echo "I am $DOCKERHUB_USERNAME"
             docker pull "${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}"
             
-            mkdir -p /app/mig-api
-            mkdir -p /tmp/mig-api
+            su admin
 
-            cd /app/mig-api/backend
-            mkdir -p ./tmp && chmod -R 666 ./tmp && chown -R :docker ./tmp 
+            cd /home/admin/app/mig-api/backend
+            mkdir -p ./tmp && chmod -R 666 ./tmp
 
             docker compose up -d --build > logs.txt
 
