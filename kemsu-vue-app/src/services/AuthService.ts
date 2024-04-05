@@ -1,13 +1,12 @@
 import axios from 'axios'   
+import { API_BASE_URL } from '.';
 
-const AUTH_API_BASE_URL = "http://localhost:8080/api/auth"
+const AUTH_API_BASE_URL = API_BASE_URL + "/auth"
 
 class AuthService{    
-    signing(user){
-        // return user;
-
+    signing(user){       
         return axios.post(AUTH_API_BASE_URL + "/signing", {
-            params: { login: user.userName, password: user.password }
+            params: { login: user.username, password: user.password }
         });
     }
     

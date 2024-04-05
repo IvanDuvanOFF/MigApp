@@ -5,20 +5,17 @@ import App from './App.vue';
 import {createRouter, createWebHistory} from 'vue-router'  
 import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-// import { VeeValidate } from 'vee-validate';
+
 import AuthComponent from './components/AuthComponent.vue';
 import { auth } from './store/auth.module';
 
 
-
-// Vue.use(VeeValidate);
-// Vue.config.productionTip = false;
 const app = createApp(App);
 const routes = [
     {
         path: '/login',
         name: 'Login',
-        component: AuthComponent,//shsould be imported 
+        component: AuthComponent,
 
     },
 ];
@@ -30,8 +27,7 @@ const router = createRouter({
     routes
   });
 
-//app.use(VeeValidate);
+app.config.productionTip = false;
 app.use(router);
 app.use(thisstore);
 app.mount('#app')
-//new Vue({router, store, render: h => h(App)}).$ mount('#app')

@@ -27,7 +27,11 @@
 
                 <ErrorMessage name="password" class="alert alert-danger"></ErrorMessage>
                 
-                <button class="btn btn-info" type="submit">Войти</button>                
+                <button class="btn btn-dark btn-lg" type="submit">Войти</button>
+
+                <div class="form-group mt-3 w-100">
+                    <div v-if="message" class="alert alert-danger" role="alert">{{message}}</div>
+                </div>          
             </div>
         </Form>
     </div>
@@ -75,21 +79,20 @@ export default {
         },
 
         handleLogin() {
-            this.loading = true;
-            console.log(this.$store);
+            this.loading = true;            
             // console.log(AuthService.signing(this.user));
             console.log(this.$store.dispatch('auth/login', this.user));
             if (this.user.username && this.user.password) {
                     this.$store.dispatch('auth/login', this.user).then(
                         () => {
                             this.$router.push('/students');
+                            console.log(this.$store);
+                            console.log(this.$store.state.auth.user);
+                            console.log(this.loggedIn);
                         },
-                        error => {
-                            this.loading = false;
-                            this.message =
-                                (error.response && error.response.data) ||
-                                error.message ||
-                                error.toString();
+                        error => {  
+                            this.loading = false;                           
+                            this.message = error.message;
                         }
                     );
                 }
