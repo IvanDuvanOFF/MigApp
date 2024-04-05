@@ -143,7 +143,6 @@ jobs:
             mkdir -p ./tmp/api ./tmp/pgadmin/sessions ./tmp/pgdata
             chmod -R 666 ./tmp
 
-            docker compose down
             docker compose up -d --build > logs.txt
 
       - name: Successful tests
