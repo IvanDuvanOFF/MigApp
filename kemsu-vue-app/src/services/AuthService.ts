@@ -1,13 +1,18 @@
 import axios from 'axios'   
-import { API_BASE_URL } from '.';
+import { API_BASE_URL, TEMP_BASE_URL } from '.';
 
-const AUTH_API_BASE_URL = API_BASE_URL + "/auth"
+const AUTH_API_BASE_URL = TEMP_BASE_URL + "/api/auth"
 
 class AuthService{    
     signing(user){       
         return axios.post(AUTH_API_BASE_URL + "/signing", {
-            params: { login: user.username, password: user.password }
-        });
+            login: user.username, password: user.password
+        }).then(response => {
+            if (response.data) {
+              localStorage.setItem('user', JSON.stringify(response.data));
+            }    
+            return response.data;
+          });
     }
     
     signingtfa(username, password){

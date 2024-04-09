@@ -49,7 +49,7 @@ export default {
     components:{
         Field,
         Form,
-        ErrorMessage        
+        ErrorMessage
     },
     data() {
         return {
@@ -64,8 +64,8 @@ export default {
         }
     },
     created() {
-        if (this.loggedIn) {
-            this.$router.push('/students');
+        if (this.loggedIn) {            
+            this.$router.push('/');
         }
     },    
 
@@ -84,11 +84,11 @@ export default {
             console.log(this.$store.dispatch('auth/login', this.user));
             if (this.user.username && this.user.password) {
                     this.$store.dispatch('auth/login', this.user).then(
-                        () => {
-                            this.$router.push('/students');
-                            console.log(this.$store);
-                            console.log(this.$store.state.auth.user);
-                            console.log(this.loggedIn);
+                        () => {                                                       
+                            console.log(localStorage.getItem('user'));
+                            
+                            this.$router.go();
+                            this.$router.push('/');                            
                         },
                         error => {  
                             this.loading = false;                           

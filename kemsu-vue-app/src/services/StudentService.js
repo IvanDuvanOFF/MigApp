@@ -1,18 +1,19 @@
-import axios from 'axios'   
+import axios from 'axios'
 import AuthHeader from './AuthHeader';
+import { TEMP_BASE_URL } from '.';
 
-const STUDENT_API_BASE_URL = "http://localhost:8080/api/students"
+const STUDENT_API_BASE_URL = TEMP_BASE_URL + "";
 
-class StudentService{
+class StudentService {
     // Получить список всех студентов
-    getStudents(){
-        return axios.get(STUDENT_API_BASE_URL), {
+    async getStudents() {
+        return axios.get(STUDENT_API_BASE_URL + '/students', {
             headers: AuthHeader()
-        };
+        }).then(res => {return res.data})
     }
 
     // Получить конкретного студента
-    getStudent(id){
+    getStudent(id) {
         return axios.get(STUDENT_API_BASE_URL, {
             params: { studentId: id },
             headers: AuthHeader()
@@ -20,7 +21,7 @@ class StudentService{
     }
 
     // Обновить данные о студенте
-    updateStudent(id, student: Student){
+    updateStudent(id, student) {
         axios.put(STUDENT_API_BASE_URL, {
             params: { studentId: id, data: student },
             headers: AuthHeader()
@@ -28,7 +29,7 @@ class StudentService{
     }
 
     // Создать нового студента
-    createStudent(student: Student){
+    createStudent(student) {
         axios.post(STUDENT_API_BASE_URL, {
             params: { data: student },
             headers: AuthHeader()
@@ -36,7 +37,7 @@ class StudentService{
     }
 
     // Удалить конкретного студента
-    removeStudent(id){
+    removeStudent(id) {
         axios.delete(STUDENT_API_BASE_URL, {
             params: { studentId: id },
             headers: AuthHeader()
