@@ -1,12 +1,12 @@
 <template>
-    <div class="col col-3" style="border: 1px solid darkgrey;">
+    <div class="col d-flex flex-column col-3" style="border: 1px solid darkgrey;">
         <h4 class="font-weight-bold mt-5">Фильтр</h4>
         <div class="d-flex flex-column mt-5">
-            <div class="input-group d-lg-flex d-xl-flex flex-column align-items-lg-center align-items-xl-center">
+            <div class="input-group d-flex flex-column align-items-center align-items-center">
                 <label for="filter-age" class="form-label">Возраст</label>
                 <input id="filter-age" v-model="age" type="number" class="form-control w-75 rounded-0" />
 
-                <div class="input-group d-lg-flex d-xl-flex flex-column align-items-lg-center align-items-xl-center">
+                <div class="input-group d-flex d-flex flex-column align-items-center">
                     <label for="filter-country" class="form-label">Страна</label>
                     <select id="filter-country" v-model="country" class="form-select w-75 rounded-0">
                         <optgroup label="Страна студента">
@@ -17,7 +17,7 @@
                     </select>
                 </div>
 
-                <div class="input-group d-lg-flex d-xl-flex flex-column align-items-lg-center align-items-xl-center">
+                <div class="input-group d-flex flex-column align-items-center">
                     <label for="filter-status" class="form-label">Статус</label>
                     <select id="filter-status" v-model="studentStatus" class="form-select w-75 rounded-0">
                         <optgroup label="Статус студента">
