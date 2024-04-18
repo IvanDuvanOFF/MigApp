@@ -86,7 +86,7 @@ router.beforeEach((to, from, next) => {
 const thisstore = createStore(store);
 thisstore.registerModule('auth', auth);
 
-axios.defaults.baseURL = "http://109.71.242.151/api/";
+axios.defaults.baseURL = "https://109.71.242.151/api/";
 axios.interceptors.response.use(response => {
   return response;
 });
