@@ -2,7 +2,7 @@ import AuthService from '../services/AuthService.ts';
 
 const user = JSON.parse(localStorage.getItem('user'));
 const tfa = user != null ? user.tfa : true;
-const initialState = user != null & !tfa
+const initialState = user != null && !tfa
   ? { status: { loggedIn: true }, user }
   : { status: { loggedIn: false }, user: null };
 

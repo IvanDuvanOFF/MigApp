@@ -91,7 +91,7 @@ body{
 }
 
 #app {
-  font-family: Jura;
+  font-family: Jura, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

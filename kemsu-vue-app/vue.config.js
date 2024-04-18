@@ -6,7 +6,6 @@ module.exports = defineConfig({
         warnings: false,
         errors: false,
       },      
-      overlay: false,
     }
   },
   transpileDependencies: true
