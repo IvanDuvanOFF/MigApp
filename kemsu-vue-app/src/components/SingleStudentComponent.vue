@@ -4,19 +4,19 @@
         <div class="input-group d-flex flex-column">
             <label class="form-label">Имя*</label>
             <Field :disabled="disabled" type="text" v-model="student.name" class="form-control w-100 rounded-0"
-                name="name" />
+                name="name" v-on:keypress="isLetter($event)"/>
             <ErrorMessage class="alert alert-danger" name="name"></ErrorMessage>
         </div>
         <div class="input-group d-flex flex-column">
             <label class="form-label">Фамилия*</label>
             <Field :disabled="disabled" type="text" v-model="student.surname" class="form-control w-100 rounded-0"
-                name="surname" />
+                name="surname" v-on:keypress="isLetter($event)"/>
             <ErrorMessage class="alert alert-danger" name="surname"></ErrorMessage>
         </div>
         <div class="input-group d-flex flex-column">
             <label class="form-label">Отчество</label>
             <Field :disabled="disabled" type="text" v-model="student.patronymic" class="form-control w-100 rounded-0"
-                name="patronymic" />
+                name="patronymic" v-on:keypress="isLetter($event)"/>
         </div>
         <div class="input-group d-flex flex-column">
             <label class="form-label">Почта</label>
@@ -131,6 +131,11 @@ export default {
         },
         isDocumentExist(value) {
             console.log(value);
+        },
+        isLetter(e) {
+            let char = String.fromCharCode(e.keyCode);
+            if (/^[A-Za-z]+$/.test(char)) return true;
+            else e.preventDefault();
         },
         allowEdit() {
             this.disabled = false;

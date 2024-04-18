@@ -8,11 +8,13 @@
   <div class="row h-100 m-0" v-if="currentUser">
     <div class="col d-flex flex-column col-md-3 p-0 shadow h-100"
       style="background-color: #C8C3FF; width: 240px">
-      <img alt="Kemsu logo" src="./assets/logo.jpeg">
-      <a
-        class="btn rounded-0 navbar-link" href="/students">Учет</a>
-      <a class="btn rounded-0 navbar-link" href="#">Уведомления</a><a
-        class="btn rounded-0 navbar-link settings" href="/settings">Настройки</a>
+      <a href="/">
+        <img alt="Kemsu logo" class="img-fluid" src="./assets/logo.jpeg">
+      </a>
+      
+      <a class="btn rounded-0 navbar-link" href="/students">Учет</a>
+      <a class="btn rounded-0 navbar-link" href="#">Уведомления</a>
+      <a class="btn rounded-0 navbar-link settings" href="/settings">Настройки</a>
       <a class="btn rounded-0 navbar-link exit" @click.prevent="logOut">Выйти</a>      
     </div>
     
@@ -27,8 +29,8 @@ export default {
   computed:{
     currentUser() {
           console.log('user is');
-          console.log(localStorage.getItem('user'));
-          return localStorage.getItem('user');
+          console.log(this.$store.state.auth.status.loggedIn);
+          return this.$store.state.auth.status.loggedIn;
     }
   },
   methods:{

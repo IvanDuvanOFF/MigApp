@@ -11,6 +11,8 @@ import AuthComponent from './components/AuthComponent.vue';
 import StudentsComponent from './components/StudentsComponent.vue';
 import SingleStudentComponent from './components/SingleStudentComponent.vue';
 import { auth } from './store/auth.module';
+import CodeComponent from './components/CodeComponent.vue';
+import SettingsComponent from './components/SettingsComponent.vue';
 
 const app = createApp(App);
 const routes = [
@@ -48,22 +50,28 @@ const routes = [
   {
     path: '/settings',
     name: 'Settings',
+    component: SettingsComponent,
     meta: {
       requiresAuth: true
-    }
+    }    
   },
   {
     path: '/login',
     name: 'Login',
     component: AuthComponent,
-  },
+  },  
+  {
+    path: '/login/tfa',
+    name: 'Tfa',
+    component: CodeComponent
+  }
 ];
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 });
 router.beforeEach((to, from, next) => {
-  const loggedIn = localStorage.getItem('user');
+  const loggedIn = thisstore.state.auth.status.loggedIn;
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!loggedIn) {
       next({ name: 'Login' })
@@ -91,8 +99,7 @@ axios.defaults.headers.get['Access-Control-Allow-Credentials'] = 'true';
 
 
 app.config.productionTip = false;
-app.use(router);
 app.use(thisstore);
+app.use(router);
 app.component("font-awesome-icon", FontAwesomeIcon);
 app.mount('#app');
-

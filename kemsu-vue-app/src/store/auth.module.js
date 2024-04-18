@@ -1,7 +1,8 @@
 import AuthService from '../services/AuthService.ts';
 
 const user = JSON.parse(localStorage.getItem('user'));
-const initialState = user
+const tfa = user != null ? user.tfa : true;
+const initialState = user != null & !tfa
   ? { status: { loggedIn: true }, user }
   : { status: { loggedIn: false }, user: null };
 
@@ -13,7 +14,14 @@ export const auth = {
       return AuthService.signing(user).then(
         response => {
           console.log(response);
-          commit('loginSuccess', user);
+          if(response.tfa_enabled == true) {
+            console.log("enabled tfa for user: " + user)
+            commit('tfaNeeded', user);
+          }
+          else{
+            commit('loginSuccess', user);
+          }
+          
           return Promise.resolve(user);
         },
         error => {
@@ -27,14 +35,14 @@ export const auth = {
       AuthService.logout();
       commit('logout');
     },
-    register({ commit }, user) {
-      return AuthService.register(user).then(
-        response => {
-          commit('registerSuccess');
-          return Promise.resolve(response.data);
+    tfa({ commit }, user, code) {
+      return AuthService.signingTfa(user, code).then(
+        () => {
+          commit('loginSuccess', user);
+          return Promise.resolve(user);
         },
         error => {
-          commit('registerFailure');
+          commit('loginFailure');
           return Promise.reject(error);
         }
       );
@@ -45,6 +53,10 @@ export const auth = {
       state.status.loggedIn = true;
       state.user = user;
     },
+    tfaNeeded(state, user) {
+      state.status.loggedIn = false;
+      state.user = user;
+    },
     loginFailure(state) {
       state.status.loggedIn = false;
       state.user = null;
@@ -52,12 +64,6 @@ export const auth = {
     logout(state) {
       state.status.loggedIn = false;
       state.user = null;
-    },
-    registerSuccess(state) {
-      state.status.loggedIn = false;
-    },
-    registerFailure(state) {
-      state.status.loggedIn = false;
-    }
+    },    
   }
 };
