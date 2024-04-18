@@ -1,45 +1,63 @@
 import axios from 'axios'
 import AuthHeader from './AuthHeader';
-import { TEMP_BASE_URL } from '.';
-
-const STUDENT_API_BASE_URL = TEMP_BASE_URL + "";
 
 class StudentService {
     // Получить список всех студентов
-    async getStudents() {
-        return axios.get(STUDENT_API_BASE_URL + '/students', {
-            headers: AuthHeader()
-        }).then(res => {return res.data})
+    async getStudents(params = null) {
+        return axios.get('/students', {
+            headers: AuthHeader(),
+            params
+        });
     }
 
     // Получить конкретного студента
     getStudent(id) {
-        return axios.get(STUDENT_API_BASE_URL, {
-            params: { studentId: id },
+        return axios.get('students', {
+            params: { id: id },
             headers: AuthHeader()
         });
     }
 
     // Обновить данные о студенте
-    updateStudent(id, student) {
-        axios.put(STUDENT_API_BASE_URL, {
-            params: { studentId: id, data: student },
+    updateStudent(id, params) {
+        params.id = id;
+
+        return axios.put('students', {
+            params: {
+                id: params.id,
+                name: params.name,
+                surname: params.surname,
+                patronymic: params.patronymic,
+                birthday: params.birthday,
+                email: params.email,
+                phone: params.phone,
+                status: params.status,
+                countryname: params.countryname
+            },
             headers: AuthHeader()
         });
     }
 
     // Создать нового студента
-    createStudent(student) {
-        axios.post(STUDENT_API_BASE_URL, {
-            params: { data: student },
+    createStudent(params) {
+        return axios.post('students', {
+            name: params.name,
+            surname: params.surname,
+            patronymic: params.patronymic,
+            birthday: params.birthday,
+            email: params.email,
+            phone: params.phone,
+            status: params.status,
+            countryname: params.countryname,
+
             headers: AuthHeader()
         })
     }
 
     // Удалить конкретного студента
     removeStudent(id) {
-        axios.delete(STUDENT_API_BASE_URL, {
-            params: { studentId: id },
+        return axios.delete('students', {
+            params: { id: id },
             headers: AuthHeader()
         })
     }

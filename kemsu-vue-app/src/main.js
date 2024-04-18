@@ -7,7 +7,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from './plugins/font-awesome'
-// import * as VeeValidate from 'vee-validate';
 import AuthComponent from './components/AuthComponent.vue';
 import StudentsComponent from './components/StudentsComponent.vue';
 import SingleStudentComponent from './components/SingleStudentComponent.vue';
@@ -57,10 +56,6 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: AuthComponent,
-    meta: {
-      requiresUnlogged: true
-    }
-
   },
 ];
 const router = createRouter({
@@ -69,7 +64,6 @@ const router = createRouter({
 });
 router.beforeEach((to, from, next) => {
   const loggedIn = localStorage.getItem('user');
-
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!loggedIn) {
       next({ name: 'Login' })
@@ -84,18 +78,21 @@ router.beforeEach((to, from, next) => {
 const thisstore = createStore(store);
 thisstore.registerModule('auth', auth);
 
-
-app.config.productionTip = false;
-app.use(router);
-// app.use(VeeValidate);
-app.use(thisstore);
-app.component("font-awesome-icon", FontAwesomeIcon);
-app.mount('#app');
-
-
+axios.defaults.baseURL = "http://109.71.242.151/api/";
+axios.interceptors.response.use(response => {
+  return response;
+});
 
 axios.defaults.headers.get['Access-Control-Allow-Origin'] = '*';
 axios.defaults.headers.get['Access-Control-Allow-Methods'] = 'GET, PUT, POST, DELETE, OPTIONS, post, get';
 axios.defaults.headers.get['Access-Control-Max-Age'] = '3600';
 axios.defaults.headers.get['Access-Control-Allow-Headers'] = 'Origin, Content-Type, X-Auth-Token';
 axios.defaults.headers.get['Access-Control-Allow-Credentials'] = 'true';
+
+
+app.config.productionTip = false;
+app.use(router);
+app.use(thisstore);
+app.component("font-awesome-icon", FontAwesomeIcon);
+app.mount('#app');
+

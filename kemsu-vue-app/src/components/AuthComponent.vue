@@ -80,7 +80,6 @@ export default {
 
         handleLogin() {
             this.loading = true;            
-            // console.log(AuthService.signing(this.user));
             console.log(this.$store.dispatch('auth/login', this.user));
             if (this.user.username && this.user.password) {
                     this.$store.dispatch('auth/login', this.user).then(
@@ -92,7 +91,7 @@ export default {
                         },
                         error => {  
                             this.loading = false;                           
-                            this.message = error.message;
+                            this.message = error.response.data.message;
                         }
                     );
                 }

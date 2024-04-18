@@ -48,7 +48,7 @@
                     :href="`/students/${student.id}`">
                     <div class=" card-body p-2 align-self-start">
                         <h4 class="card-title" align-self-start>{{ student.surname }} {{ student.name }} {{
-                    student.patronymic }}</h4>
+                            student.patronymic }}</h4>
                     </div>
                 </a>
             </div>
@@ -57,15 +57,17 @@
 </template>
 
 <script>
-import axios from 'axios';
-
-// import StudentService from '../services/StudentService.js';
+import StudentService from '@/services/StudentService.js';
 
 export default {
     name: "StudentsComponent",
     data() {
         let students = [];
-        axios.get("http://192.168.1.3:3000/students").then(response => { console.log(response.data); this.students = response.data });
+        console.log();
+        StudentService.getStudents().then(response => { 
+            console.log(response.data); 
+            this.students = response.data
+        });
         return {
             age: 0,
             country: '',
@@ -91,10 +93,11 @@ export default {
             }
 
             console.log(params);
-            axios.get("http://192.168.1.3:3000/students", {
-                params
-            })
-                .then(response => { console.log(response.data); this.students = response.data });
+            StudentService.getStudents(params)
+                .then(response => {
+                    console.log(response.data); 
+                    this.students = response.data
+                });
         }
     }
 }

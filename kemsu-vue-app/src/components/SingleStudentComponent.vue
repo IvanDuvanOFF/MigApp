@@ -43,7 +43,7 @@
         style="border: 1px solid darkgrey;" class="col d-flex flex-column justify-content-xl-center p-3 gap-3">
         <div class="d-flex flex-column">
             <span v-for="doc in documents" :key="doc.name" :class="{ 'success': doc.accepted, 'fail': !doc.accepted }"
-             class="input-group-text justify-content-between">
+                class="input-group-text justify-content-between">
                 {{ doc.name }}
                 <div>
                     <button class="btn btn-outline-light me-1">
@@ -62,7 +62,8 @@
         <div class="dropdown"><button class="btn btn-primary dropdown-toggle w-100" aria-expanded="false"
                 data-bs-toggle="dropdown" type="button">Добавить</button>
             <div class="dropdown-menu">
-                <a class="dropdown-item" @click="addDocument" v-for="docType in docTypes" :key="docType.name" href="#">{{ docType.name }}</a>
+                <a class="dropdown-item" @click="addDocument" v-for="docType in docTypes" :key="docType.name"
+                    href="#">{{ docType.name }}</a>
             </div>
         </div>
 
@@ -70,9 +71,9 @@
 </template>
 
 <script>
-import axios from 'axios';
 import { Field, Form, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
+import StudentService from '@/services/StudentService.js';
 
 export default {
     name: "SingleStudentComponent",
@@ -85,19 +86,15 @@ export default {
         let student = {};
         let disabled = true;
         let docTypes = [{ name: 'Паспорт' },
-            { name: 'ИНН' },
-            { name: 'Загранпаспорт' },
-            { name: 'Водительское удостоверение' }];        
+        { name: 'ИНН' },
+        { name: 'Загранпаспорт' },
+        { name: 'Водительское удостоверение' }];
         console.log(docTypes);
-        if (this.$route.params.id) {            
-            let params = {
-                id: this.$route.params.id
-            };
-            axios.get("http://192.168.1.3:3000/students",
-                { params }).then(response => { this.student = response.data[0] });
+        if (this.$route.params.id) {
+            let id = this.$route.params.id
+            StudentService.getStudent(id).then(response => { this.student = response.data[0] });
         }
-        else
-        {
+        else {
             disabled = false;
         }
         return {
@@ -123,7 +120,7 @@ export default {
         }
     },
     methods: {
-        addDocument(value){
+        addDocument(value) {
             var docType = value.target.innerText;
             var newDoc = {
                 accepted: false,
@@ -132,31 +129,32 @@ export default {
             this.docTypes.splice(this.docTypes.findIndex(item => item.name === docType), 1);
             this.documents.push(newDoc);
         },
-        isDocumentExist(value){
+        isDocumentExist(value) {
             console.log(value);
         },
         allowEdit() {
             this.disabled = false;
         },
         onInvalidSubmit({ values, errors, results }) {
-            console.log(values); // current form values
-            console.log(errors); // a map of field names and their first error message
-            console.log(results); // a detailed map of field names and their validation results
+            console.log(values);
+            console.log(errors);
+            console.log(results);
         },
         onStudentSubmit() {
             var tempStudent = this.student;
+            let params = {
+                name: tempStudent.name,
+                surname: tempStudent.surname,
+                patronymic: tempStudent.patronymic,
+                birthday: tempStudent.birthday,
+                email: tempStudent.email,
+                phone: tempStudent.phone,
+                status: tempStudent.status,
+                countryname: tempStudent.countryname
+            };
+
             if (tempStudent.id) {
-                axios.put("http://192.168.1.3:3000/students/" + tempStudent.id,
-                    {
-                        name: tempStudent.name,
-                        surname: tempStudent.surname,
-                        patronymic: tempStudent.patronymic,
-                        birthday: tempStudent.birthday,
-                        email: tempStudent.email,
-                        phone: tempStudent.phone,
-                        status: tempStudent.status,
-                        countryname: tempStudent.countryname
-                    })
+                StudentService.updateStudent(tempStudent.id, params)
                     .then(alert("Запрос отправлен"))
                     .catch(err => {
                         alert("Ошибка на стороне сервера " + err)
@@ -164,22 +162,14 @@ export default {
                 this.$router.go();
             }
             else {
-                axios.post("http://192.168.1.3:3000/students",
-                    {
-                        name: tempStudent.name,
-                        surname: tempStudent.surname,
-                        patronymic: tempStudent.patronymic,
-                        birthday: tempStudent.birthday,
-                        email: tempStudent.email,
-                        phone: tempStudent.phone,
-                        status: tempStudent.status,
-                        countryname: tempStudent.countryname,
+                StudentService.createStudent(params)
+                    .then(response => {
+                        alert("Запрос отправлен");
+                        window.location.replace("/students/" + response.data.id);
                     })
-                    .then(alert("Запрос отправлен"))
                     .catch(err => {
                         alert("Ошибка на стороне сервера " + err)
                     });
-                this.$router.go();
             }
 
         },

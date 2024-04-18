@@ -1,11 +1,8 @@
 import axios from 'axios'   
-import { API_BASE_URL, TEMP_BASE_URL } from '.';
-
-const AUTH_API_BASE_URL = TEMP_BASE_URL + "/api/auth"
 
 class AuthService{    
     signing(user){       
-        return axios.post(AUTH_API_BASE_URL + "/signing", {
+        return axios.post("auth/signing", {
             login: user.username, password: user.password
         }).then(response => {
             if (response.data) {
@@ -16,25 +13,25 @@ class AuthService{
     }
     
     signingtfa(username, password){
-        return axios.post(AUTH_API_BASE_URL + "/signing/tfa", {
+        return axios.post("auth/signing/tfa", {
             params: { username: username, password: password }
         });
     }
 
     restore(email){
-        return axios.post(AUTH_API_BASE_URL + "/signing", {
+        return axios.post("auth/signing", {
             params: { email: email }
         });
     }
     
     restoreByToken(token, email){
-        return axios.post(AUTH_API_BASE_URL + `/signing/${token}`, {
+        return axios.post(`auth/signing/${token}`, {
             params: { email: email }
         }); 
     }
 
     refreshToken(refresh_token){
-        return axios.post(AUTH_API_BASE_URL + `/signing/{token}`, {
+        return axios.post(`auth/signing/{token}`, {
             params: { refresh_token: refresh_token }
         });
     }
