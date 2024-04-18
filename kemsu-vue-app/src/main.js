@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import { createStore } from 'vuex';
+import Vue3Sanitize from "vue-3-sanitize";
 import store from './store';
 import App from './App.vue';
 import axios from 'axios';
@@ -100,6 +101,7 @@ axios.defaults.headers.get['Access-Control-Allow-Credentials'] = 'true';
 
 app.config.productionTip = false;
 app.use(thisstore);
+app.use(Vue3Sanitize);
 app.use(router);
 app.component("font-awesome-icon", FontAwesomeIcon);
 app.mount('#app');

@@ -45,7 +45,7 @@
 
             <div>
                 <a class="card-a rounded-0 text-decoration-none card" v-for="student in students" :key="student.id"
-                    v-bind:href=makeDynamicLink(student.id)>
+                    v-bind:href="$sanitize('/students/' + student.id)">
                     <div class=" card-body p-2 align-self-start">
                         <h4 class="card-title" align-self-start>{{ student.surname }} {{ student.name }} {{
                             student.patronymic }}</h4>
