@@ -4,19 +4,19 @@
         <div class="input-group d-flex flex-column">
             <label for="name" class="form-label">Имя*</label>
             <Field :disabled="disabled" type="text" v-model="student.name" class="form-control w-100 rounded-0"
-                name="name" v-on:keypress="isLetter($event)"/>
+                name="name" v-on:keypress="isLetter($event)" />
             <ErrorMessage class="alert alert-danger" name="name"></ErrorMessage>
         </div>
         <div class="input-group d-flex flex-column">
             <label for="surname" class="form-label">Фамилия*</label>
             <Field :disabled="disabled" type="text" v-model="student.surname" class="form-control w-100 rounded-0"
-                name="surname" v-on:keypress="isLetter($event)"/>
+                name="surname" v-on:keypress="isLetter($event)" />
             <ErrorMessage class="alert alert-danger" name="surname"></ErrorMessage>
         </div>
         <div class="input-group d-flex flex-column">
             <label for="patronymic" class="form-label">Отчество</label>
             <Field :disabled="disabled" type="text" v-model="student.patronymic" class="form-control w-100 rounded-0"
-                name="patronymic" v-on:keypress="isLetter($event)"/>
+                name="patronymic" v-on:keypress="isLetter($event)" />
         </div>
         <div class="input-group d-flex flex-column">
             <label for="email" class="form-label">Почта</label>
@@ -24,15 +24,20 @@
                 name="email" />
             <ErrorMessage class="alert alert-danger" name="email"></ErrorMessage>
         </div>
-        <div class="input-group d-flex flex-column">
-            <label for="male" class="form-label">Пол</label>
-            <Field :disabled="disabled" type="radio" v-model="student.sex" class="form-control w-100 rounded-0"
-                name="sex" id="male" value="true" />
-            <label for="female" class="form-label">Пол</label>~
-            <Field :disabled="disabled" type="radio" v-model="student.sex" class="form-control w-100 rounded-0"
-                name="sex" id="female" value="false" />
-            <ErrorMessage class="alert alert-danger" name="sex"></ErrorMessage>
+
+        <div class="d-flex justify-content-around">
+            <div class="form-check">                
+                <Field :disabled="disabled" type="radio" v-model="student.sex" class="form-check-input"
+                    name="sex" id="male" value="true" />
+                <label for="male" class="form-check-label">Женский</label>
+            </div>
+            <div class="form-check">                
+                <Field :disabled="disabled" type="radio" v-model="student.sex" class="form-check-input"
+                    name="sex" id="female" value="false" />
+                <label for="female" class="form-check-label">Мужской</label>
+            </div>
         </div>
+
         <div class="input-group d-flex flex-column">
             <label for="phone" class="form-label">Телефон</label>
             <Field :disabled="disabled" type="text" v-model="student.phone" class="form-control w-100 rounded-0"
@@ -102,9 +107,10 @@ export default {
         if (this.$route.params.id) {
             let id = this.$route.params.id
             StudentService.getStudent(id).then(response => { this.student = response.data[0] });
-        }
+        }        
         else {
             disabled = false;
+            student.sex = false;
         }
         return {
             disabled,
@@ -117,7 +123,7 @@ export default {
         schema() {
             let requiredErrorMsg = "Поле должно быть заполнено";
 
-            const phoneRegExp = /^[+]?[(]?\d{3})?[-\s.]?\d{3}[-\s\]?[0-9]{4,6}$/;
+            const phoneRegExp = /^[+]?[(]?\d{3}[)]?[-\s.]?\d{3}[-\s\]?[0-9]{4,6}$/;
 
             return yup.object({
                 email: yup.string().required(requiredErrorMsg).email("Неправильный почтовый адрес"),
