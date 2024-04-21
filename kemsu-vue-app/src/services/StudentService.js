@@ -31,6 +31,7 @@ class StudentService {
                 birthday: params.birthday,
                 email: params.email,
                 phone: params.phone,
+                sex: params.sex,
                 status: params.status,
                 countryname: params.countryname
             },
@@ -47,6 +48,7 @@ class StudentService {
             birthday: params.birthday,
             email: params.email,
             phone: params.phone,
+            sex: params.sex,
             status: params.status,
             countryname: params.countryname,
 

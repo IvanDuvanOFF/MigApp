@@ -5,7 +5,7 @@
                 <h3>Вам на почту был отправлен шестизначный код</h3>
                 <label for="code">Код</label>
                 <Field :rules="validateField" id="code" v-model.number="code" type="text"
-                    class="form-control text-center mt-3 mb-3" name="code" autocomplete="false" maxlength="6"/>
+                    class="form-control text-center mt-3 mb-3" name="code" autocomplete="off" maxlength="6"/>
                 <ErrorMessage name="code" class="alert alert-danger"></ErrorMessage>
 
                 <button class="btn btn-dark btn-lg" type="submit">Войти</button>
@@ -17,8 +17,6 @@
         </Form>
     </div>
 </template>
-
-<style></style>
 
 <script>
 import { Field, Form, ErrorMessage } from 'vee-validate';

@@ -2,36 +2,45 @@
     <Form @invalid-submit="onInvalidSubmit" @submit="onStudentSubmit" name="studentForm" :validation-schema="schema"
         style="border: 1px solid darkgrey;" class="col d-flex flex-column justify-content-xl-center p-3 gap-3">
         <div class="input-group d-flex flex-column">
-            <label class="form-label">Имя*</label>
+            <label for="name" class="form-label">Имя*</label>
             <Field :disabled="disabled" type="text" v-model="student.name" class="form-control w-100 rounded-0"
                 name="name" v-on:keypress="isLetter($event)"/>
             <ErrorMessage class="alert alert-danger" name="name"></ErrorMessage>
         </div>
         <div class="input-group d-flex flex-column">
-            <label class="form-label">Фамилия*</label>
+            <label for="surname" class="form-label">Фамилия*</label>
             <Field :disabled="disabled" type="text" v-model="student.surname" class="form-control w-100 rounded-0"
                 name="surname" v-on:keypress="isLetter($event)"/>
             <ErrorMessage class="alert alert-danger" name="surname"></ErrorMessage>
         </div>
         <div class="input-group d-flex flex-column">
-            <label class="form-label">Отчество</label>
+            <label for="patronymic" class="form-label">Отчество</label>
             <Field :disabled="disabled" type="text" v-model="student.patronymic" class="form-control w-100 rounded-0"
                 name="patronymic" v-on:keypress="isLetter($event)"/>
         </div>
         <div class="input-group d-flex flex-column">
-            <label class="form-label">Почта</label>
+            <label for="email" class="form-label">Почта</label>
             <Field :disabled="disabled" type="email" v-model="student.email" class="form-control w-100 rounded-0"
                 name="email" />
             <ErrorMessage class="alert alert-danger" name="email"></ErrorMessage>
         </div>
         <div class="input-group d-flex flex-column">
-            <label class="form-label">Телефон</label>
+            <label for="male" class="form-label">Пол</label>
+            <Field :disabled="disabled" type="radio" v-model="student.sex" class="form-control w-100 rounded-0"
+                name="sex" id="male" value="true" />
+            <label for="female" class="form-label">Пол</label>~
+            <Field :disabled="disabled" type="radio" v-model="student.sex" class="form-control w-100 rounded-0"
+                name="sex" id="female" value="false" />
+            <ErrorMessage class="alert alert-danger" name="sex"></ErrorMessage>
+        </div>
+        <div class="input-group d-flex flex-column">
+            <label for="phone" class="form-label">Телефон</label>
             <Field :disabled="disabled" type="text" v-model="student.phone" class="form-control w-100 rounded-0"
                 name="phone" />
             <ErrorMessage class="alert alert-danger" name="phone"></ErrorMessage>
         </div>
         <div class="input-group d-flex flex-column">
-            <label class="form-label">День рождения</label>
+            <label for="birhtday" class="form-label">День рождения</label>
             <Field :disabled="disabled" type="date" v-model="student.birthday" class="form-control w-100 rounded-0"
                 name="birthday" />
             <ErrorMessage class="alert alert-danger" name="birthday"></ErrorMessage>
@@ -106,9 +115,9 @@ export default {
     },
     computed: {
         schema() {
-            var requiredErrorMsg = "Поле должно быть заполнено";
+            let requiredErrorMsg = "Поле должно быть заполнено";
 
-            const phoneRegExp = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s\]?[0-9]{4,6}$/;
+            const phoneRegExp = /^[+]?[(]?\d{3})?[-\s.]?\d{3}[-\s\]?[0-9]{4,6}$/;
 
             return yup.object({
                 email: yup.string().required(requiredErrorMsg).email("Неправильный почтовый адрес"),
@@ -121,8 +130,8 @@ export default {
     },
     methods: {
         addDocument(value) {
-            var docType = value.target.innerText;
-            var newDoc = {
+            let docType = value.target.innerText;
+            let newDoc = {
                 accepted: false,
                 name: docType
             }
@@ -146,7 +155,7 @@ export default {
             console.log(results);
         },
         onStudentSubmit() {
-            var tempStudent = this.student;
+            let tempStudent = this.student;
             let params = {
                 name: tempStudent.name,
                 surname: tempStudent.surname,
@@ -155,6 +164,7 @@ export default {
                 email: tempStudent.email,
                 phone: tempStudent.phone,
                 status: tempStudent.status,
+                sex: tempStudent.sex,
                 countryname: tempStudent.countryname
             };
 

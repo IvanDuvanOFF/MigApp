@@ -60,7 +60,7 @@ export default {
 }
 
 .application {
-  font-family: "Jura";
+  font-family: "Jura", serif;
 }
 
 .navbar-link {
