@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "migapi",
+        "projectKey": "IvanDuvanOFF_MigApp"
+    }
+}
