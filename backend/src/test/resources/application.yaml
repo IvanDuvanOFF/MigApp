@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    username: postgres
+    password: 1234
+    url: jdbc:tc:postgresql:15:///test
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ivan.duvanov.3@gmail.com
+    password: pilnamucvqamgbnz
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+mig:
+  jwt:
+    secret: nevergonnagiveyouupnevergonnaletyoudownnevergonnarunaroundanddesertyou
+    expiration-ms: 1440000
+    refresh-expiration: 10080000
+    verification-expiration: 1440000
+server:
+  port: 8080
