@@ -2,10 +2,10 @@ spring:
   application:
     name: mig-api
   datasource:
-    username: postgres
-    password: 25d45DbD3f5CA3b3F-gD6E*CaaEgBbb*
+    username: ivan # postgres
+    password: 1234 # 25d45DbD3f5CA3b3F-gD6E*CaaEgBbb*
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://viaduct.proxy.rlwy.net:11498/mig
+    url: jdbc:postgresql://localhost:5432/mig # jdbc:postgresql://viaduct.proxy.rlwy.net:11498/mig
   mail:
     host: smtp.gmail.com
     port: 587
@@ -18,6 +18,13 @@ spring:
           starttls:
             enable: true
             required: true
+  cache:
+    type: redis
+  data:
+    redis:
+      host: redis
+      port: 6379
+      ttl: 10000
   flyway:
     locations:
       - classpath:/db/migration
@@ -29,5 +36,13 @@ mig:
     expiration-ms: 1440000
     refresh-expiration: 10080000
     verification-expiration: 1440000
+  tfa:
+    expiration-ms: 600000
 server:
   port: 8080
+springdoc:
+  swagger-ui:
+    path: /swagger/swagger-ui
+  api-docs:
+    enabled: true
+    path: /swagger/api-docs

@@ -1,0 +1,62 @@
+name: Master CI
+
+on:
+  push:
+    branches: [ "backend-auth" ]
+  pull_request:
+    branches: [ "backend-auth" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Grand executive permission for gradlew
+        working-directory: ./backend
+        run: chmod +x ./gradlew
+
+      - name: Echo files
+        working-directory: ./backend
+        run: ls
+
+      - name: Gradlew clean
+        working-directory: ./backend
+        run: ./gradlew clean
+
+      - name: Gradlew test run
+        id: test
+        working-directory: ./backend
+        run: ./gradlew test
+
+      - name: Successful tests
+        if: steps.test.outcome != 'success'
+        run: |
+          echo "Tests error"
+          exit 1
+
+      - name: Successful build
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_ME }}
+          token: ${{ secrets.TELEGRAM_NOT }}
+          message: |
+            ✅ Application build done
+            Check report on https://github.com/IvanDuvanOFF/MigApp/actions
+
+      - name: Send alert in Telegram
+        if: failure()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_ME }}
+          token: ${{ secrets.TELEGRAM_NOT }}
+          message: |
+            ❌ Failed to build
+            Check report on https://github.com/IvanDuvanOFF/MigApp/actions

@@ -18,6 +18,8 @@ spring:
           starttls:
             enable: true
             required: true
+  cache:
+    type: redis
   data:
     redis:
       host: localhost
@@ -37,3 +39,16 @@ mig:
     expiration-ms: 600000
 server:
   port: 8080
+springdoc:
+  swagger-ui:
+    path: /swagger/swagger-ui
+  api-docs:
+    enabled: true
+    path: /swagger/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      base-path: /actuator
