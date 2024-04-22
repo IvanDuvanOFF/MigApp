@@ -36,9 +36,9 @@ class SecurityConfiguration(
                     .requestMatchers("/greeting/**").permitAll()
                     .requestMatchers("/api-docs/**").permitAll()
                     .requestMatchers("/index/**").permitAll()
-                    .requestMatchers("/swagger/**").permitAll()
-                    .requestMatchers("/swagger-resources/**").permitAll()
-                    .requestMatchers("/swagger-resources").permitAll()
+                    .requestMatchers("/api/swagger/**").permitAll()
+                    .requestMatchers("/api/swagger-resources/**").permitAll()
+                    .requestMatchers("/api/swagger-resources").permitAll()
                     .requestMatchers("/actuator/**").permitAll()
                     .anyRequest().authenticated()
             }
