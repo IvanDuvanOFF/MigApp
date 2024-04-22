@@ -5,7 +5,7 @@ services:
     container_name: app
     image: 'mig-api:latest'
     build:
-      dockerfile: ./backend/docker/dev/Dockerfile
+      dockerfile: ./docker/dev/Dockerfile
       context: ./backend
     expose:
       - 8080
@@ -22,7 +22,7 @@ services:
       redis-network:
         ipv4_address: 192.168.128.3
     volumes:
-      - /tmp/mig-api/api:/tmp/mig-api/api
+      - ./tmp/mig-api/api:/tmp/mig-api/api
 
   db:
     image: 'postgres:15-alpine'
@@ -39,7 +39,7 @@ services:
       - POSTGRES_DB=mig
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
-      - /tmp/mig-api/pgdata:/var/lib/postgresql/data/pgdata
+      - ./tmp/mig-api/pgdata:/var/lib/postgresql/data/pgdata
     ports:
       - 5432:5432
     healthcheck:
@@ -64,7 +64,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: "pASSword"
       PGADMIN_CONFIG_SERVER_MODE: "False"
     volumes:
-      - /tmp/mig-api/pgadmin:/var/lib/pgadmin
+      - ./tmp/mig-api/pgadmin:/var/lib/pgadmin
     ports:
       - "5050:80"
     restart: unless-stopped
@@ -93,8 +93,8 @@ services:
   front:
     image: front
     build:
-      dockerfile: ./kemsu-vue-app/docker/dev/Dockerfile
-      context: .
+      dockerfile: ./docker/dev/Dockerfile
+      context: ./kemsu-vue-app
     container_name: front
     depends_on:
       - app
