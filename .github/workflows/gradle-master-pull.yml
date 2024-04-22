@@ -5,7 +5,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build-test:
+  build-test-api:
     name: Compile and test application
 
     runs-on: ubuntu-latest
@@ -41,6 +41,13 @@ jobs:
         run: |
           echo "Tests error"
           exit 1
+
+      - name: Vuejs test build
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - run: npm install
+      - run: npm run build
 
       - name: Successful build
         uses: appleboy/telegram-action@master
