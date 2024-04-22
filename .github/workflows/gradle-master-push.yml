@@ -22,10 +22,6 @@ jobs:
         working-directory: ./backend
         run: chmod +x ./gradlew
 
-      - name: Echo files
-        working-directory: ./backend
-        run: ls
-
       - name: Gradlew clean
         working-directory: ./backend
         run: ./gradlew clean
@@ -75,8 +71,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
-          source: "./backend"
-          target: "/home/admin/app/mig-api"
+          source: "."
+          target: "/home/admin/app/mig-app"
 
   docker-build:
     name: Build docker image and send it to DockerHub
@@ -139,8 +135,8 @@ jobs:
             
             su admin
 
-            cd /home/admin/app/mig-api/backend
-            mkdir -p ./tmp/api ./tmp/pgadmin/sessions ./tmp/pgdata
+            cd /home/admin/app/mig-app
+            mkdir -p ./tmp/mig-app/api ./tmp/mig-app/pgdata
             chmod -R 666 ./tmp
 
             docker compose up -d --build > logs.txt

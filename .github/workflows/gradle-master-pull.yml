@@ -27,10 +27,6 @@ jobs:
         working-directory: ./backend
         run: chmod +x ./gradlew
 
-      - name: Echo files
-        working-directory: ./backend
-        run: ls
-
       - name: Gradlew clean
         working-directory: ./backend
         run: ./gradlew clean
