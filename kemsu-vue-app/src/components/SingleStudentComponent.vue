@@ -117,7 +117,7 @@ export default {
         schema() {
             let requiredErrorMsg = "Поле должно быть заполнено";
 
-            const phoneRegExp = /^[+]?[(]?\d{3})?[-\s.]?\d{3}[-\s\]?[0-9]{4,6}$/;
+            const phoneRegExp = /^[+]?[(]?\d{3}?[-\s.]?\d{3}[-\s\]?[0-9]{4,6}$/;
 
             return yup.object({
                 email: yup.string().required(requiredErrorMsg).email("Неправильный почтовый адрес"),
