@@ -1,12 +1,12 @@
-version: '0.0.9'
+version: '3.8'
 
 services:
   app:
     container_name: app
     image: 'mig-api:latest'
     build:
-      dockerfile: ./docker/dev/Dockerfile
       context: ./backend
+      dockerfile: ./docker/dev/Dockerfile
     expose:
       - 8080
     depends_on:
@@ -22,10 +22,10 @@ services:
       redis-network:
         ipv4_address: 192.168.128.3
     volumes:
-      - type: bind
-        source: ./tmp/mig-app/api
+      - type: volume
+        source: api-volume
         target: /tmp/mig-app/api
-    restart: on-failure:3
+    restart: on-failure
 
   db:
     image: 'postgres:15-alpine'
@@ -42,8 +42,8 @@ services:
       - POSTGRES_DB=mig
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
-      - type: bind
-        source: ./tmp/mig-app/pgdata
+      - type: volume
+        source: db-volume
         target: /var/lib/postgresql/data/pgdata
     ports:
       - "5432:5432"
@@ -56,7 +56,7 @@ services:
     networks:
       app-network:
         ipv4_address: 192.168.112.2
-    restart: on-failure:5
+    restart: on-failure
 
   pgadmin:
     container_name: pgadmin
@@ -69,7 +69,7 @@ services:
       PGADMIN_CONFIG_SERVER_MODE: "False"
     volumes:
       - type: volume
-        source: pgadmin
+        source: pgadmin-volume
         target: /var/lib/pgadmin
     ports:
       - "5050:80"
@@ -99,8 +99,8 @@ services:
   front:
     image: front
     build:
-      dockerfile: ./docker/dev/Dockerfile
       context: ./kemsu-vue-app
+      dockerfile: ./docker/dev/Dockerfile
     container_name: front
     depends_on:
       - app
@@ -116,11 +116,9 @@ services:
     depends_on:
       - front
     ports:
-      - 80:80
+      - "80:80"
     volumes:
-      - type: bind
-        source: ./nginx/conf.d
-        target: /etc/nginx/conf.d
+      - ./nginx/conf.d:/etc/nginx/conf.d
     networks:
       app-network:
         ipv4_address: 192.168.112.5
@@ -146,4 +144,9 @@ networks:
           gateway: 192.168.144.1
 
 volumes:
-  pgadmin:
+  db-volume:
+    driver: local
+  api-volume:
+    driver: local
+  pgadmin-volume:
+    driver: local
