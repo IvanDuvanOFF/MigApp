@@ -52,12 +52,12 @@ jobs:
         run: npm install
 
       - name: Build Vue.js project
-        id: front-build
+        id: vuebuild
         working-directory: ./kemsu-vue-app
         run: npm run build
 
       - name: Successful frontend build
-        if: steps.test.front-build != 'success'
+        if: steps.test.vuebuild != 'success'
         run: |
           echo "Build error"
           exit 1
