@@ -133,6 +133,8 @@ jobs:
             echo "I am $DOCKERHUB_USERNAME"
             docker pull "${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}"
 
+            su admin
+
             cd /home/admin/app/mig-app
             mkdir -p ./tmp/mig-app/api ./tmp/mig-app/pgdata
             chmod -R 666 ./tmp
