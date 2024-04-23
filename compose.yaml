@@ -1,17 +1,12 @@
-version: '0.0.9'
+version: '3.8'
 
 services:
   app:
+    image: mig-api:latest
     container_name: app
-    image: 'mig-api:latest'
     build:
-      dockerfile: ./docker/dev/Dockerfile
       context: ./backend
-    expose:
-      - 8080
-    depends_on:
-      - db
-      - redis
+      dockerfile: ./docker/dev/Dockerfile
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/mig
       - SPRING_DATASOURCE_USERNAME=ivan
@@ -21,109 +16,114 @@ services:
         ipv4_address: 192.168.112.3
       redis-network:
         ipv4_address: 192.168.128.3
+    expose:
+      - 8080
     volumes:
-      - type: bind
-        source: ./tmp/mig-app/api
+      - type: volume
+        source: api-volume
         target: /tmp/mig-app/api
-    restart: on-failure:3
+    depends_on:
+      - db
+      - redis
+    restart: on-failure
 
   db:
-    image: 'postgres:15-alpine'
-    command:
-      - "postgres"
-      - "-c"
-      - "log_min_duration_statement=200ms"
-      - "-c"
-      - "idle_in_transaction_session_timeout=10s"
+    image: postgres:15-alpine
     container_name: db
+    command:
+      - 'postgres'
+      - '-c'
+      - 'log_min_duration_statement=200ms'
+      - '-c'
+      - 'idle_in_transaction_session_timeout=10s'
     environment:
       - POSTGRES_USER=ivan
       - POSTGRES_PASSWORD=pASSword
       - POSTGRES_DB=mig
       - PGDATA=/var/lib/postgresql/data/pgdata
-    volumes:
-      - type: bind
-        source: ./tmp/mig-app/pgdata
-        target: /var/lib/postgresql/data/pgdata
+    networks:
+      app-network:
+        ipv4_address: 192.168.112.2
     ports:
-      - "5432:5432"
+      - '5432:5432'
+    volumes:
+      - type: volume
+        source: db-volume
+        target: /var/lib/postgresql/data/pgdata
+    restart: on-failure
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ivan -d mig"]
+      test: ['CMD-SHELL', 'pg_isready -U ivan -d mig']
       interval: 120s
       timeout: 10s
       retries: 3
       start_period: 90s
-    networks:
-      app-network:
-        ipv4_address: 192.168.112.2
-    restart: on-failure:5
 
   pgadmin:
-    container_name: pgadmin
     image: dpage/pgadmin4
-    links:
-      - db
+    container_name: pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: "ivan.duvanov.3@gmail.com"
-      PGADMIN_DEFAULT_PASSWORD: "pASSword"
-      PGADMIN_CONFIG_SERVER_MODE: "False"
-    volumes:
-      - type: volume
-        source: pgadmin
-        target: /var/lib/pgadmin
-    ports:
-      - "5050:80"
-    deploy:
-      resources:
-        limits:
-          cpus: "0.25"
-          memory: 256M
-    depends_on:
-      - db
+      - PGADMIN_DEFAULT_EMAIL=ivan.duvanov.3@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=pASSword
+      - PGADMIN_CONFIG_SERVER_MODE=False
     networks:
       pg-network:
         ipv4_address: 192.168.144.2
       app-network:
         ipv4_address: 192.168.112.4
+    ports:
+      - '5050:80'
+    volumes:
+      - type: volume
+        source: pgadmin-volume
+        target: /var/lib/pgadmin
+    links:
+      - db
+    depends_on:
+      - db
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
 
   redis:
     image: redis
     container_name: redis
-    ports:
-      - "6379:6379"
     networks:
       redis-network:
         ipv4_address: 192.168.128.2
+    ports:
+      - '6379:6379'
 
   front:
     image: front
-    build:
-      dockerfile: ./docker/dev/Dockerfile
-      context: ./kemsu-vue-app
     container_name: front
-    depends_on:
-      - app
-    expose:
-      - 3000
+    build:
+      context: ./kemsu-vue-app
+      dockerfile: ./docker/dev/Dockerfile
     networks:
       app-network:
         ipv4_address: 192.168.112.6
+    expose:
+      - 3000
+    depends_on:
+      - app
 
   nginx:
-    container_name: nginx
     image: nginx:latest
-    depends_on:
-      - front
+    container_name: nginx
+    networks:
+      app-network:
+        ipv4_address: 192.168.112.5
     ports:
-      - 80:80
+      - '80:80'
     volumes:
       - type: bind
         source: ./nginx/conf.d
         target: /etc/nginx/conf.d
-    networks:
-      app-network:
-        ipv4_address: 192.168.112.5
+    depends_on:
+      - front
 
 networks:
   redis-network:
@@ -146,4 +146,9 @@ networks:
           gateway: 192.168.144.1
 
 volumes:
-  pgadmin:
+  db-volume:
+    driver: local
+  api-volume:
+    driver: local
+  pgadmin-volume:
+    driver: local
