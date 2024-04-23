@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: 'mig-api:latest'
+    image: mig-api:latest
     container_name: app
     build:
       context: ./backend
@@ -28,14 +28,14 @@ services:
     restart: on-failure
 
   db:
-    image: 'postgres:15-alpine'
+    image: postgres:15-alpine
     container_name: db
     command:
-      - "postgres"
-      - "-c"
-      - "log_min_duration_statement=200ms"
-      - "-c"
-      - "idle_in_transaction_session_timeout=10s"
+      - 'postgres'
+      - '-c'
+      - 'log_min_duration_statement=200ms'
+      - '-c'
+      - 'idle_in_transaction_session_timeout=10s'
     environment:
       - POSTGRES_USER=ivan
       - POSTGRES_PASSWORD=pASSword
@@ -45,14 +45,14 @@ services:
       app-network:
         ipv4_address: 192.168.112.2
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - type: volume
         source: db-volume
         target: /var/lib/postgresql/data/pgdata
     restart: on-failure
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ivan -d mig"]
+      test: ['CMD-SHELL', 'pg_isready -U ivan -d mig']
       interval: 120s
       timeout: 10s
       retries: 3
@@ -62,16 +62,16 @@ services:
     image: dpage/pgadmin4
     container_name: pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: "ivan.duvanov.3@gmail.com"
-      PGADMIN_DEFAULT_PASSWORD: "pASSword"
-      PGADMIN_CONFIG_SERVER_MODE: "False"
+      - PGADMIN_DEFAULT_EMAIL=ivan.duvanov.3@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=pASSword
+      - PGADMIN_CONFIG_SERVER_MODE=False
     networks:
       pg-network:
         ipv4_address: 192.168.144.2
       app-network:
         ipv4_address: 192.168.112.4
     ports:
-      - "5050:80"
+      - '5050:80'
     volumes:
       - type: volume
         source: pgadmin-volume
@@ -84,7 +84,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.25"
+          cpus: '0.25'
           memory: 256M
 
   redis:
@@ -94,7 +94,7 @@ services:
       redis-network:
         ipv4_address: 192.168.128.2
     ports:
-      - "6379:6379"
+      - '6379:6379'
 
   front:
     image: front
@@ -117,7 +117,7 @@ services:
       app-network:
         ipv4_address: 192.168.112.5
     ports:
-      - "80:80"
+      - '80:80'
     volumes:
       - type: bind
         source: ./nginx/conf.d
