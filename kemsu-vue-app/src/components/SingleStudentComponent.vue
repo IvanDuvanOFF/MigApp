@@ -20,8 +20,15 @@
         </div>
         <div class="input-group d-flex flex-column">
             <label for="email" class="form-label">Почта</label>
-            <Field :disabled="disabled" type="email" v-model="student.email" class="form-control w-100 rounded-0"
-                name="email" />
+            <div class="input-group">
+                <Field :disabled="disabled" type="email" v-model="student.email" class="form-control rounded-0"
+                    name="email" />
+                
+                <button type="button" class="btn btn-info" :disabled="!disabled"
+                    data-bs-toggle="modal" data-bs-target="#mailModal" :data-bs-whatever="student.email">
+                    <font-awesome-icon icon="mail-bulk" />
+                </button>
+            </div>
             <ErrorMessage class="alert alert-danger" name="email"></ErrorMessage>
         </div>
 
@@ -80,22 +87,25 @@
                     href="#">{{ docType.name }}</a>
             </div>
         </div>
-
     </Form>
+
+    <MailModal v-model:email="student.email" />    
 </template>
 
 <script>
 import { Field, Form, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import StudentService from '@/services/StudentService.js';
+import MailModal from '@/components/MailModal.vue';
 
 export default {
     name: "SingleStudentComponent",
     components: {
         Field,
         Form,
-        ErrorMessage
-    },
+        ErrorMessage,
+        MailModal
+    },    
     data() {
         let student = {};
         let disabled = true;
@@ -111,7 +121,8 @@ export default {
         else {
             disabled = false;
             student.sex = false;
-        }
+        }        
+
         return {
             disabled,
             docTypes,

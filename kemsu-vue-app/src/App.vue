@@ -60,7 +60,7 @@ export default {
 }
 
 .application {
-  font-family: "Jura", serif;
+  font-family: "Jura", serif;  
 }
 
 .navbar-link {
@@ -70,6 +70,7 @@ export default {
   border-bottom-color: #000000 !important;
   border-bottom-width: 1px !important;
   text-align: left !important;
+  font-size: larger !important;
 }
 
 .navbar-link.exit {
@@ -81,9 +82,9 @@ export default {
 }
 
 .navbar-link:hover {
-  background-color: rgb(181, 181, 181) !important;
-  font-size: large !important;
+  background-color: rgb(255, 255, 255) !important;  
   transition-duration: 250ms;
+  font-size: larger !important;
 }
 
 body{
@@ -92,6 +93,7 @@ body{
 
 #app {
   font-family: Jura, sans-serif;
+  font-size: larger !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

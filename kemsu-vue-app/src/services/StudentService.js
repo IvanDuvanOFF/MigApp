@@ -22,20 +22,17 @@ class StudentService {
     updateStudent(id, params) {
         params.id = id;
 
-        return axios.put('students', {
-            params: {
-                id: params.id,
-                name: params.name,
-                surname: params.surname,
-                patronymic: params.patronymic,
-                birthday: params.birthday,
-                email: params.email,
-                phone: params.phone,
-                sex: params.sex,
-                status: params.status,
-                countryname: params.countryname
-            },
-            headers: AuthHeader()
+        return axios.put('students/' + id, {
+            id: params.id,
+            name: params.name,
+            surname: params.surname,
+            patronymic: params.patronymic,
+            birthday: params.birthday,
+            email: params.email,
+            phone: params.phone,
+            sex: params.sex,
+            status: params.status,
+            countryname: params.countryname
         });
     }
 
@@ -58,7 +55,7 @@ class StudentService {
 
     // Удалить конкретного студента
     removeStudent(id) {
-        return axios.delete('students', {
+        return axios.delete('students/' + id, {
             params: { id: id },
             headers: AuthHeader()
         })

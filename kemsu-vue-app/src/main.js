@@ -14,7 +14,8 @@ import SingleStudentComponent from './components/SingleStudentComponent.vue';
 import { auth } from './store/auth.module';
 import CodeComponent from './components/CodeComponent.vue';
 import SettingsComponent from './components/SettingsComponent.vue';
-import { BASE_URL } from './urls';
+
+import { LOCAL_URL } from './urls';
 
 const app = createApp(App);
 const routes = [
@@ -88,7 +89,7 @@ router.beforeEach((to, from, next) => {
 const thisstore = createStore(store);
 thisstore.registerModule('auth', auth);
 
-axios.defaults.baseURL = BASE_URL;
+axios.defaults.baseURL = LOCAL_URL;
 axios.interceptors.response.use(response => {
   return response;
 });
