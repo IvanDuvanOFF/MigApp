@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - '80:80'
+    volumes:
+      - type: bind
+        source: ./nginx/set-up-conf.d
+        target: /etc/nginx/conf.d
+      - type: volume
+        source: web-root
+        target: /var/www/certbot
+      - type: volume
+        source: certbot-etc
+        target: /etc/letsencrypt
+      - type: volume
+        source: certbot-var
+        target: /var/lib/letsencrypt
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - type: volume
+        source: certbot-etc
+        target: /etc/letsencrypt
+      - type: volume
+        source: certbot-var
+        target: /var/lib/letsencrypt
+      - type: volume
+        source: web-root
+        target: /var/www/certbot
+    command: certonly --webroot --webroot-path=/var/www/certbot --email ivan.duvanov.3@gmail.com --agree-tos --no-eff-email -d cute-example-deeplom.ru -d www.cute-example-deeplom.ru --preferred-challenges http
+
+volumes:
+  certbot-etc:
+    driver: local
+  certbot-var:
+    driver: local
+  web-root:
+    driver: local

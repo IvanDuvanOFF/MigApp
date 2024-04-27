@@ -118,37 +118,12 @@ services:
         ipv4_address: 192.168.112.5
     ports:
       - '80:80'
-      - '443:443'
     volumes:
       - type: bind
         source: ./nginx/conf.d
         target: /etc/nginx/conf.d
-      - type: volume
-        source: web-root
-        target: /var/www/certbot
-      - type: volume
-        source: certbot-etc
-        target: /etc/letsencrypt
-      - type: volume
-        source: certbot-var
-        target: /var/lib/letsencrypt
     depends_on:
       - front
-      - certbot
-
-  certbot:
-    image: certbot/certbot
-    container_name: certbot
-    volumes:
-      - type: volume
-        source: certbot-etc
-        target: /etc/letsencrypt
-      - type: volume
-        source: certbot-var
-        target: /var/lib/letsencrypt
-      - type: volume
-        source: web-root
-        target: /var/www/certbot
 
 networks:
   redis-network:
@@ -171,12 +146,6 @@ networks:
           gateway: 192.168.144.1
 
 volumes:
-  certbot-etc:
-    driver: local
-  certbot-var:
-    driver: local
-  web-root:
-    driver: local
   db-volume:
     driver: local
   api-volume:
