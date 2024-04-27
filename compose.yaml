@@ -101,12 +101,11 @@ services:
     container_name: front
     build:
       context: ./kemsu-vue-app
-      dockerfile: ./docker/dev/Dockerfile
-    networks:
-      app-network:
-        ipv4_address: 192.168.112.6
-    expose:
-      - 3000
+      dockerfile: ./docker/prod/Dockerfile
+    volumes:
+      - type: volume
+        source: vue-dist
+        target: /front/dist
     depends_on:
       - app
 
@@ -132,6 +131,9 @@ services:
       - type: volume
         source: certbot-var
         target: /var/lib/letsencrypt
+      - type: volume
+        source: vue-dist
+        target: /var/www/html
     depends_on:
       - front
       - certbot
@@ -171,6 +173,8 @@ networks:
           gateway: 192.168.144.1
 
 volumes:
+  vue-dist:
+    driver: local
   certbot-etc:
     driver: local
   certbot-var:
