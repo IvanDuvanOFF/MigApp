@@ -12,7 +12,7 @@ jobs:
       - name: curl actuator
         id: ping
         run: |
-          echo "::set-output name=status::$(curl ${{secrets.SERVER_HOST}}/actuator/health)"
+          echo "::set-output name=status::$(curl ${{secrets.SERVER_DOMAIN}}/actuator/health)"
 
       - name: health check
         run: |
@@ -30,6 +30,6 @@ jobs:
           token: ${{ secrets.TELEGRAM_NOT }}
           message: |
             Health check of the:
-            ${{secrets.SERVER_HOST}}/actuator/health
+            ${{secrets.SERVER_DOMAIN}}/actuator/health
             failed with the result:
             ${{ steps.ping.outputs.status }}

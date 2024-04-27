@@ -136,21 +136,6 @@ services:
         target: /var/www/html
     depends_on:
       - front
-      - certbot
-
-  certbot:
-    image: certbot/certbot
-    container_name: certbot
-    volumes:
-      - type: volume
-        source: certbot-etc
-        target: /etc/letsencrypt
-      - type: volume
-        source: certbot-var
-        target: /var/lib/letsencrypt
-      - type: volume
-        source: web-root
-        target: /var/www/certbot
 
 networks:
   redis-network:

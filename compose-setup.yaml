@@ -33,7 +33,6 @@ services:
       - type: volume
         source: web-root
         target: /var/www/certbot
-    command: certonly --webroot --webroot-path=/var/www/certbot --email ivan.duvanov.3@gmail.com --agree-tos --no-eff-email -d cute-example-deeplom.ru -d www.cute-example-deeplom.ru --preferred-challenges http
 
 volumes:
   certbot-etc:
