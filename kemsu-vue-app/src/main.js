@@ -1,4 +1,4 @@
-import { createApp } from 'vue';
+import { createApp } from 'vue/dist/vue.esm-bundler';
 import { createStore } from 'vuex';
 import Vue3Sanitize from "vue-3-sanitize";
 import store from './store';
@@ -14,6 +14,9 @@ import SingleStudentComponent from './components/SingleStudentComponent.vue';
 import { auth } from './store/auth.module';
 import CodeComponent from './components/CodeComponent.vue';
 import SettingsComponent from './components/SettingsComponent.vue';
+
+import i18n from '@/i18n/index.js';
+import Trans from '@/i18n/translate';
 
 import { LOCAL_URL } from './urls';
 
@@ -74,6 +77,8 @@ const router = createRouter({
   routes
 });
 router.beforeEach((to, from, next) => {
+  Trans.switchLanguage(Trans.getPersistedLocale());
+
   const loggedIn = thisstore.state.auth.status.loggedIn;
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!loggedIn) {
@@ -105,5 +110,6 @@ app.config.productionTip = false;
 app.use(thisstore);
 app.use(Vue3Sanitize);
 app.use(router);
+app.use(i18n);
 app.component("font-awesome-icon", FontAwesomeIcon);
 app.mount('#app');

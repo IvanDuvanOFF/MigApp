@@ -1,0 +1,10 @@
+{
+    "auth": {
+        "username": "Login",
+        "password": "Password",
+        "button": "Sign in"
+    },
+    "settings": {
+        "lang": "Language"
+    }
+}

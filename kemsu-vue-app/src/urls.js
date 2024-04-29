@@ -1,3 +1,5 @@
-export const LOCAL_URL = "http://192.168.1.4:3000/";
-export const BASE_URL = "http://109.71.242.151/api/";
+export const LOCAL_URL = "http://192.168.1.3:3000/";
 export const DEFENDED_BASE_URL = "https://109.71.242.151/api/";
+export const VITE_DEFAULT_LOCALE = "ru";
+export const VITE_FALLBACK_LOCALE = "en";
+export const VITE_SUPPORTED_LOCALES = "en,ru";

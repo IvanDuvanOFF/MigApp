@@ -2,18 +2,18 @@
     <div id="root">
         <Form name="loginForm" novalidate @submit="handleLogin">
             <div class="d-flex flex-column mt-5 flex-wrap w-25 m-auto align-items-center">
-                <label for="username">Логин</label>
+                <label for="username">{{ $t("auth.username") }}</label>
                 <Field :rules="validateField" id="username" v-model="user.username" v-validate="'required'" type="text"
                     class="form-control mt-3 mb-3" name="username" autocomplete="off" />
                 <ErrorMessage name="username" class="alert alert-danger"></ErrorMessage>
 
-                <label for="password">Пароль</label>
+                <label for="password">{{ $t("auth.password") }}</label>
                 <Field :rules="validateField" id="password" v-model="user.password" v-validate="'required'"
                     type="password" class="form-control mt-3 mb-3" name="password" autocomplete="off" />
 
                 <ErrorMessage name="password" class="alert alert-danger"></ErrorMessage>
 
-                <button class="btn btn-dark btn-lg" type="submit">Войти</button>
+                <button class="btn btn-dark btn-lg" type="submit">{{ $t("auth.button") }}</button>
 
                 <div class="form-group mt-3 w-100">
                     <div v-if="message" class="alert alert-danger" role="alert">{{ message }}</div>
