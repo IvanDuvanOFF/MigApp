@@ -27,10 +27,6 @@ jobs:
         working-directory: ./backend
         run: chmod +x ./gradlew
 
-      - name: Echo files
-        working-directory: ./backend
-        run: ls
-
       - name: Gradlew clean
         working-directory: ./backend
         run: ./gradlew clean
@@ -44,6 +40,26 @@ jobs:
         if: steps.test.outcome != 'success'
         run: |
           echo "Tests error"
+          exit 1
+          
+      - name: Use Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        working-directory: ./kemsu-vue-app
+        run: npm install
+
+      - name: Build Vue.js project
+        id: vuebuild
+        working-directory: ./kemsu-vue-app
+        run: npm run build
+
+      - name: Successful frontend build
+        if: steps.vuebuild.outcome != 'success'
+        run: |
+          echo "Build error"
           exit 1
 
       - name: Successful build

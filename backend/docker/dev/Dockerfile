@@ -17,7 +17,7 @@ RUN addgroup -g 1001 ivangroup && \
 
 COPY --from=build /project/build/libs/*SNAPSHOT.jar /mig-api/app.jar
 
-VOLUME /tmp/mig-api
+VOLUME /tmp/mig-app/api
 
 ENV JAVA_OPTS="-Dspring.profiles.active=dev"
 

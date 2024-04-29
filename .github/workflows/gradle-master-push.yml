@@ -22,10 +22,6 @@ jobs:
         working-directory: ./backend
         run: chmod +x ./gradlew
 
-      - name: Echo files
-        working-directory: ./backend
-        run: ls
-
       - name: Gradlew clean
         working-directory: ./backend
         run: ./gradlew clean
@@ -75,8 +71,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
-          source: "./backend"
-          target: "/home/admin/app/mig-api"
+          source: "."
+          target: "/home/admin/app/mig-app"
 
   docker-build:
     name: Build docker image and send it to DockerHub
@@ -134,16 +130,18 @@ jobs:
           port: 22
           envs: DOCKERHUB_USER,DOCKER_IMAGE
           script: |
-            echo "I am $DOCKERHUB_USERNAME"
-            docker pull "${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}"
+            cd /home/admin/app/mig-app
             
-            su admin
-
-            cd /home/admin/app/mig-api/backend
-            mkdir -p ./tmp/api ./tmp/pgadmin/sessions ./tmp/pgdata
-            chmod -R 666 ./tmp
-
-            docker compose up -d --build > logs.txt
+            docker compose -f compose.yaml down
+            
+            docker compose -f compose-setup.yaml up -d nginx 
+            docker compose -f compose-setup.yaml run certbot certonly --webroot --webroot-path=/var/www/certbot --email ivan.duvanov.3@gmail.com --agree-tos --no-eff-email -d db.cute-example-deeplom.ru -d www.db.cute-example-deeplom.ru --preferred-challenges http
+            docker compose -f compose-setup.yaml run certbot certonly --webroot --webroot-path=/var/www/certbot --email ivan.duvanov.3@gmail.com --agree-tos --no-eff-email -d cute-example-deeplom.ru -d www.cute-example-deeplom.ru --preferred-challenges http
+            docker compose -f compose-setup.yaml down nginx
+            
+            docker compose -f compose.yaml up -d --build > logs.txt
+            
+            echo "0 9 * * 1 /usr/bin/docker compose -f /home/admin/app/mig-app/compose-setup.yaml run certbot renew >> /var/log/renew-ssl.log && /usr/bin/docker compose -f /home/admin/app/mig-app/compose.yaml kill -s SIGHUP nginx" | crontab -
 
       - name: Successful tests
         if: steps.deploy.outcome != 'success'
@@ -159,7 +157,7 @@ jobs:
           message: |
             ✅ Application deploy done
             Check it on link:
-            http://${{ secrets.SERVER_HOST }}/actuator/health
+            https://${{ secrets.SERVER_DOMAIN }}/actuator/health
 
       - name: Send alert in Telegram
         if: failure()
