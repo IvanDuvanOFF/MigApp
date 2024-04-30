@@ -1,15 +1,15 @@
 <template>
     <div class="col d-flex flex-column col-3" style="border: 1px solid darkgrey;">
-        <h4 class="font-weight-bold mt-5">Фильтр</h4>
+        <h4 class="font-weight-bold mt-5">{{ $t("list.filter") }}</h4>
         <div class="d-flex flex-column mt-5">
             <div class="input-group d-flex flex-column align-items-center align-items-center">
-                <label for="filter-age" class="form-label">Возраст</label>
+                <label for="filter-age" class="form-label">{{ $t("list.age") }}</label>
                 <input id="filter-age" v-model="age" type="number" class="form-control w-75 rounded-0" />
 
                 <div class="input-group d-flex d-flex flex-column align-items-center">
-                    <label for="filter-country" class="form-label">Страна</label>
+                    <label for="filter-country" class="form-label">{{ $t("list.country") }}</label>
                     <select id="filter-country" v-model="country" class="form-select w-75 rounded-0">
-                        <optgroup label="Страна студента">
+                        <optgroup label="">
                             <option value="" selected>-</option>
                             <option value="country1" selected>Country 1</option>
                             <option value="country2" selected>Country 2</option>
@@ -18,9 +18,9 @@
                 </div>
 
                 <div class="input-group d-flex flex-column align-items-center">
-                    <label for="filter-status" class="form-label">Статус</label>
+                    <label for="filter-status" class="form-label">{{ $t("list.status") }}</label>
                     <select id="filter-status" v-model="studentStatus" class="form-select w-75 rounded-0">
-                        <optgroup label="Статус студента">
+                        <optgroup label="">
                             <option value="">-</option>
                             <option value="status1">Status 1</option>
                             <option value="status2">Status 2</option>

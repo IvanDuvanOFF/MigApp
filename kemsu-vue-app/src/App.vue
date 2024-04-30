@@ -12,10 +12,10 @@
         <img alt="Kemsu logo" class="img-fluid" src="./assets/logo.jpeg">
       </a>
       
-      <a class="btn rounded-0 navbar-link" href="/students">Учет</a>
-      <a class="btn rounded-0 navbar-link" href="#">Уведомления</a>
-      <a class="btn rounded-0 navbar-link settings" href="/settings">Настройки</a>
-      <a class="btn rounded-0 navbar-link exit" @click.prevent="logOut">Выйти</a>      
+      <a class="btn rounded-0 navbar-link" href="/students">{{ $t("navbar.list") }}</a>
+      <a class="btn rounded-0 navbar-link" href="#">{{ $t("navbar.notifications") }}</a>
+      <a class="btn rounded-0 navbar-link settings" href="/settings">{{ $t("navbar.settings") }}</a>
+      <a class="btn rounded-0 navbar-link exit" @click.prevent="logOut">{{ $t("navbar.exit") }}</a>      
     </div>
     
       <router-view />

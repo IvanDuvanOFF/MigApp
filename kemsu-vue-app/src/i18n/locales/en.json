@@ -6,5 +6,43 @@
     },
     "settings": {
         "lang": "Language"
+    },
+    "navbar": {
+        "list": "Students",
+        "notifications": "Notifications",
+        "settings": "Settings",
+        "exit": "Exit"
+    },
+    "list": {
+        "filter": "Filter",
+        "age": "Age",
+        "country": "Country",
+        "status": "Status"
+    },
+    "single": {
+        "name": "Name*",
+        "surname": "Surname*",
+        "patronymic": "Patronymic",
+        "email": "Email*",
+        "phone": "Phone*",
+        "male": "Male",
+        "female": "Female",        
+        "birth": "Birhtday*",
+        "send": "Save",
+        "edit": "Edit",
+        "send-doc": "Save documents",
+        "add-doc": "Add new document"
+    },
+    "mail-modal": {
+        "label": "Email for student",
+        "to": "Recipient",
+        "message": "Message",
+        "close": "Close",
+        "send": "Send"
+    },
+    "errors": {
+        "required": "This field is required",
+        "phone": "Invalid phone number",
+        "email": "Invalid email address"
     }
 }
