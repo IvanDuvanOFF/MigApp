@@ -51,7 +51,8 @@ class AuthenticationController(
             )
         ]
     )
-    fun signIn(@RequestBody signRequest: SignRequest): SignResponse = authenticationService.authenticate(signRequest)
+    fun signIn(@RequestBody signRequest: SignRequest, request: HttpServletRequest): SignResponse =
+        authenticationService.authenticate(signRequest, request)
 
     @PostMapping("signing/tfa")
     @Operation(
@@ -80,8 +81,8 @@ class AuthenticationController(
             )
         ]
     )
-    fun verifySignIn(@RequestBody verificationRequest: VerificationRequest): SignResponse =
-        authenticationService.verifyTfa(verificationRequest)
+    fun verifySignIn(@RequestBody verificationRequest: VerificationRequest, request: HttpServletRequest): SignResponse =
+        authenticationService.verifyTfa(verificationRequest, request)
 
     @PostMapping("refresh")
     @Operation(
@@ -115,8 +116,8 @@ class AuthenticationController(
             )
         ]
     )
-    fun refresh(@RequestBody refreshTokenRequest: RefreshTokenRequest): SignResponse =
-        authenticationService.refreshToken(refreshTokenRequest)
+    fun refresh(@RequestBody refreshTokenRequest: RefreshTokenRequest, request: HttpServletRequest): SignResponse =
+        authenticationService.refreshToken(refreshTokenRequest, request)
 
     @PostMapping("restore")
     @Operation(

@@ -14,10 +14,10 @@ import java.util.*
 @CacheConfig(cacheNames = ["users"])
 interface UserRepository : JpaRepository<User, UUID> {
 
-    @Cacheable(key = "#username", unless = "#result == null")
+//    @Cacheable(key = "#username", unless = "#result == null")
     fun findUserByUsername(username: String): Optional<User>
 
-    @Cacheable(key = "#email", unless = "#result == null")
+//    @Cacheable(key = "#email", unless = "#result == null")
     fun findUserByEmail(email: String): Optional<User>
 
     @Cacheable(key = "#id", unless = "#result == null")

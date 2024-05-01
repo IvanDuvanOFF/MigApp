@@ -5,14 +5,17 @@ import org.example.migapi.core.domain.model.entity.User
 import org.springframework.security.core.userdetails.UserDetails
 
 interface JwtService {
-    fun generateToken(user: User): String
+    fun generateToken(user: User, extraClaims: Map<String, Any>): String
 
-    fun generateRefreshToken(extraClaims: Map<String, Any>, user: User): String
+    fun generateRefreshToken(user: User, extraClaims: Map<String, Any>): String
 
     @Throws(exceptionClasses = [JwtException::class])
     fun extractUsername(token: String): String
 
-    fun isTokenValid(token: String, user: User): Boolean
+    @Throws(exceptionClasses = [JwtException::class, ClassCastException::class])
+    fun extractExtraClaim(token: String, claimName: String): String
 
-    fun isTokenValid(token: String, userDetails: UserDetails): Boolean
+    fun isTokenValid(token: String, user: User, remoteIp: String): Boolean
+
+    fun isTokenValid(token: String, userDetails: UserDetails, remoteIp: String): Boolean
 }
