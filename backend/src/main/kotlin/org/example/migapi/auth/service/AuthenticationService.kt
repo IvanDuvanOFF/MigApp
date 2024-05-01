@@ -1,5 +1,6 @@
 package org.example.migapi.auth.service
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.jsonwebtoken.JwtException
 import jakarta.persistence.PersistenceException
 import jakarta.servlet.http.HttpServletRequest
@@ -39,6 +40,12 @@ class AuthenticationService(
     @Autowired
     private val passwordEncoder: BCryptPasswordEncoder
 ) {
+
+    private val logger = KotlinLogging.logger {  }
+
+    companion object {
+        const val REMOTE_ADDRESS_NAME = "remote-address"
+    }
 
     @Suppress("unused")
     @Throws(
@@ -107,7 +114,11 @@ class AuthenticationService(
             PersistenceException::class
         ]
     )
-    fun authenticate(signRequest: SignRequest): SignResponse {
+    fun authenticate(signRequest: SignRequest, request: HttpServletRequest): SignResponse {
+        request.headerNames.toList().forEach {
+            logger.warn { "HEADER $it = ${request.getHeader(it)}" }
+        }
+
         val authentication = authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(
                 signRequest.login,
@@ -126,7 +137,7 @@ class AuthenticationService(
             return SignResponse(tfaEnabled = true)
         }
 
-        return user.generateSignResponse()
+        return user.generateSignResponse(request)
     }
 
     @Throws(
@@ -136,7 +147,7 @@ class AuthenticationService(
             PersistenceException::class
         ]
     )
-    fun verifyTfa(verificationRequest: VerificationRequest): SignResponse {
+    fun verifyTfa(verificationRequest: VerificationRequest, request: HttpServletRequest): SignResponse {
         val user = userService.findUserByUsername(verificationRequest.username)
 
         if (user.tfaEnabled.not())
@@ -145,7 +156,7 @@ class AuthenticationService(
         if (!totpService.validateCode(user, verificationRequest.code))
             throw BadCredentialsException("Code not correct")
 
-        return user.generateSignResponse()
+        return user.generateSignResponse(request)
     }
 
     @Throws(
@@ -156,20 +167,26 @@ class AuthenticationService(
             PersistenceException::class
         ]
     )
-    fun refreshToken(refreshTokenRequest: RefreshTokenRequest): SignResponse {
+    fun refreshToken(refreshTokenRequest: RefreshTokenRequest, request: HttpServletRequest): SignResponse {
         val username = jwtService.extractUsername(refreshTokenRequest.refreshToken)
+        val remoteIp = migUtils.getRemoteAddress(request)
 
         val user = userService.findUserByUsername(username)
 
-        if (!jwtService.isTokenValid(refreshTokenRequest.refreshToken, user))
+        if (!jwtService.isTokenValid(refreshTokenRequest.refreshToken, user, remoteIp))
             throw VerificationTokenExpiredException("Token expired")
 
-        return user.generateSignResponse()
+        return user.generateSignResponse(request)
     }
 
-    fun User.generateSignResponse(): SignResponse {
-        val jwt = jwtService.generateToken(this)
-        val refreshToken = jwtService.generateRefreshToken(HashMap(), this)
+    fun User.generateSignResponse(request: HttpServletRequest): SignResponse {
+        val remoteIp = migUtils.getRemoteAddress(request)
+        logger.info { "REMOTE IP ADDRESS = $remoteIp" }
+
+        val extraClaims = mutableMapOf(REMOTE_ADDRESS_NAME to remoteIp)
+
+        val jwt = jwtService.generateToken(this, extraClaims)
+        val refreshToken = jwtService.generateRefreshToken(this, extraClaims)
 
         return SignResponse(
             token = jwt,

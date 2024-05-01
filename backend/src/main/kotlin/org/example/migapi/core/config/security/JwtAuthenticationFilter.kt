@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.example.migapi.auth.service.JwtService
 import org.example.migapi.auth.service.MigUserDetailsService
+import org.example.migapi.utils.MigUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
@@ -17,7 +18,9 @@ class JwtAuthenticationFilter(
     @Autowired
     private val jwtService: JwtService,
     @Autowired
-    private val homeUserDetailsService: MigUserDetailsService
+    private val homeUserDetailsService: MigUserDetailsService,
+    @Autowired
+    private val migUtils: MigUtils
 ) : OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -31,13 +34,14 @@ class JwtAuthenticationFilter(
             return
         }
 
+        val remoteIp = migUtils.getRemoteAddress(request)
         val jwt = authHeader.substring(7)
         val username = jwtService.extractUsername(jwt)
 
         if (username.isNotEmpty() && SecurityContextHolder.getContext().authentication == null) {
             val userDetails = homeUserDetailsService.loadUserByUsername(username)
 
-            if (jwtService.isTokenValid(jwt, userDetails)) {
+            if (jwtService.isTokenValid(jwt, userDetails, remoteIp)) {
                 val securityContext = SecurityContextHolder.createEmptyContext()
 
                 val authentication = UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)

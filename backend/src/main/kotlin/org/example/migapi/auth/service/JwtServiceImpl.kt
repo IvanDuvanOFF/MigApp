@@ -21,33 +21,39 @@ class JwtServiceImpl(
     @Value("\${mig.jwt.refresh-expiration}")
     private val refreshExpiration: Int
 ) : JwtService {
-    override fun generateToken(user: User): String {
-        return Jwts.builder().setSubject(user.username)
+
+    override fun generateToken(user: User, extraClaims: Map<String, Any>): String {
+        return Jwts.builder().setClaims(extraClaims).setSubject(user.username)
             .setIssuedAt(Date(System.currentTimeMillis()))
             .setExpiration(Date(System.currentTimeMillis() + jwtExpirationMs))
             .signWith(getSignKey(), SignatureAlgorithm.HS256)
             .compact()
     }
 
-    override fun generateRefreshToken(extraClaims: Map<String, Any>, user: User): String = Jwts
+    override fun generateRefreshToken(user: User, extraClaims: Map<String, Any>): String = Jwts
         .builder().setClaims(extraClaims).setSubject(user.username)
         .setIssuedAt(Date(System.currentTimeMillis()))
         .setExpiration(Date(System.currentTimeMillis() + refreshExpiration))
         .signWith(getSignKey(), SignatureAlgorithm.HS256)
         .compact()
 
-    override fun extractUsername(token: String): String = extractClaim(token, Claims::getSubject)
+    override fun extractUsername(token: String): String = extractAllClaims(token).subject
 
-    override fun isTokenValid(token: String, user: User): Boolean {
+    override fun extractExtraClaim(token: String, claimName: String): String =
+        extractAllClaims(token)[claimName] as String
+
+    override fun isTokenValid(token: String, user: User, remoteIp: String): Boolean {
         val username = extractUsername(token)
+        val jwtIp = extractExtraClaim(token, AuthenticationService.REMOTE_ADDRESS_NAME)
 
-        return (username == user.username && !isTokenExpired(token))
+        return (username == user.username && jwtIp == remoteIp && !isTokenExpired(token))
     }
 
-    override fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
+    override fun isTokenValid(token: String, userDetails: UserDetails, remoteIp: String): Boolean {
         val username = extractUsername(token)
+        val jwtIp = extractExtraClaim(token, AuthenticationService.REMOTE_ADDRESS_NAME)
 
-        return (username == userDetails.username && !isTokenExpired(token))
+        return (username == userDetails.username && jwtIp == remoteIp && !isTokenExpired(token))
     }
 
     private fun isTokenExpired(token: String): Boolean = extractClaim(token, Claims::getExpiration).before(Date())
