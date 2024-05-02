@@ -52,3 +52,10 @@ management:
       exposure:
         include: "*"
       base-path: /actuator
+
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG
+      hibernate: WARN

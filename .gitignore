@@ -3,3 +3,4 @@
 build/
 /backend/tmp/
 /tmp/
+/.logs/
