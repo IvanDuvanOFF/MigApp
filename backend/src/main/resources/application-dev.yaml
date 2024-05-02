@@ -46,3 +46,10 @@ springdoc:
   api-docs:
     enabled: true
     path: /api/swagger/api-docs
+
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG
+      hibernate: ERROR
