@@ -55,7 +55,6 @@ class DtoServiceImpl(
     override fun userToStudentDto(user: User): StudentDto = StudentDto(
         id = user.id.toString(),
         username = user.username,
-        password = user.password,
         isActive = user.isActive,
         name = user.name,
         surname = user.surname,
