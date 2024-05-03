@@ -1,6 +1,5 @@
 package org.example.migapi.auth.service
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import io.jsonwebtoken.JwtException
 import jakarta.persistence.PersistenceException
 import jakarta.servlet.http.HttpServletRequest
@@ -35,8 +34,6 @@ class AuthenticationService(
     @Autowired
     private val migUtils: MigUtils,
 ) {
-
-    private val logger = KotlinLogging.logger {  }
 
     companion object {
         const val REMOTE_ADDRESS_NAME = "remote-address"
@@ -88,10 +85,6 @@ class AuthenticationService(
         ]
     )
     fun authenticate(signRequest: SignRequest, request: HttpServletRequest): SignResponse {
-        request.headerNames.toList().forEach {
-            logger.warn { "HEADER $it = ${request.getHeader(it)}" }
-        }
-
         val authentication = authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(
                 signRequest.login,
@@ -154,7 +147,6 @@ class AuthenticationService(
 
     fun User.generateSignResponse(request: HttpServletRequest): SignResponse {
         val remoteIp = migUtils.getRemoteAddress(request)
-        logger.info { "REMOTE IP ADDRESS = $remoteIp" }
 
         val extraClaims = mutableMapOf(REMOTE_ADDRESS_NAME to remoteIp)
 
