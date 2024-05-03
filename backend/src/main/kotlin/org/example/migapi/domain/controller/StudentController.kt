@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.example.migapi.core.domain.dto.Error
 import org.example.migapi.core.domain.dto.StudentDto
 import org.example.migapi.domain.service.StudentService
@@ -47,6 +48,7 @@ class StudentController(
             )
         ]
     )
+    @SecurityRequirement(name = "JWT")
     fun getAll(): List<StudentDto> = studentService.getAll()
 
     @GetMapping("{id}")
@@ -81,6 +83,7 @@ class StudentController(
             )
         ]
     )
+    @SecurityRequirement(name = "JWT")
     fun getById(@PathVariable id: String): StudentDto = studentService.getById(id)
 
     @PutMapping
@@ -90,8 +93,7 @@ class StudentController(
         responses = [
             ApiResponse(
                 responseCode = "200",
-                description = "Запись сохранена",
-                content = [Content(schema = Schema(implementation = StudentDto::class))]
+                description = "Запись сохранена"
             ),
             ApiResponse(
                 responseCode = "404",
@@ -115,6 +117,7 @@ class StudentController(
             )
         ]
     )
+    @SecurityRequirement(name = "JWT")
     fun put(studentDto: StudentDto) = studentService.put(studentDto)
 
     @PostMapping
@@ -124,8 +127,7 @@ class StudentController(
         responses = [
             ApiResponse(
                 responseCode = "200",
-                description = "Запись сохранена",
-                content = [Content(schema = Schema(implementation = StudentDto::class))]
+                description = "Запись сохранена"
             ),
             ApiResponse(
                 responseCode = "400",
@@ -154,6 +156,7 @@ class StudentController(
             )
         ]
     )
+    @SecurityRequirement(name = "JWT")
     fun create(@RequestBody studentDto: StudentDto) {
         studentService.create(studentDto)
     }
@@ -165,8 +168,7 @@ class StudentController(
         responses = [
             ApiResponse(
                 responseCode = "200",
-                description = "Запись удалена",
-                content = [Content(schema = Schema(implementation = StudentDto::class))]
+                description = "Запись удалена"
             ),
             ApiResponse(
                 responseCode = "404",
@@ -190,5 +192,6 @@ class StudentController(
             )
         ]
     )
+    @SecurityRequirement(name = "JWT")
     fun delete(@RequestParam id: String) = studentService.delete(id)
 }
