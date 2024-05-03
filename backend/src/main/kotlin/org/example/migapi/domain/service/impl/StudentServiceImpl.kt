@@ -1,50 +1,44 @@
 package org.example.migapi.domain.service.impl
 
+import jakarta.transaction.Transactional
+import org.example.migapi.auth.exception.UserAlreadyExistsException
 import org.example.migapi.core.domain.dto.StudentDto
-import org.example.migapi.core.domain.exception.UserNotFoundException
-import org.example.migapi.core.domain.model.entity.Role
 import org.example.migapi.core.domain.model.enums.ERole
-import org.example.migapi.core.domain.repo.UserRepository
 import org.example.migapi.core.domain.service.DtoService
+import org.example.migapi.core.domain.service.UserService
 import org.example.migapi.domain.service.StudentService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class StudentServiceImpl(
     @Autowired
-    private val userRepository: UserRepository,
+    private val userService: UserService,
     @Autowired
     private val dtoService: DtoService
 ) : StudentService {
 
-    //    persistence
-    override fun getAll(): List<StudentDto> =
-        userRepository.findUsersByRole(Role(ERole.ROLE_USER)).map { dtoService.userToStudentDto(it) }
+    override fun getAll(): List<StudentDto>  {
+        val users = userService.findUsersByRole(ERole.ROLE_USER)
 
-    //    persistence, IllegalArgument, UserNotFound
-    override fun getById(id: String): StudentDto {
-        val student = userRepository.findById(UUID.fromString(id))
-            .orElseThrow { UserNotFoundException("Student with id: $id not found") }
-
-        return dtoService.userToStudentDto(student)
+        return users.map { dtoService.userToStudentDto(it) }
     }
 
-//
-    override fun put(studentDto: StudentDto): Boolean {
-        val student = userRepository.findUserByUsername(studentDto.username)
+    override fun getById(id: String): StudentDto = dtoService.userToStudentDto(userService.findById(id))
 
-        val user = dtoService.studentDtoToUser(studentDto)
-
-        return false
+    @Transactional
+    override fun put(studentDto: StudentDto) {
+        userService.saveUser(dtoService.toUser(studentDto))
     }
 
+    @Transactional
     override fun create(studentDto: StudentDto) {
-        TODO("Not yet implemented")
+        if (userService.userExists(studentDto.username))
+            throw UserAlreadyExistsException("This student is registered")
+
+        userService.saveUser(dtoService.toUser(studentDto))
     }
 
-    override fun delete(id: String) {
-        TODO("Not yet implemented")
-    }
+    @Transactional
+    override fun delete(id: String) = userService.deleteUserById(id)
 }

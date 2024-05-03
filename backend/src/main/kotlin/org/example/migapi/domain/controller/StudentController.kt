@@ -3,8 +3,6 @@ package org.example.migapi.domain.controller
 import org.example.migapi.core.domain.dto.StudentDto
 import org.example.migapi.domain.service.StudentService
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
@@ -16,23 +14,24 @@ class StudentController(
 ) {
     @GetMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun getAll(): List<StudentDto> = studentService.getAll()
+    fun getAll(): List<StudentDto> {
+        val students = studentService.getAll()
 
-    @GetMapping("/{id}")
+        return students
+    }
+
+    @GetMapping("{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun getById(@PathVariable id: String): StudentDto = studentService.getById(id)
 
     @PutMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun put(studentDto: StudentDto): ResponseEntity<Any> =
-        ResponseEntity(if (studentService.put(studentDto)) HttpStatus.CREATED else HttpStatus.OK)
+    fun put(studentDto: StudentDto) = studentService.put(studentDto)
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun create(studentDto: StudentDto): ResponseEntity<Any> {
+    fun create(@RequestBody studentDto: StudentDto) {
         studentService.create(studentDto)
-
-        return ResponseEntity(HttpStatus.CREATED)
     }
 
     @DeleteMapping

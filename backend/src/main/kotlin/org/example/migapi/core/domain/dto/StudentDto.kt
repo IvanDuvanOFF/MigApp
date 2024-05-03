@@ -1,14 +1,13 @@
 package org.example.migapi.core.domain.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import org.example.migapi.auth.exception.BadCredentialsException
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 class StudentDto(
     id: String? = null,
     username: String,
     email: String,
-    password: String? = null,
+    password: String = "",
     isActive: Boolean = false,
     val name: String,
     val surname: String,
@@ -21,7 +20,7 @@ class StudentDto(
     id,
     username,
     email,
-    password ?: throw BadCredentialsException("Password cannot be null"),
+    password,
     isActive,
     "ROLE_USER"
 )

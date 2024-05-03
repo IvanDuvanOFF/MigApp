@@ -1,5 +1,7 @@
 package org.example.migapi.core.domain.dto
 
+import org.example.migapi.core.domain.model.enums.ERole
+
 class AdminDto(
     id: String? = null,
     username: String,
@@ -8,4 +10,4 @@ class AdminDto(
     isActive: Boolean = false,
     val name: String,
     val surname: String
-) : UserDto(id, username, email, password, isActive, "ROLE_ADMIN")
+) : UserDto(id, username, email, password, isActive, ERole.ROLE_ADMIN.name)

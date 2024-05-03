@@ -7,7 +7,7 @@ interface StudentService {
 
     fun getById(id: String): StudentDto
 
-    fun put(studentDto: StudentDto): Boolean
+    fun put(studentDto: StudentDto)
 
     fun create(studentDto: StudentDto)
 

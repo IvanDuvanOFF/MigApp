@@ -43,6 +43,7 @@ class GlobalExceptionHandler {
     fun processException(e: Exception): ResponseEntity<Error> {
         val status = when (e) {
             is MigApplicationException -> e.httpStatus
+
             is PersistenceException,
             is MailSendException,
             is MessagingException,
@@ -50,9 +51,10 @@ class GlobalExceptionHandler {
 
             is ExpiredJwtException -> HttpStatus.GONE
             is DisabledException, is LockedException -> HttpStatus.LOCKED
+
+            is HttpMessageNotReadableException,
             is BadCredentialsException,
-            is JwtException,
-            is HttpMessageNotReadableException -> HttpStatus.BAD_REQUEST
+            is JwtException -> HttpStatus.BAD_REQUEST
 
             is AuthenticationException -> HttpStatus.NOT_FOUND
             else -> {

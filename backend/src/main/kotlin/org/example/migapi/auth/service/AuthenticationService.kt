@@ -6,11 +6,9 @@ import jakarta.persistence.PersistenceException
 import jakarta.servlet.http.HttpServletRequest
 import org.example.migapi.auth.dto.*
 import org.example.migapi.auth.exception.*
-import org.example.migapi.core.domain.dto.UserDto
 import org.example.migapi.core.domain.exception.UserNotFoundException
 import org.example.migapi.core.domain.model.SpringUser
 import org.example.migapi.core.domain.model.entity.User
-import org.example.migapi.core.domain.model.enums.ERole
 import org.example.migapi.core.domain.service.UserService
 import org.example.migapi.utils.MigUtils
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,7 +16,6 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.DisabledException
 import org.springframework.security.authentication.LockedException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
@@ -37,36 +34,12 @@ class AuthenticationService(
     private val userService: UserService,
     @Autowired
     private val migUtils: MigUtils,
-    @Autowired
-    private val passwordEncoder: BCryptPasswordEncoder
 ) {
 
     private val logger = KotlinLogging.logger {  }
 
     companion object {
         const val REMOTE_ADDRESS_NAME = "remote-address"
-    }
-
-    @Suppress("unused")
-    @Throws(
-        exceptionClasses = [
-            UserAlreadyExistsException::class,
-            RoleNotFoundException::class,
-            PersistenceException::class
-        ]
-    )
-    fun registerUser(signRequest: SignRequest, request: HttpServletRequest): User {
-        if (userService.userExists(signRequest.login))
-            throw UserAlreadyExistsException("Username or email is already taken")
-
-        val userDto = UserDto(
-            username = signRequest.login,
-            email = "NONE",
-            password = passwordEncoder.encode(signRequest.password),
-            role = ERole.ROLE_USER.name
-        )
-
-        return userService.saveUser(userDto)
     }
 
     @Throws(
