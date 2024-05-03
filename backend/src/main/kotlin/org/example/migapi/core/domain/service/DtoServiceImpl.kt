@@ -68,7 +68,8 @@ class DtoServiceImpl(
             Role(ERole.valueOf(userDto.role))
         } catch (e: IllegalArgumentException) {
             throw RoleNotFoundException("Role ${userDto.role} doesn't exists")
-        }
+        },
+        tfaEnabled = userDto.tfaEnabled
     )
 
     override fun userToUserDto(user: User): UserDto = UserDto(
