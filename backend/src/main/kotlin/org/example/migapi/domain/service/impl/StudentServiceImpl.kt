@@ -18,7 +18,7 @@ class StudentServiceImpl(
     private val dtoService: DtoService
 ) : StudentService {
 
-    override fun getAll(): List<StudentDto>  {
+    override fun getAll(): List<StudentDto> {
         val users = userService.findUsersByRole(ERole.ROLE_USER)
 
         return users.map { dtoService.userToStudentDto(it) }

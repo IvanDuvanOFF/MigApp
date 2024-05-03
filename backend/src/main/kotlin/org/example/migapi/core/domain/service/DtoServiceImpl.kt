@@ -12,6 +12,7 @@ import org.example.migapi.core.domain.model.entity.User
 import org.example.migapi.core.domain.model.enums.ERole
 import org.example.migapi.core.domain.model.enums.EStudentStatus
 import org.example.migapi.core.domain.repo.CountryRepository
+import org.example.migapi.domain.exception.StatusNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
@@ -44,7 +45,11 @@ class DtoServiceImpl(
         country = Country(studentDto.country).takeIf { countryRepository.findById(it.name).isPresent }
             ?: throw CountryNotFoundException("No country ${studentDto.country} found")
         birthday = LocalDate.parse(studentDto.birthday, formatter)
-        status = StudentStatus(EStudentStatus.valueOf(studentDto.status))
+        status = try {
+            StudentStatus(EStudentStatus.valueOf(studentDto.status))
+        } catch (e: IllegalArgumentException) {
+            throw StatusNotFoundException()
+        }
     }
 
     override fun adminDtoToUser(adminDto: AdminDto): User = userDtoToUser(adminDto).apply {
