@@ -41,10 +41,10 @@ server:
   port: 8080
 springdoc:
   swagger-ui:
-    path: /swagger/swagger-ui
+    path: /api/swagger/swagger-ui
   api-docs:
     enabled: true
-    path: /swagger/api-docs
+    path: /api/swagger/api-docs
 
 management:
   endpoints:
@@ -58,4 +58,4 @@ logging:
     org:
       springframework:
         web: DEBUG
-      hibernate: WARN
+      hibernate: DEBUG
