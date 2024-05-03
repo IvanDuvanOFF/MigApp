@@ -1,6 +1,7 @@
 package org.example.migapi.core.domain.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 class StudentDto(
@@ -8,10 +9,13 @@ class StudentDto(
     username: String,
     email: String,
     password: String = "",
+    
+    @JsonProperty("is_active")
     isActive: Boolean = false,
     val name: String,
     val surname: String,
     val patronymic: String? = null,
+    val sex: String,
     val phone: String,
     val country: String,
     val birthday: String,

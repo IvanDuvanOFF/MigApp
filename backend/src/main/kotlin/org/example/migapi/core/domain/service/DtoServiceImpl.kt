@@ -10,6 +10,7 @@ import org.example.migapi.core.domain.model.entity.Role
 import org.example.migapi.core.domain.model.entity.StudentStatus
 import org.example.migapi.core.domain.model.entity.User
 import org.example.migapi.core.domain.model.enums.ERole
+import org.example.migapi.core.domain.model.enums.ESex
 import org.example.migapi.core.domain.model.enums.EStudentStatus
 import org.example.migapi.core.domain.repo.CountryRepository
 import org.example.migapi.domain.exception.StatusNotFoundException
@@ -40,6 +41,7 @@ class DtoServiceImpl(
         name = studentDto.name
         surname = studentDto.surname
         patronymic = studentDto.patronymic
+        sex = ESex.valueOf(studentDto.sex)
         email = studentDto.email
         phone = studentDto.phone
         country = Country(studentDto.country).takeIf { countryRepository.findById(it.name).isPresent }
@@ -95,6 +97,7 @@ class DtoServiceImpl(
         name = user.name,
         surname = user.surname,
         patronymic = user.patronymic,
+        sex = (user.sex?.name ?: throw IllegalArgumentException()),
         email = user.email,
         phone = user.phone,
         country = user.country.name,

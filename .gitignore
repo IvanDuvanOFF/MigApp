@@ -4,3 +4,4 @@ build/
 /backend/tmp/
 /tmp/
 /.logs/
+/backend/.logs/
