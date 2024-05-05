@@ -1,3 +1,5 @@
 package org.example.migapi.core.domain.dto
 
-interface Dto
+import java.io.Serializable
+
+interface Dto : Serializable

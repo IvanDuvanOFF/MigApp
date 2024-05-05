@@ -29,7 +29,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.http.MediaType
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultActionsDsl
 import org.springframework.test.web.servlet.post
@@ -45,11 +44,9 @@ import java.util.*
     CacheAutoConfiguration::class,
     RedisAutoConfiguration::class
 ])
-//@Testcontainers
 class AuthenticationControllerTests(
     @Value("\${mig.jwt.refresh-expiration}")
     private val refreshExpiration: Int,
-
     @Value("\${mig.jwt.verification-expiration}")
     private val verificationExpiration: Int
 ) {
@@ -61,9 +58,6 @@ class AuthenticationControllerTests(
 
     @Autowired
     private lateinit var userService: UserService
-
-    @Autowired
-    private lateinit var passwordEncoder: BCryptPasswordEncoder
 
     @MockBean
     private lateinit var totpService: TotpService
@@ -91,22 +85,12 @@ class AuthenticationControllerTests(
         const val REFRESH_TOKEN = "$.refresh_token"
         const val TFA_ENABLED = "$.tfa_enabled"
         const val STATUS_CODE = "$.status.code"
-
-//        lateinit var redis: RedisContainer
-//
-//        @JvmStatic
-//        @BeforeAll
-//        fun redisSetUp() {
-//            redis = RedisContainer(DockerImageName.parse("redis:6.2.6")).withExposedPorts(6379).apply {
-//                start()
-//            }
-//        }
     }
 
     fun generateTestUser(isActive: Boolean = true, tfaEnabled: Boolean = false): UserDto = UserDto(
         username = "test",
         email = "test@test.test",
-        password = passwordEncoder.encode("test"),
+        password = "test",
         role = ERole.ROLE_USER.name,
         isActive = isActive,
         tfaEnabled = tfaEnabled
