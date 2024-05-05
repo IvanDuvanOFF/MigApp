@@ -8,17 +8,24 @@ import { createRouter, createWebHistory } from 'vue-router'
 import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from './plugins/font-awesome'
+
 import AuthComponent from './components/AuthComponent.vue';
 import StudentsComponent from './components/StudentsComponent.vue';
 import SingleStudentComponent from './components/SingleStudentComponent.vue';
-import { auth } from './store/auth.module';
 import CodeComponent from './components/CodeComponent.vue';
 import SettingsComponent from './components/SettingsComponent.vue';
+
+import EditMainPage from './components/edit-versions/EditMainPage.vue';
+
+import { auth } from './store/auth.module';
+
 
 import i18n from '@/i18n/index.js';
 import Trans from '@/i18n/translate';
 
 import { LOCAL_URL } from './urls';
+import MainPage from './components/MainPage.vue';
+import EditController from './store/edit-controller';
 
 const app = createApp(App);
 const routes = [
@@ -33,8 +40,19 @@ const routes = [
   {
     path: '/',
     name: 'Index',
+    component: MainPage,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      requiresEdit: false
+    }
+  },
+  {
+    path: '/edit',
+    name: 'EditIndex',
+    component: EditMainPage,
+    meta: {
+      requiresAuth: true,
+      requiresEdit: true
     }
   },
   {
@@ -59,13 +77,13 @@ const routes = [
     component: SettingsComponent,
     meta: {
       requiresAuth: true
-    }    
+    }
   },
   {
     path: '/login',
     name: 'Login',
     component: AuthComponent,
-  },  
+  },
   {
     path: '/login/tfa',
     name: 'Tfa',
@@ -80,15 +98,25 @@ router.beforeEach((to, from, next) => {
   Trans.switchLanguage(Trans.getPersistedLocale());
 
   const loggedIn = thisstore.state.auth.status.loggedIn;
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (!loggedIn) {
-      next({ name: 'Login' })
-    } else {
-      next()
-    }
-  } else {
-    next()
+
+  if (to.meta.requiresAuth && !loggedIn) {
+    next({ name: 'Login' });
   }
+
+  if (to.meta.requiresEdit != null) {
+    if (to.meta.requiresEdit != EditController.mode) {
+      if (to.meta.requiresEdit) {
+        let nameWithoutEdit = to.name.replace("Edit", "");
+        next({ name: nameWithoutEdit });
+      }
+      else {
+        next({ name: "Edit" + to.name });
+        
+      }
+    }
+  }
+
+  next();
 });
 
 const thisstore = createStore(store);

@@ -9,7 +9,9 @@ class AuthService {
                 let userData = {
                     username: user.username,
                     jwt: response.data.access_token,
-                    tfa: response.data.tfa_enabled
+                    tfa: response.data.tfa_enabled,
+                    is_admin: true,
+                    edit_mode: false
                 }
                 localStorage.setItem('user', JSON.stringify(userData));
             }

@@ -4,43 +4,85 @@
     <router-view />
   </div>
 
-  
+  <button @click="changeEditMode" v-if="isAdmin" class="btn" :class="[ getEditMode ? 'btn-info' : 'btn-dark' ]" style="z-index: 10; position: fixed; right: 50px; top: 25px;">
+    Режим редактирования: {{ getEditMode ? 'ON' : 'OFF' }}
+  </button>
+
   <div class="row h-100 m-0" v-if="currentUser">
-    <div class="col d-flex flex-column col-md-3 p-0 shadow h-100"
-      style="background-color: #C8C3FF; width: 240px">
+    <div class="col d-flex flex-column col-md-3 p-0 shadow h-100" style="background-color: #C8C3FF; width: 240px">
       <a href="/">
         <img alt="Kemsu logo" class="img-fluid" src="./assets/logo.jpeg">
       </a>
-      
-      <a class="btn rounded-0 navbar-link" href="/students">{{ $t("navbar.list") }}</a>
+
+      <a class="btn rounded-0 navbar-link" data-bs-toggle="collapse" href="#collapse">{{ $t("navbar.list") }}</a>
+      <div class="collapse" id="collapse">
+        <div class="card rounded-0 border-0">
+          <div class="d-grid">
+            <a class="btn rounded-0 navbar-link sub-item" href="/students">Студенты</a>
+            <button v-if="getEditMode" class="btn btn-danger position-absolute rounded-0 h-50" style="right: 0">
+              <font-awesome-icon icon="trash-can" />
+            </button>          
+          </div>
+          
+            
+          
+          <a v-if="getEditMode" class="btn rounded-0 navbar-link sub-item dropdown-toggle" 
+              id="dropdownMenuLink" data-bs-toggle="dropdown" aria-bs-haspopup="true" aria-bs-expanded="false">
+          </a>
+          <div v-if="getEditMode" class="dropdown-menu" aria-bs-labelledby="dropdownMenuLink">
+            <a class="dropdown-item" href="#">Table 1</a>
+            <a class="dropdown-item" href="#">Table 2</a>
+            <a class="dropdown-item" href="#">Table 3</a>
+          </div>
+        </div>
+      </div>
       <a class="btn rounded-0 navbar-link" href="#">{{ $t("navbar.notifications") }}</a>
       <a class="btn rounded-0 navbar-link settings" href="/settings">{{ $t("navbar.settings") }}</a>
-      <a class="btn rounded-0 navbar-link exit" @click.prevent="logOut">{{ $t("navbar.exit") }}</a>      
+      <a v-if="isAdmin" class="btn rounded-0 navbar-link settings" href="/settings">Конфиг</a>
+      <a class="btn rounded-0 navbar-link exit" @click.prevent="logOut">{{ $t("navbar.exit") }}</a>
     </div>
-    
-      <router-view />
-    
-  </div>  
+
+    <router-view />
+
+  </div>
 </template>
 
 <script>
+
+import EditController from "./store/edit-controller.js";
+
 export default {
   name: 'App',
-  computed:{
+  computed: {
     currentUser() {
-          console.log('user is');
-          console.log(this.$store.state.auth.status.loggedIn);
-          return this.$store.state.auth.status.loggedIn;
+      console.log('user is');
+      console.log(this.$store.state.auth.status.loggedIn);
+      return this.$store.state.auth.status.loggedIn;
+    },
+    isAdmin() {
+      let user = JSON.parse(localStorage.getItem('user'));
+      if (user == null) {
+        return false;
+      }
+
+      return user.is_admin;
+    },
+    getEditMode() {
+      return EditController.mode;
     }
   },
-  methods:{
+  methods: {
     logOut() {
       this.$store.dispatch('auth/logout');
 
       this.$router.go();
-      this.$router.push('/login');      
+      this.$router.push('/login');
+    },
+    changeEditMode(){            
+      EditController.mode = !EditController.mode;      
+      this.$router.go();
     }
-  }      
+  }
 }
 </script>
 
@@ -60,7 +102,7 @@ export default {
 }
 
 .application {
-  font-family: "Jura", serif;  
+  font-family: "Jura", serif;
 }
 
 .navbar-link {
@@ -74,20 +116,27 @@ export default {
 }
 
 .navbar-link.exit {
-  background-color: rgba(255,122,0,0.52);
+  background-color: rgba(255, 122, 0, 0.52);
 }
 
 .navbar-link.settings {
-  background-color: rgba(5,0,255,0.32);
+  background-color: rgba(5, 0, 255, 0.32);
+}
+
+.navbar-link.sub-item {
+  background-color: rgba(92, 92, 92);
+  color: white !important;
+  padding-left: 20% !important;
 }
 
 .navbar-link:hover {
-  background-color: rgb(255, 255, 255) !important;  
+  background-color: rgb(255, 255, 255) !important;
+  color: black !important;
   transition-duration: 250ms;
   font-size: larger !important;
 }
 
-body{
+body {
   height: 100vh;
 }
 
@@ -98,6 +147,6 @@ body{
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   height: 100%;
-  color: #2c3e50;  
+  color: #2c3e50;
 }
 </style>
