@@ -14,7 +14,7 @@ export const auth = {
       return AuthService.signing(user).then(
         response => {
           console.log(response);
-          if(response.tfa_enabled == true) {
+          if(response.tfa_enabled) {
             console.log("enabled tfa for user: " + user)
             commit('tfaNeeded', user);
           }
