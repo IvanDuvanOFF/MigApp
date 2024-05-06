@@ -38,7 +38,7 @@
       </div>
       <a class="btn rounded-0 navbar-link" href="#">{{ $t("navbar.notifications") }}</a>
       <a class="btn rounded-0 navbar-link settings" href="/settings">{{ $t("navbar.settings") }}</a>
-      <a v-if="isAdmin" class="btn rounded-0 navbar-link settings" href="/settings">Конфиг</a>
+      <a v-if="isAdmin" class="btn rounded-0 navbar-link settings" href="/config">{{ $t("navbar.config") }}</a>
       <a class="btn rounded-0 navbar-link exit" @click.prevent="logOut">{{ $t("navbar.exit") }}</a>
     </div>
 

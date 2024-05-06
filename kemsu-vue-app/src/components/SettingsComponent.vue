@@ -1,20 +1,32 @@
 <template>
     <div class="d-flex col d-flex flex-column justify-content-center align-items-center gap-3">
         <div class="d-flex w-75">
-            <label for="gmt" class="w-50 text-start">Часовой пояс</label>
-            <input name="gmt" type="text" class="form-control w-50" />
+            <label for="theme" class="w-50 text-start">{{ $t("settings.theme") }}</label>
+            <select name="theme" class="form-select">
+                <option>                    
+                </option>
+            </select>
         </div>
-
-        <button class="btn btn-success w-25" type="button">Сохранить</button>
-        <hr class="w-75" />
-        <div class="d-flex w-75">
-            <label for="backup" class="w-50 text-start">Бэкап</label>
-            <input name="backup" type="text" class="form-control w-50" />
-        </div>
-
+        
         <div class="d-flex w-75">
             <label for="lang" class="w-50 text-start">{{ $t("settings.lang") }}</label>
-            <select name="lang" class="form-control" v-model="locale" @change="switchLanguage">
+            <select name="lang" class="form-select">
+                <option>                    
+                </option>
+            </select>
+        </div>
+
+        <div class="d-flex w-75">
+            <label for="font" class="w-50 text-start">{{ $t("settings.font") }}</label>
+            <select name="font" class="form-select">
+                <option>                    
+                </option>
+            </select>
+        </div>
+
+        <div class="d-flex w-75">
+            <label for="gmt" class="w-50 text-start">{{ $t("settings.gmt") }}</label>
+            <select name="gmt" class="form-select" v-model="locale" @change="switchLanguage">
                 <option v-for="sLocale in supportedLocales" :key="`locale-${sLocale}`" :value="sLocale">
                     {{ sLocale }}
                 </option>

@@ -14,6 +14,7 @@ import StudentsComponent from './components/StudentsComponent.vue';
 import SingleStudentComponent from './components/SingleStudentComponent.vue';
 import CodeComponent from './components/CodeComponent.vue';
 import SettingsComponent from './components/SettingsComponent.vue';
+import ConfigComponent from './components/ConfigComponent.vue';
 
 import EditMainPage from './components/edit-versions/EditMainPage.vue';
 
@@ -67,6 +68,14 @@ const routes = [
     path: '/students',
     name: 'Students',
     component: StudentsComponent,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/config',
+    name: 'Config',
+    component: ConfigComponent,
     meta: {
       requiresAuth: true
     }
