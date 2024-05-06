@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import org.example.migapi.core.config.open.api.CommonApiErrors
 import org.example.migapi.core.domain.dto.Error
 import org.example.migapi.core.domain.dto.StudentDto
 import org.example.migapi.domain.service.StudentService
@@ -121,76 +122,27 @@ class StudentController(
     fun put(studentDto: StudentDto) = studentService.put(studentDto)
 
     @PostMapping
-    @Operation(
-        summary = "Сохранить новую запись студента",
-        description = "Администратор создает новую запись студента",
-        responses = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Запись сохранена"
-            ),
-            ApiResponse(
-                responseCode = "400",
-                description = "Bad request",
-                content = [Content(schema = Schema(implementation = Error::class))]
-            ),
-            ApiResponse(
-                responseCode = "404",
-                description = "Not found",
-                content = [Content(schema = Schema(implementation = Error::class))]
-            ),
-            ApiResponse(
-                responseCode = "401",
-                description = "Unauthorized",
-                content = [Content(schema = Schema(implementation = Error::class))]
-            ),
-            ApiResponse(
-                responseCode = "403",
-                description = "Forbidden",
-                content = [Content(schema = Schema(implementation = Error::class))]
-            ),
-            ApiResponse(
-                responseCode = "500",
-                description = "Internal server error",
-                content = [Content(schema = Schema(implementation = Error::class))]
-            )
-        ]
+    @Operation(summary = "Сохранить новую запись студента", description = "Администратор создает новую запись студента")
+    @ApiResponse(responseCode = "200", description = "Запись сохранена")
+    @ApiResponse(
+        responseCode = "404",
+        description = "Студент не найден",
+        content = [Content(schema = Schema(implementation = Error::class))]
     )
+    @CommonApiErrors
     @SecurityRequirement(name = "JWT")
     fun create(@RequestBody studentDto: StudentDto) {
         studentService.create(studentDto)
     }
 
     @DeleteMapping
-    @Operation(
-        summary = "Удалить запись студента",
-        description = "Администратор удаляет запись студента",
-        responses = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Запись удалена"
-            ),
-            ApiResponse(
-                responseCode = "404",
-                description = "Not found",
-                content = [Content(schema = Schema(implementation = Error::class))]
-            ),
-            ApiResponse(
-                responseCode = "401",
-                description = "Unauthorized",
-                content = [Content(schema = Schema(implementation = Error::class))]
-            ),
-            ApiResponse(
-                responseCode = "403",
-                description = "Forbidden",
-                content = [Content(schema = Schema(implementation = Error::class))]
-            ),
-            ApiResponse(
-                responseCode = "500",
-                description = "Internal server error",
-                content = [Content(schema = Schema(implementation = Error::class))]
-            )
-        ]
+    @Operation(summary = "Удалить запись студента", description = "Администратор удаляет запись студента")
+    @CommonApiErrors
+    @ApiResponse(responseCode = "200", description = "Запись удалена")
+    @ApiResponse(
+        responseCode = "404",
+        description = "Студент не найден",
+        content = [Content(schema = Schema(implementation = Error::class))]
     )
     @SecurityRequirement(name = "JWT")
     fun delete(@RequestParam id: String) = studentService.delete(id)
