@@ -18,7 +18,9 @@
                 </div>
 
                 <div class="input-group d-flex flex-column align-items-center">
-                    <label for="filter-status" class="form-label">{{ $t("list.status") }}</label>
+                    <label for="filter-status" class="form-label">
+                        {{ $t("list.status") }}
+                    </label>
                     <select id="filter-status" v-model="studentStatus" class="form-select w-75 rounded-0">
                         <optgroup label="">
                             <option value="">-</option>
@@ -38,7 +40,8 @@
                 <button class="btn btn-dark rounded-0" @click="makeSearch">
                     <font-awesome-icon icon="search" />
                 </button>
-                <a class="btn btn-primary rounded-0" href="/students/create" type="button">
+                <a class="btn btn-primary rounded-0" 
+                    v-bind:href="$sanitize('/table/' + this.tableName + '/create')" type="button">
                     <font-awesome-icon icon="user-plus" />
                 </a>
             </div>
@@ -60,8 +63,10 @@
 import StudentService from '@/services/StudentService.js';
 
 export default {
-    name: "StudentsComponent",
+    name: "TableComponent",
     data() {
+        let tableName = this.$route.params.tableName;
+
         let students = [];
         console.log();
         StudentService.getStudents().then(response => { 
@@ -69,6 +74,7 @@ export default {
             this.students = response.data
         });
         return {
+            tableName,
             age: 0,
             country: '',
             studentStatus: '',

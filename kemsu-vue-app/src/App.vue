@@ -4,7 +4,8 @@
     <router-view />
   </div>
 
-  <button @click="changeEditMode" v-if="isAdmin" class="btn" :class="[ getEditMode ? 'btn-info' : 'btn-dark' ]" style="z-index: 10; position: fixed; right: 50px; top: 25px;">
+  <button @click="changeEditMode" v-if="isAdmin" class="btn" :class="[getEditMode ? 'btn-info' : 'btn-dark']"
+    style="z-index: 10; position: fixed; right: 50px; top: 25px;">
     Режим редактирования: {{ getEditMode ? 'ON' : 'OFF' }}
   </button>
 
@@ -14,25 +15,24 @@
         <img alt="Kemsu logo" class="img-fluid" src="./assets/logo.jpeg">
       </a>
 
-      <a class="btn rounded-0 navbar-link" data-bs-toggle="collapse" href="#collapse">{{ $t("navbar.list") }}</a>
+      <a class="btn rounded-0 navbar-link" data-bs-toggle="collapse" href="#collapse">{{ $t("navbar.record") }}</a>
       <div class="collapse" id="collapse">
         <div class="card rounded-0 border-0">
-          <div class="d-grid">
-            <a class="btn rounded-0 navbar-link sub-item" href="/students">Студенты</a>
+          <div class="d-grid" v-for="table in recordedTables" :key="table">
+            <a class="btn rounded-0 navbar-link sub-item" v-bind:href="$sanitize('/table/' + table)">{{ table }}</a>
             <button v-if="getEditMode" class="btn btn-danger position-absolute rounded-0 h-50" style="right: 0">
               <font-awesome-icon icon="trash-can" />
-            </button>          
+            </button>
           </div>
-          
-            
-          
-          <a v-if="getEditMode" class="btn rounded-0 navbar-link sub-item dropdown-toggle" 
-              id="dropdownMenuLink" data-bs-toggle="dropdown" aria-bs-haspopup="true" aria-bs-expanded="false">
+
+          <a v-if="getEditMode" class="btn rounded-0 navbar-link sub-item dropdown-toggle" id="dropdownMenuLink"
+            data-bs-toggle="dropdown" aria-bs-haspopup="true" aria-bs-expanded="false">
           </a>
           <div v-if="getEditMode" class="dropdown-menu" aria-bs-labelledby="dropdownMenuLink">
-            <a class="dropdown-item" href="#">Table 1</a>
-            <a class="dropdown-item" href="#">Table 2</a>
-            <a class="dropdown-item" href="#">Table 3</a>
+            <a v-for="table in remainingTables" @click="addRemainingTableToRecorded" :key="table" class="dropdown-item"
+              href="#">
+              {{ table }}
+            </a>
           </div>
         </div>
       </div>
@@ -53,6 +53,19 @@ import EditController from "./store/edit-controller.js";
 
 export default {
   name: 'App',
+  data() {
+    let recordedTables = ["Students"];
+    let remainingTables = ["Students", "Documents"];
+
+    remainingTables = remainingTables.filter(function (el) {
+      return !recordedTables.includes(el);
+    });
+
+    return {
+      recordedTables,
+      remainingTables
+    };
+  },
   computed: {
     currentUser() {
       console.log('user is');
@@ -78,9 +91,12 @@ export default {
       this.$router.go();
       this.$router.push('/login');
     },
-    changeEditMode(){            
-      EditController.mode = !EditController.mode;      
+    changeEditMode() {
+      EditController.mode = !EditController.mode;
       this.$router.go();
+    },
+    addRemainingTableToRecorded() {
+      alert("Таблица должна добавиться в список учтенных");
     }
   }
 }

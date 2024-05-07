@@ -8,7 +8,7 @@
         "lang": "Language"
     },
     "navbar": {
-        "list": "Students",
+        "record": "Record",
         "notifications": "Notifications",
         "settings": "Settings",
         "exit": "Exit"

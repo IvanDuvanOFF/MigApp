@@ -10,13 +10,14 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from './plugins/font-awesome'
 
 import AuthComponent from './components/AuthComponent.vue';
-import StudentsComponent from './components/StudentsComponent.vue';
-import SingleStudentComponent from './components/SingleStudentComponent.vue';
+import TableComponent from './components/TableComponent.vue';
+import SingleObjectComponent from './components/SingleObjectComponent.vue';
 import CodeComponent from './components/CodeComponent.vue';
 import SettingsComponent from './components/SettingsComponent.vue';
 import ConfigComponent from './components/ConfigComponent.vue';
 
 import EditMainPage from './components/edit-versions/EditMainPage.vue';
+import EditTableComponent from './components/edit-versions/EditTableComponent.vue';
 
 import { auth } from './store/auth.module';
 
@@ -29,15 +30,7 @@ import MainPage from './components/MainPage.vue';
 import EditController from './store/edit-controller';
 
 const app = createApp(App);
-const routes = [
-  {
-    path: '/students/create',
-    name: 'CreateSingleStudent',
-    component: SingleStudentComponent,
-    meta: {
-      requiresAuth: true
-    }
-  },
+const routes = [  
   {
     path: '/',
     name: 'Index',
@@ -57,19 +50,37 @@ const routes = [
     }
   },
   {
-    path: '/students/:id',
-    name: 'SingleStudent',
-    component: SingleStudentComponent,
+    path: '/table/:tableName/:id',
+    name: 'SingleObject',
+    component: SingleObjectComponent,
     meta: {
       requiresAuth: true
     }
   },
   {
-    path: '/students',
-    name: 'Students',
-    component: StudentsComponent,
+    path: '/table/:tableName/create',
+    name: 'CreateSingleStudent',
+    component: SingleObjectComponent,
     meta: {
       requiresAuth: true
+    }
+  },
+  {
+    path: '/table/:tableName',
+    name: 'Table',
+    component: TableComponent,
+    meta: {
+      requiresAuth: true,
+      requiresEdit: false
+    }
+  },
+  {
+    path: '/table/edit/:tableName',
+    name: 'EditTable',
+    component: EditTableComponent,
+    meta: {
+      requiresAuth: true,
+      requiresEdit: true
     }
   },
   {
@@ -115,11 +126,14 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresEdit != null) {
     if (to.meta.requiresEdit != EditController.mode) {
       if (to.meta.requiresEdit) {
+        console.log("Returning to normal version of this page...");
         let nameWithoutEdit = to.name.replace("Edit", "");
-        next({ name: nameWithoutEdit });
+        next({ name: nameWithoutEdit, params: {tableName: to.params.tableName} });
       }
       else {
-        next({ name: "Edit" + to.name });
+        console.log(to, from);
+        console.log("Going to edit version of this page...");
+        next({ name: "Edit" + to.name, params: {tableName: to.params.tableName} });
         
       }
     }

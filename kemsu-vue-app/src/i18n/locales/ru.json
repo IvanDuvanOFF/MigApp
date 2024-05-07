@@ -8,7 +8,7 @@
         "lang": "Язык"
     },
     "navbar": {
-        "list": "Студенты",
+        "record": "Учет",
         "notifications": "Уведомления",
         "settings": "Настройки",
         "exit": "Выйти"

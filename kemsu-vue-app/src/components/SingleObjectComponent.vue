@@ -99,7 +99,7 @@ import StudentService from '@/services/StudentService.js';
 import MailModal from '@/components/MailModal.vue';
 
 export default {
-    name: "SingleStudentComponent",
+    name: "SingleObjectComponent",
     components: {
         Field,
         Form,
