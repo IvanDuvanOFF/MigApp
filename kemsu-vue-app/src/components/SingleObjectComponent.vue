@@ -107,6 +107,7 @@ export default {
         MailModal
     },    
     data() {
+        let tableName = this.$route.params.tableName;
         let student = {};
         let disabled = true;
         let docTypes = [{ name: 'Паспорт' },
@@ -124,10 +125,11 @@ export default {
         }        
 
         return {
+            tableName,
             disabled,
             docTypes,
             student,
-            documents: []
+            documents: []            
         };
     },
     computed: {
@@ -197,7 +199,7 @@ export default {
                 StudentService.createStudent(params)
                     .then(response => {
                         alert("Запрос отправлен");
-                        window.location.replace("/students/" + response.data.id);
+                        window.location.replace("/table/" + this.tableName + "/" + response.data.id);
                     })
                     .catch(err => {
                         alert("Ошибка на стороне сервера " + err)
