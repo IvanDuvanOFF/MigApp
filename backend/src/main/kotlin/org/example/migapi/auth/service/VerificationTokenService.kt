@@ -2,7 +2,7 @@ package org.example.migapi.auth.service
 
 import jakarta.persistence.PersistenceException
 import org.example.migapi.auth.exception.BadCredentialsException
-import org.example.migapi.auth.exception.VerificationTokenExpiredException
+import org.example.migapi.auth.exception.TfaCodeExpiredException
 import org.example.migapi.auth.exception.VerificationTokenNotFoundException
 import org.example.migapi.core.domain.model.entity.VerificationToken
 import org.example.migapi.core.domain.repo.UserRepository
@@ -40,7 +40,7 @@ class VerificationTokenService(
     @Throws(
         exceptionClasses = [
             VerificationTokenNotFoundException::class,
-            VerificationTokenExpiredException::class,
+            TfaCodeExpiredException::class,
             PersistenceException::class
         ]
     )
@@ -50,7 +50,7 @@ class VerificationTokenService(
         if (verificationToken.isEmpty)
             throw VerificationTokenNotFoundException("Verification token has not been found")
         if (verificationToken.get().expirationDate.isBefore(LocalDateTime.now()))
-            throw VerificationTokenExpiredException("Verification token has been expired")
+            throw TfaCodeExpiredException("Verification token has been expired")
 
         verificationTokenRepository.delete(verificationToken.get())
 

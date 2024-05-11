@@ -3,7 +3,7 @@ package org.example.migapi.auth
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions
 import org.example.migapi.auth.dto.*
-import org.example.migapi.auth.exception.VerificationTokenExpiredException
+import org.example.migapi.auth.exception.TfaCodeExpiredException
 import org.example.migapi.auth.exception.VerificationTokenNotFoundException
 import org.example.migapi.auth.service.EmailService
 import org.example.migapi.auth.service.TotpService
@@ -396,7 +396,7 @@ class AuthenticationControllerTests(
         performRequest(RESTORE_URL, mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
 
         Mockito.`when`(verificationTokenService.deleteVerificationToken(any()))
-            .thenThrow(VerificationTokenExpiredException("Verification token has been expired"))
+            .thenThrow(TfaCodeExpiredException("Verification token has been expired"))
 
         performRequest("$RESTORE_URL/$token", Passwords("newpass", "newpass")).andExpect { status { isGone() } }
     }

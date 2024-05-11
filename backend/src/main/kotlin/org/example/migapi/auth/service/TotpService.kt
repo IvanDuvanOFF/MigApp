@@ -1,6 +1,7 @@
 package org.example.migapi.auth.service
 
 import jakarta.persistence.PersistenceException
+import org.example.migapi.auth.exception.TfaCodeExpiredException
 import org.example.migapi.core.domain.model.entity.TfaCode
 import org.example.migapi.core.domain.model.entity.User
 import org.example.migapi.core.domain.repo.TfaCodeRepository
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component
 import java.security.SecureRandom
 import java.time.DateTimeException
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.ZoneId
 
 @Component
@@ -47,15 +49,15 @@ class TotpService(
         return code
     }
 
-    @Throws(exceptionClasses = [PersistenceException::class])
-    fun validateCode(user: User, code: String): Boolean {
-        tfaCodeRepository.findTfaCodesByTfaIdUser(user).forEach {
-            if (passwordEncoder.matches(code, it.tfaId.code)) {
+    @Throws(exceptionClasses = [PersistenceException::class, TfaCodeExpiredException::class])
+    fun validateCode(user: User, code: String): Boolean =
+        tfaCodeRepository.findTfaCodesByTfaIdUser(user).firstOrNull { passwordEncoder.matches(code, it.tfaId.code) }
+            ?.let {
+                if (it.expirationDate < LocalDateTime.now())
+                    throw TfaCodeExpiredException("Code is expired")
+
                 tfaCodeRepository.delete(it)
 
-                return true
-            }
-        }
-        return false
-    }
+                true
+            } ?: false
 }

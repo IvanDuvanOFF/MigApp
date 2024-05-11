@@ -12,6 +12,7 @@ import java.util.*
     cacheNames = [
         "user-username",
         "user-email",
+        "user-phone",
         "user-id",
         "user-role"
     ]
@@ -23,6 +24,9 @@ interface UserRepository : JpaRepository<User, UUID> {
 
     @Cacheable("user-email", key = "#email", unless = "#result == null")
     fun findUserByEmail(email: String): Optional<User>
+
+    @Cacheable("user-phone", key = "#phone", unless = "#result == null")
+    fun findUserByPhone(phone: String): Optional<User>
 
     @Cacheable("user-id", key = "#id", unless = "#result == null")
     override fun findById(id: UUID): Optional<User>
@@ -39,7 +43,8 @@ interface UserRepository : JpaRepository<User, UUID> {
         put = [
             CachePut("user-id", key = "#entity.id"),
             CachePut("user-username", key = "#entity.username"),
-            CachePut("user-email", key = "#entity.email")
+            CachePut("user-email", key = "#entity.email"),
+            CachePut("user-phone", key = "#entity.phone")
         ],
         evict = [CacheEvict("user-role", allEntries = true)]
     )
@@ -50,6 +55,7 @@ interface UserRepository : JpaRepository<User, UUID> {
             CacheEvict("user_id", key = "#entity.id"),
             CacheEvict("user-username", key = "#entity.username"),
             CacheEvict("user-email", key = "#entity.email"),
+            CacheEvict("user-phone", key = "#entity.phone"),
             CacheEvict("user-role", allEntries = true)
         ]
     )

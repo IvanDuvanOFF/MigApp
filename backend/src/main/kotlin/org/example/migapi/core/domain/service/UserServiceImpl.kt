@@ -1,5 +1,6 @@
 package org.example.migapi.core.domain.service
 
+import org.example.migapi.auth.exception.BadCredentialsException
 import org.example.migapi.auth.exception.RoleNotFoundException
 import org.example.migapi.core.domain.dto.UserDto
 import org.example.migapi.core.domain.exception.UserNotFoundException
@@ -8,6 +9,7 @@ import org.example.migapi.core.domain.model.entity.User
 import org.example.migapi.core.domain.model.enums.ERole
 import org.example.migapi.core.domain.repo.RoleRepository
 import org.example.migapi.core.domain.repo.UserRepository
+import org.example.migapi.utils.MigUtils
 import org.jetbrains.annotations.TestOnly
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -20,7 +22,9 @@ class UserServiceImpl(
     @Autowired
     private val userRepository: UserRepository,
     @Autowired
-    private val roleRepository: RoleRepository
+    private val roleRepository: RoleRepository,
+    @Autowired
+    private val migUtils: MigUtils
 ) : UserService {
 
     @TestOnly
@@ -39,6 +43,25 @@ class UserServiceImpl(
 
     override fun findUserByUsername(username: String): User = userRepository.findUserByUsername(username)
         .orElseThrow { UserNotFoundException("User with username $username doesn't exists") }
+
+    override fun findUserByEmail(email: String): User = userRepository.findUserByEmail(email)
+        .orElseThrow { UserNotFoundException("User with email $email doesn't exists") }
+
+    override fun findUserByUsernameOrEmail(usernameOrEmail: String): User = when {
+        migUtils.isEmail(usernameOrEmail) -> findUserByEmail(usernameOrEmail)
+
+        else -> findUserByUsername(usernameOrEmail)
+    }
+
+    override fun findUserByEmailOrPhone(emailOrPhone: String): User = when {
+        migUtils.isEmail(emailOrPhone) -> findUserByEmail(emailOrPhone)
+        migUtils.isPhone(emailOrPhone) -> findUserByPhone(emailOrPhone)
+
+        else -> throw BadCredentialsException("Email or phone are incorrect")
+    }
+
+    override fun findUserByPhone(phone: String): User = userRepository.findUserByPhone(phone)
+        .orElseThrow { UserNotFoundException("User with phone $phone doesn't exists") }
 
     override fun userExists(username: String): Boolean =
         userRepository.findUserByUsername(username).isPresent

@@ -1,5 +1,6 @@
 package org.example.migapi.auth.controller
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -54,14 +55,14 @@ class AuthenticationController(
     fun signIn(@RequestBody signRequest: SignRequest, request: HttpServletRequest): SignResponse =
         authenticationService.authenticate(signRequest, request)
 
-    @PostMapping("signing/tfa")
+    @PostMapping("tfa")
     @Operation(
         summary = "Проверка кода 2х факторной аутентификации",
         description = "Пользователь вводит код, полученный на электронную почту",
         responses = [
             ApiResponse(
                 responseCode = "200",
-                description = "Код подтвержден корректный, вход одобрен",
+                description = "Код подтвержден, вход одобрен",
                 content = [Content(schema = Schema(implementation = SignResponse::class))]
             ),
             ApiResponse(
@@ -70,8 +71,13 @@ class AuthenticationController(
                 content = [Content(schema = Schema(implementation = Error::class))]
             ),
             ApiResponse(
-                responseCode = "403",
-                description = "2х факторная аутентификация не включена",
+                responseCode = "404",
+                description = "Пользователь не найден",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "410",
+                description = "Код просрочен",
                 content = [Content(schema = Schema(implementation = Error::class))]
             ),
             ApiResponse(
@@ -119,7 +125,7 @@ class AuthenticationController(
     fun refresh(@RequestBody refreshTokenRequest: RefreshTokenRequest, request: HttpServletRequest): SignResponse =
         authenticationService.refreshToken(refreshTokenRequest, request)
 
-    @PostMapping("restore")
+    @PostMapping("block")
     @Operation(
         summary = "Запрос на восстановление пароля",
         description = "Пользователь вводит email и ждет получения ссылки для восстановления пароля",
@@ -130,7 +136,7 @@ class AuthenticationController(
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "Неверный email",
+                description = "Неверный email или номер телефона",
                 content = [Content(schema = Schema(implementation = Error::class))]
             ),
             ApiResponse(
@@ -140,10 +146,10 @@ class AuthenticationController(
             )
         ]
     )
-    fun block(@RequestBody email: String, request: HttpServletRequest) =
-        authenticationService.blockUser4Restore(email, request)
+    fun block(@RequestBody @JsonProperty("email_or_phone") emailOrPhone: String, request: HttpServletRequest) =
+        authenticationService.blockUser4Restore(emailOrPhone, request)
 
-    @PostMapping("restore/{token}")
+    @PostMapping("restore")
     @Operation(
         summary = "Пользователь восстанавливает доступ",
         description = "Пользователь вводит новый пароль и восстанавливает доступ к аккаунту",
@@ -179,6 +185,6 @@ class AuthenticationController(
             )
         ]
     )
-    fun restore(@PathVariable token: String, @RequestBody passwords: Passwords) =
-        authenticationService.restoreUser(token, passwords)
+    fun restore(@RequestBody restoreRequest: RestoreRequest, request: HttpServletRequest) =
+        authenticationService.restoreUser(restoreRequest)
 }
