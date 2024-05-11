@@ -3,6 +3,7 @@ package org.example.migapi.core.domain.model.entity
 import jakarta.persistence.*
 import org.example.migapi.core.domain.model.Model
 import org.example.migapi.core.domain.model.SpringUser
+import org.example.migapi.core.domain.model.enums.ESex
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import java.time.LocalDate
@@ -34,6 +35,9 @@ data class User(
     var surname: String = "None",
 
     var patronymic: String? = null,
+
+    @Enumerated(EnumType.STRING)
+    var sex: ESex? = null,
 
     @Email(message = "Email is not valid", regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
     @NotEmpty

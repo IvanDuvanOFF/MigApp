@@ -10,8 +10,6 @@ import org.example.migapi.core.config.exception.MigApplicationException
 import org.example.migapi.core.domain.dto.Error
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.http.converter.HttpMessageNotReadableException
-import org.springframework.mail.MailSendException
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.DisabledException
 import org.springframework.security.authentication.LockedException
@@ -19,6 +17,7 @@ import org.springframework.security.core.AuthenticationException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import java.net.SocketException
+import java.time.DateTimeException
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
@@ -33,26 +32,29 @@ class GlobalExceptionHandler {
             ExpiredJwtException::class,
             BadCredentialsException::class,
             AuthenticationException::class,
-            HttpMessageNotReadableException::class,
             MessagingException::class,
-            MailSendException::class,
             SocketException::class,
+            IllegalArgumentException::class,
+            DateTimeException::class,
             Exception::class
         ]
     )
     fun processException(e: Exception): ResponseEntity<Error> {
         val status = when (e) {
             is MigApplicationException -> e.httpStatus
+
             is PersistenceException,
-            is MailSendException,
             is MessagingException,
+            is DateTimeException,
+            is IllegalArgumentException,
             is SocketException -> HttpStatus.INTERNAL_SERVER_ERROR
 
             is ExpiredJwtException -> HttpStatus.GONE
+
             is DisabledException, is LockedException -> HttpStatus.LOCKED
+
             is BadCredentialsException,
-            is JwtException,
-            is HttpMessageNotReadableException -> HttpStatus.BAD_REQUEST
+            is JwtException -> HttpStatus.BAD_REQUEST
 
             is AuthenticationException -> HttpStatus.NOT_FOUND
             else -> {

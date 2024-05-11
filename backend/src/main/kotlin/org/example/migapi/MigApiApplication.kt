@@ -27,6 +27,10 @@ class MigApiApplication {
 			}
 		}
 	}
+
+	companion object {
+		fun String.empty() = ""
+	}
 }
 
 fun main(args: Array<String>) {

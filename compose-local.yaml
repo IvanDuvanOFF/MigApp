@@ -87,7 +87,7 @@ services:
       app-network:
         ipv4_address: 192.168.112.5
     ports:
-      - '81:80'
+      - '80:80'
     volumes:
       - type: bind
         source: ./nginx/local-conf.d

@@ -8,6 +8,7 @@ import org.example.migapi.core.domain.model.entity.User
 import org.example.migapi.core.domain.model.enums.ERole
 import org.example.migapi.core.domain.repo.RoleRepository
 import org.example.migapi.core.domain.repo.UserRepository
+import org.jetbrains.annotations.TestOnly
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.*
@@ -15,30 +16,26 @@ import java.util.*
 @Service
 class UserServiceImpl(
     @Autowired
+    private val dtoService: DtoService,
+    @Autowired
     private val userRepository: UserRepository,
     @Autowired
     private val roleRepository: RoleRepository
 ) : UserService {
 
+    @TestOnly
     override fun saveUser(userDto: UserDto): User {
-        val role = findRoleByName(ERole.ROLE_USER.name)
-
-        val user = User(
-            username = userDto.username,
-            email = userDto.email,
-            password = userDto.password,
-            role = role,
-            isActive = userDto.isActive,
-            tfaEnabled = userDto.tfaEnabled
-        )
+        val user = dtoService.toUser(userDto)
 
         return userRepository.save(user)
     }
 
     override fun saveUser(user: User): User = userRepository.save(user)
 
-    override fun findById(id: UUID): User =
-        userRepository.findById(id).orElseThrow { UserNotFoundException("User not found") }
+    override fun findUsersByRole(roleName: ERole): List<User> = userRepository.findUsersByRole(Role(roleName))
+
+    override fun findById(id: String): User = userRepository.findById(UUID.fromString(id))
+        .orElseThrow { UserNotFoundException("User not found") }
 
     override fun findUserByUsername(username: String): User = userRepository.findUserByUsername(username)
         .orElseThrow { UserNotFoundException("User with username $username doesn't exists") }
@@ -60,5 +57,12 @@ class UserServiceImpl(
         userRepository.save(user)
     }
 
+    override fun deleteUserById(id: String) {
+        val user = findById(id)
+
+        userRepository.delete(user)
+    }
+
+    @TestOnly
     override fun dropTable() = userRepository.deleteAll()
 }
