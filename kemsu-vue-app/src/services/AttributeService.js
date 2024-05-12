@@ -5,9 +5,7 @@ class AttributeService {
         return axios.get('/attributes', {            
             table_id: table_id
         });
-    }
-    
-    
+    }   
 }
 
 export default new AttributeService();

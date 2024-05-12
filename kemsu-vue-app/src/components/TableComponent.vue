@@ -2,8 +2,8 @@
     <div class="col d-flex flex-column col-3" style="border: 1px solid darkgrey;">
         <h4 class="font-weight-bold mt-5">{{ $t("list.filter") }}</h4>
         <form id="filterForm" class="d-flex flex-column mt-5" @submit.prevent="applyFilter">
-            <DynamicFilter :attribute="attr" v-for="attr in filtered_attributes" :key="attr" />
-            <div class="btn-group">
+            <DynamicFilter :attribute="attr" v-for="attr in filtered_attributes" :key="attr.attribute_name" />
+            <div class="btn-group mt-2">
                 <button type="submit" class="btn btn-dark rounded-0">
                     <font-awesome-icon icon="search" />
                 </button>
@@ -39,7 +39,9 @@
 
 <script>
 import StudentService from '@/services/StudentService.js';
+import AttributeService from '@/services/AttributeService.js';
 import DynamicFilter from '@/components/dynamic-components/DynamicFilter.vue';
+import TableService from '@/services/TableService';
 
 export default {
     name: "TableComponent",
@@ -49,70 +51,33 @@ export default {
     data() {
         let tableName = this.$route.params.tableName;
         let search_params = {};
-        let attributes = [
-            {
-                table_id: 1,
-                attribute_name: "name",
-                is_shown: true,
-                at_filter: false,
-                attribute_type: "string"
-            },
-            {
-                table_id: 1,
-                attribute_name: "surname",
-                is_shown: true,
-                at_filter: false,
-                attribute_type: "string"
-            },
-            {
-                table_id: 1,
-                attribute_name: "countryname",
-                is_shown: false,
-                at_filter: true,
-                attribute_type: "string"
-            },
-            {
-                table_id: 1,
-                attribute_name: "number",
-                is_shown: false,
-                at_filter: true,
-                attribute_type: "number"
-            },
-            {
-                table_id: 1,
-                attribute_name: "phone",
-                is_shown: false,
-                at_filter: true,
-                attribute_type: "phone"
-            },
-            {
-                table_id: 1,
-                attribute_name: "email",
-                is_shown: false,
-                at_filter: true,
-                attribute_type: "email"
-            },
-            {
-                table_id: 1,
-                attribute_name: "date",
-                is_shown: false,
-                at_filter: true,
-                attribute_type: "date"
-            }
-        ]
-
-        let filtered_attributes = attributes.filter(function (el) {
-            return el.at_filter;
-        });
-
+        let attributes = [];
         let examples = [];
+        let filtered_attributes = [];
+        let thisTable = {};
+
+        TableService.getTableByName(tableName).then(response => {
+            this.thisTable = response.data;
+
+            AttributeService.getAttributes(this.thisTable.id).then(response => {
+            console.log(response.data);
+            this.attributes = response.data;
+            this.filtered_attributes = this.attributes.filter(function (el) {
+                return el.at_filter;
+            });             
+        });
+        });
 
         StudentService.getStudents().then(response => {
             console.log(response.data);
             this.examples = response.data
         });
+
+        
+
         return {
             tableName,
+            thisTable,
             examples,
             attributes,
             filtered_attributes,

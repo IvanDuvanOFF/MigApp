@@ -1,136 +1,102 @@
 <template>
     <Form @invalid-submit="onInvalidSubmit" @submit="onStudentSubmit" name="studentForm" :validation-schema="schema"
         style="border: 1px solid darkgrey;" class="col d-flex flex-column justify-content-xl-center p-3 gap-3">
-        <div class="input-group d-flex flex-column">
-            <label for="name" class="form-label">{{ $t("single.name") }}</label>
-            <Field :disabled="disabled" type="text" v-model="student.name" class="form-control w-100 rounded-0"
-                name="name" v-on:keypress="isLetter($event)" />
-            <ErrorMessage class="alert alert-danger" name="name"></ErrorMessage>
-        </div>
-        <div class="input-group d-flex flex-column">
-            <label for="surname" class="form-label">{{ $t("single.surname") }}</label>
-            <Field :disabled="disabled" type="text" v-model="student.surname" class="form-control w-100 rounded-0"
-                name="surname" v-on:keypress="isLetter($event)" />
-            <ErrorMessage class="alert alert-danger" name="surname"></ErrorMessage>
-        </div>
-        <div class="input-group d-flex flex-column">
-            <label for="patronymic" class="form-label">{{ $t("single.patronymic") }}</label>
-            <Field :disabled="disabled" type="text" v-model="student.patronymic" class="form-control w-100 rounded-0"
-                name="patronymic" v-on:keypress="isLetter($event)" />
-        </div>
-        <div class="input-group d-flex flex-column">
-            <label for="email" class="form-label">{{ $t("single.email") }}</label>
-            <div class="input-group">
-                <Field :disabled="disabled" type="email" v-model="student.email" class="form-control rounded-0"
-                    name="email" />
-                
-                <button type="button" class="btn btn-info" :disabled="!disabled"
-                    data-bs-toggle="modal" data-bs-target="#mailModal" :data-bs-whatever="student.email">
-                    <font-awesome-icon icon="mail-bulk" />
-                </button>
-            </div>
-            <ErrorMessage class="alert alert-danger" name="email"></ErrorMessage>
-        </div>
 
-        <div class="d-flex justify-content-around">
-            <div class="form-check">                
-                <Field :disabled="disabled" type="radio" v-model="student.sex" class="form-check-input"
-                    name="sex" id="male" value="true" />
-                <label for="male" class="form-check-label">{{ $t("single.male") }}</label>
-            </div>
-            <div class="form-check">                
-                <Field :disabled="disabled" type="radio" v-model="student.sex" class="form-check-input"
-                    name="sex" id="female" value="false" />
-                <label for="female" class="form-check-label">{{ $t("single.female") }}</label>
-            </div>
-        </div>
+        <DynamicInput :attribute="attr" :disabled="disabled" v-model="example" v-for="attr in attributes"
+            :key="attr.attribute_name" />
 
-        <div class="input-group d-flex flex-column">
-            <label for="phone" class="form-label">{{ $t("single.phone") }}</label>
-            <Field :disabled="disabled" type="text" v-model="student.phone" class="form-control w-100 rounded-0"
-                name="phone" />
-            <ErrorMessage class="alert alert-danger" name="phone"></ErrorMessage>
-        </div>
-        <div class="input-group d-flex flex-column">
-            <label for="birhtday" class="form-label">{{ $t("single.birth") }}</label>
-            <Field :disabled="disabled" type="date" v-model="student.birthday" class="form-control w-100 rounded-0"
-                name="birthday" />
-            <ErrorMessage class="alert alert-danger" name="birthday"></ErrorMessage>
-        </div>
-        <button v-if="!disabled" type="submit" class="btn btn-success" name="submitButton">{{ $t("single.send") }}</button>
-        <span v-if="disabled" class="btn btn-primary" @click="allowEdit" name="allowEditButton">{{ $t("single.edit") }}</span>
+        <button v-if="!disabled" type="submit" class="btn btn-success" name="submitButton">{{ $t("single.send")
+            }}</button>
+        <span v-if="disabled" class="btn btn-primary" @click="allowEdit" name="allowEditButton">{{ $t("single.edit")
+            }}</span>
     </Form>
-    
-
-    <MailModal v-model:email="student.email" />    
 </template>
 
 <script>
-import { Field, Form, ErrorMessage } from 'vee-validate';
+import { Form } from 'vee-validate';
 import * as yup from 'yup';
+import AttributeService from '@/services/AttributeService.js';
 import StudentService from '@/services/StudentService.js';
-import MailModal from '@/components/dynamic-components/MailModal.vue';
+import TableService from '@/services/TableService.js';
+import DynamicInput from '@/components/dynamic-components/DynamicInput.vue';
 
 export default {
     name: "SingleObjectComponent",
     components: {
-        Field,
         Form,
-        ErrorMessage,
-        MailModal
-    },    
+        DynamicInput
+    },
     data() {
         let tableName = this.$route.params.tableName;
-        let student = {};
-        let disabled = true;        
-        
+        let example = {};
+        let disabled = true;
+        let thisTable = {};
+        let attributes = {};        
+
+        TableService.getTableByName(tableName).then(response => {
+            this.thisTable = response.data;
+
+            AttributeService.getAttributes(this.thisTable.id).then(response => {
+                console.log(response.data);
+                this.attributes = response.data;
+                this.makeSchema();
+            });
+        })
+
         if (this.$route.params.id) {
             let id = this.$route.params.id
-            StudentService.getStudent(id).then(response => { this.student = response.data[0] });
-        }        
+            StudentService.getStudent(id).then(response => {
+                this.example = response.data[0]
+                console.log(this.example);
+            });
+
+        }
         else {
-            disabled = false;            
-        }        
+            disabled = false;
+        }
 
         return {
             tableName,
-            disabled,            
-            student,
-            documents: []            
+            disabled,
+            example,
+            thisTable,
+            attributes,
+            schema: yup.object()
         };
     },
     computed: {
-        schema() {
+        
+    },
+    methods: {
+        makeSchema() {
             let requiredErrorMsg = this.$t("errors.required");
 
             const phoneRegExp = /^[+]?[(]?\d{3}?[-\s.]?\d{3}[-\s\]?[0-9]{4,6}$/;
 
-            return yup.object({
-                email: yup.string().required(requiredErrorMsg).email(this.$t("errors.email")),
-                name: yup.string().required(requiredErrorMsg),
-                surname: yup.string().required(requiredErrorMsg),
-                phone: yup.string().required(requiredErrorMsg).matches(phoneRegExp, this.$t("errors.phone")),
-                birthday: yup.date().required(requiredErrorMsg)
-            })
-        }
-    },
-    methods: {
-        addDocument(value) {
-            let docType = value.target.innerText;
-            let newDoc = {
-                accepted: false,
-                name: docType
-            }
-            this.docTypes.splice(this.docTypes.findIndex(item => item.name === docType), 1);
-            this.documents.push(newDoc);
-        },
-        isDocumentExist(value) {
-            console.log(value);
-        },
-        isLetter(e) {
-            let char = String.fromCharCode(e.keyCode);
-            if (/^[A-Za-z]+$/.test(char)) return true;
-            else e.preventDefault();
+            const yup_schema = {};
+
+            this.attributes.forEach(attr => {
+                        switch (attr.attribute_name) {
+                            case ("string"):
+                                yup_schema[attr.attribute_name] = yup.string().required(requiredErrorMsg);
+                                break;
+                            case ("email"):
+                                yup_schema[attr.attribute_name] = yup.string().required(requiredErrorMsg).email(this.$t("errors.email"));
+                                break;
+                            case ("number"):
+                                yup_schema[attr.attribute_name] = yup.number().required(requiredErrorMsg);
+                                break;
+                            case ("phone"):
+                                yup_schema[attr.attribute_name] = yup.string().required(requiredErrorMsg).matches(phoneRegExp, this.$t("errors.phone"));
+                                break;
+                            case ("date"):
+                                yup_schema[attr.attribute_name] = yup.date().required(requiredErrorMsg);
+                                break;
+                        }
+                    })
+
+            console.log(yup_schema);
+            this.schema = yup.object(yup_schema);
         },
         allowEdit() {
             this.disabled = false;
@@ -141,21 +107,13 @@ export default {
             console.log(results);
         },
         onStudentSubmit() {
-            let tempStudent = this.student;
-            let params = {
-                name: tempStudent.name,
-                surname: tempStudent.surname,
-                patronymic: tempStudent.patronymic,
-                birthday: tempStudent.birthday,
-                email: tempStudent.email,
-                phone: tempStudent.phone,
-                status: tempStudent.status,
-                sex: tempStudent.sex,
-                countryname: tempStudent.countryname
-            };
+            console.log(this.example);
+            if (this.tableName == "Students"){
+                return;
+            }
 
-            if (tempStudent.id) {
-                StudentService.updateStudent(tempStudent.id, params)
+            if (this.example.id) {
+                StudentService.updateStudent(this.example.id, this.example)
                     .then(alert("Запрос отправлен"))
                     .catch(err => {
                         alert("Ошибка на стороне сервера " + err)
@@ -163,7 +121,7 @@ export default {
                 this.$router.go();
             }
             else {
-                StudentService.createStudent(params)
+                StudentService.createStudent(this.example)
                     .then(response => {
                         alert("Запрос отправлен");
                         window.location.replace("/table/" + this.tableName + "/" + response.data.id);
@@ -172,13 +130,8 @@ export default {
                         alert("Ошибка на стороне сервера " + err)
                     });
             }
-
         },
-        onDocSubmit() {
-
-        }
     }
-
 }
 </script>
 

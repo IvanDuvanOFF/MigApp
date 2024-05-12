@@ -18,8 +18,9 @@
       <a class="btn rounded-0 navbar-link" data-bs-toggle="collapse" href="#collapse">{{ $t("navbar.record") }}</a>
       <div class="collapse" id="collapse">
         <div class="card rounded-0 border-0">
-          <div class="d-grid" v-for="table in recordedTables" :key="table">
-            <a class="btn rounded-0 navbar-link sub-item" v-bind:href="$sanitize('/table/' + table)">{{ table }}</a>
+          <div class="d-grid" v-for="table in recordedTables" :key="table.id">
+            <a class="btn rounded-0 navbar-link sub-item" v-bind:href="$sanitize('/table/' + table.table_name)">{{
+    table.table_name }}</a>
             <button v-if="getEditMode" class="btn btn-danger position-absolute rounded-0 h-50" style="right: 0">
               <font-awesome-icon icon="trash-can" />
             </button>
@@ -48,24 +49,29 @@
 </template>
 
 <script>
-
+import TableService from "@/services/TableService.js";
 import EditController from "./store/edit-controller.js";
 
 export default {
   name: 'App',
   data() {
-    let recordedTables = ["Students"];
-    let remainingTables = ["Students", "Documents"];
+    let recordedTables = [];
+    let remainingTables = [];
+
+    remainingTables = TableService.getTables(1);
+    TableService.getRecordedTables(1).then(response => {
+      this.recordedTables = response.data;
+    });
 
     remainingTables = remainingTables.filter(function (el) {
       return !recordedTables.includes(el);
     });
-
     return {
       recordedTables,
       remainingTables
     };
   },
+
   computed: {
     currentUser() {
       console.log('user is');
