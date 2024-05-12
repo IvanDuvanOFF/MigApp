@@ -3,9 +3,9 @@
         <label :for="attribute.attribute_name" class="form-label">
             {{ attribute.attribute_name }}
         </label>
-        <Field :disabled="disabled" type="text" class="form-control w-100 rounded-0"        
-        :value="modelValue[attribute.attribute_name]"
-        :name="attribute.attribute_name" :id="attribute.attribute_name"        
+        <Field :disabled="disabled" type="text" class="form-control w-100 rounded-0" @change="updateInput"        
+            :value="modelValue[attribute.attribute_name]"
+            :name="attribute.attribute_name" :id="attribute.attribute_name"        
             v-on:keypress="isLetter($event)" />
         <ErrorMessage class="alert alert-danger" :name="attribute.attribute_name"></ErrorMessage>
     </div>
@@ -15,8 +15,8 @@
             {{ attribute.attribute_name }}
         </label>
         <Field :disabled="disabled" type="number" class="form-control w-100 rounded-0"
-        :value="modelValue[attribute.attribute_name]" 
-        :name="attribute.attribute_name" :id="attribute.attribute_name"/>
+            :value="modelValue[attribute.attribute_name]" 
+            :name="attribute.attribute_name" :id="attribute.attribute_name"/>
         <ErrorMessage class="alert alert-danger" :name="attribute.attribute_name"></ErrorMessage>
     </div>
 
@@ -26,8 +26,8 @@
         </label>
         <div class="input-group">
             <Field :disabled="disabled" type="email" class="form-control rounded-0" 
-            :value="modelValue[attribute.attribute_name]"
-            :name="attribute.attribute_name" :id="attribute.attribute_name" />
+                :value="modelValue[attribute.attribute_name]"
+                :name="attribute.attribute_name" :id="attribute.attribute_name" />
 
             <button type="button" class="btn btn-info" :disabled="!disabled" data-bs-toggle="modal"
                 data-bs-target="#mailModal">
@@ -75,7 +75,7 @@ import MailModal from '@/components/dynamic-components/MailModal.vue';
 import { Field, ErrorMessage } from 'vee-validate';
 
 export default {
-    props: ["attribute", "disabled", "modelValue"],    
+    props: ["attribute", "disabled", "modelValue"],
     components: {
         Field,
         ErrorMessage,
@@ -86,6 +86,9 @@ export default {
             let char = String.fromCharCode(e.keyCode);
             if (/^[A-Za-zА-Яа-я]+$/.test(char)) return true;
             else e.preventDefault();
+        },
+        updateInput(){
+            this.$emit()
         }
     }
 }

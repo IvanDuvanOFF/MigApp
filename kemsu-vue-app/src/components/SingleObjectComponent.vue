@@ -1,6 +1,7 @@
 <template>
-    <Form @invalid-submit="onInvalidSubmit" @submit="onStudentSubmit" name="studentForm" :validation-schema="schema"
-        style="border: 1px solid darkgrey;" class="col d-flex flex-column justify-content-xl-center p-3 gap-3">
+    <Form @invalid-submit="onInvalidSubmit" @submit="onStudentSubmit" name="studentForm" id="inputForm"
+        :validation-schema="schema" style="border: 1px solid darkgrey;"
+        class="col d-flex flex-column justify-content-xl-center p-3 gap-3">
 
         <DynamicInput :attribute="attr" :disabled="disabled" v-model="example" v-for="attr in attributes"
             :key="attr.attribute_name" />
@@ -31,7 +32,7 @@ export default {
         let example = {};
         let disabled = true;
         let thisTable = {};
-        let attributes = {};        
+        let attributes = {};
 
         TableService.getTableByName(tableName).then(response => {
             this.thisTable = response.data;
@@ -65,7 +66,7 @@ export default {
         };
     },
     computed: {
-        
+
     },
     methods: {
         makeSchema() {
@@ -76,24 +77,24 @@ export default {
             const yup_schema = {};
 
             this.attributes.forEach(attr => {
-                        switch (attr.attribute_name) {
-                            case ("string"):
-                                yup_schema[attr.attribute_name] = yup.string().required(requiredErrorMsg);
-                                break;
-                            case ("email"):
-                                yup_schema[attr.attribute_name] = yup.string().required(requiredErrorMsg).email(this.$t("errors.email"));
-                                break;
-                            case ("number"):
-                                yup_schema[attr.attribute_name] = yup.number().required(requiredErrorMsg);
-                                break;
-                            case ("phone"):
-                                yup_schema[attr.attribute_name] = yup.string().required(requiredErrorMsg).matches(phoneRegExp, this.$t("errors.phone"));
-                                break;
-                            case ("date"):
-                                yup_schema[attr.attribute_name] = yup.date().required(requiredErrorMsg);
-                                break;
-                        }
-                    })
+                switch (attr.attribute_name) {
+                    case ("string"):
+                        yup_schema[attr.attribute_name] = yup.string().required(requiredErrorMsg);
+                        break;
+                    case ("email"):
+                        yup_schema[attr.attribute_name] = yup.string().required(requiredErrorMsg).email(this.$t("errors.email"));
+                        break;
+                    case ("number"):
+                        yup_schema[attr.attribute_name] = yup.number().required(requiredErrorMsg);
+                        break;
+                    case ("phone"):
+                        yup_schema[attr.attribute_name] = yup.string().required(requiredErrorMsg).matches(phoneRegExp, this.$t("errors.phone"));
+                        break;
+                    case ("date"):
+                        yup_schema[attr.attribute_name] = yup.date().required(requiredErrorMsg);
+                        break;
+                }
+            })
 
             console.log(yup_schema);
             this.schema = yup.object(yup_schema);
@@ -106,11 +107,21 @@ export default {
             console.log(errors);
             console.log(results);
         },
+
+        updateExampleObject() {
+            let inputForm = document.getElementById("inputForm");
+
+            for (let element of inputForm.elements) {
+                if (element.value) {
+                    this.example[element.id] = element.value;
+                }
+            }
+        },
+
         onStudentSubmit() {
             console.log(this.example);
-            if (this.tableName == "Students"){
-                return;
-            }
+            this.updateExampleObject();
+            console.log(this.example);
 
             if (this.example.id) {
                 StudentService.updateStudent(this.example.id, this.example)
