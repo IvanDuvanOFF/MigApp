@@ -60,34 +60,7 @@
         <button v-if="!disabled" type="submit" class="btn btn-success" name="submitButton">{{ $t("single.send") }}</button>
         <span v-if="disabled" class="btn btn-primary" @click="allowEdit" name="allowEditButton">{{ $t("single.edit") }}</span>
     </Form>
-    <Form @invalid-submit="onInvalidSubmit" @submit="onDocSubmit" name="studentForm" :validation-schema="schema"
-        style="border: 1px solid darkgrey;" class="col d-flex flex-column justify-content-xl-center p-3 gap-3">
-        <div class="d-flex flex-column">
-            <span v-for="doc in documents" :key="doc.name" :class="{ 'success': doc.accepted, 'fail': !doc.accepted }"
-                class="input-group-text justify-content-between">
-                {{ doc.name }}
-                <div>
-                    <button class="btn btn-outline-light me-1">
-                        <font-awesome-icon icon="eye" />
-                    </button>
-                    <button class="btn btn-outline-light">
-                        <font-awesome-icon icon="search" />
-                    </button>
-                </div>
-
-
-            </span>
-        </div>
-
-        <button type="submit" class="btn btn-success" name="sendDocs">{{ $t("single.send-doc") }}</button>
-        <div class="dropdown"><button class="btn btn-primary dropdown-toggle w-100" aria-expanded="false"
-                data-bs-toggle="dropdown" type="button">{{ $t("single.add-doc") }}</button>
-            <div class="dropdown-menu">
-                <a class="dropdown-item" @click="addDocument" v-for="docType in docTypes" :key="docType.name"
-                    href="#">{{ docType.name }}</a>
-            </div>
-        </div>
-    </Form>
+    
 
     <MailModal v-model:email="student.email" />    
 </template>
@@ -96,7 +69,7 @@
 import { Field, Form, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import StudentService from '@/services/StudentService.js';
-import MailModal from '@/components/MailModal.vue';
+import MailModal from '@/components/dynamic-components/MailModal.vue';
 
 export default {
     name: "SingleObjectComponent",
@@ -109,25 +82,19 @@ export default {
     data() {
         let tableName = this.$route.params.tableName;
         let student = {};
-        let disabled = true;
-        let docTypes = [{ name: 'Паспорт' },
-        { name: 'ИНН' },
-        { name: 'Загранпаспорт' },
-        { name: 'Водительское удостоверение' }];
-        console.log(docTypes);
+        let disabled = true;        
+        
         if (this.$route.params.id) {
             let id = this.$route.params.id
             StudentService.getStudent(id).then(response => { this.student = response.data[0] });
         }        
         else {
-            disabled = false;
-            student.sex = false;
+            disabled = false;            
         }        
 
         return {
             tableName,
-            disabled,
-            docTypes,
+            disabled,            
             student,
             documents: []            
         };

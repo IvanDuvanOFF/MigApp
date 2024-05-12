@@ -6,7 +6,7 @@ import {
     faMailBulk,
     faSearch,
     faUserPlus,
-    faTrashCan
+    faTrashCan    
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(fa1, faEye, faMailBulk, faSearch, faUserPlus, faTrashCan);

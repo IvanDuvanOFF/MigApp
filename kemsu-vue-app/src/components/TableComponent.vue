@@ -1,57 +1,35 @@
 <template>
     <div class="col d-flex flex-column col-3" style="border: 1px solid darkgrey;">
         <h4 class="font-weight-bold mt-5">{{ $t("list.filter") }}</h4>
-        <div class="d-flex flex-column mt-5">
-            <div class="input-group d-flex flex-column align-items-center align-items-center">
-                <label for="filter-age" class="form-label">{{ $t("list.age") }}</label>
-                <input id="filter-age" v-model="age" type="number" class="form-control w-75 rounded-0" />
-
-                <div class="input-group d-flex d-flex flex-column align-items-center">
-                    <label for="filter-country" class="form-label">{{ $t("list.country") }}</label>
-                    <select id="filter-country" v-model="country" class="form-select w-75 rounded-0">
-                        <optgroup label="">
-                            <option value="" selected>-</option>
-                            <option value="country1" selected>Country 1</option>
-                            <option value="country2" selected>Country 2</option>
-                        </optgroup>
-                    </select>
-                </div>
-
-                <div class="input-group d-flex flex-column align-items-center">
-                    <label for="filter-status" class="form-label">
-                        {{ $t("list.status") }}
-                    </label>
-                    <select id="filter-status" v-model="studentStatus" class="form-select w-75 rounded-0">
-                        <optgroup label="">
-                            <option value="">-</option>
-                            <option value="status1">Status 1</option>
-                            <option value="status2">Status 2</option>
-                        </optgroup>
-                    </select>
-                </div>
+        <form id="filterForm" class="d-flex flex-column mt-5" @submit.prevent="applyFilter">
+            <DynamicFilter :attribute="attr" v-for="attr in filtered_attributes" :key="attr" />
+            <div class="btn-group">
+                <button type="submit" class="btn btn-dark rounded-0">
+                    <font-awesome-icon icon="search" />
+                </button>
+                <button type="button" @click="clearFilterForm" class="btn btn-danger rounded-0">
+                    <font-awesome-icon icon="trash-can" />
+                </button>
             </div>
-        </div>
+        </form>
     </div>
 
     <div class="col d-flex flex-column p-0">
         <div>
             <div class="input-group">
-                <input id="fio" type="text" class="form-control rounded-0" />
-                <button class="btn btn-dark rounded-0" @click="makeSearch">
-                    <font-awesome-icon icon="search" />
-                </button>
-                <a class="btn btn-primary rounded-0" 
-                    v-bind:href="$sanitize('/table/' + this.tableName + '/create')" type="button">
+                <a class="btn btn-primary rounded-0" v-bind:href="$sanitize('/table/' + this.tableName + '/create')"
+                    type="button">
                     <font-awesome-icon icon="user-plus" />
                 </a>
             </div>
 
             <div>
-                <a class="card-a rounded-0 text-decoration-none card" v-for="student in students" :key="student.id"
-                    v-bind:href="$sanitize('/table/' + this.tableName + '/' + student.id)">
+                <a class="card-a rounded-0 text-decoration-none card" v-for="example in examples" :key="example.id"
+                    v-bind:href="$sanitize('/table/' + this.tableName + '/' + example.id)">
                     <div class=" card-body p-2 align-self-start">
-                        <h4 class="card-title" align-self-start>{{ student.surname }} {{ student.name }} {{
-                            student.patronymic }}</h4>
+                        <h4 class="card-title" align-self-start>
+                            {{ getTextFromShownValues(example) }}
+                        </h4>
                     </div>
                 </a>
             </div>
@@ -61,52 +39,124 @@
 
 <script>
 import StudentService from '@/services/StudentService.js';
+import DynamicFilter from '@/components/dynamic-components/DynamicFilter.vue';
 
 export default {
     name: "TableComponent",
+    components: {
+        DynamicFilter
+    },
     data() {
         let tableName = this.$route.params.tableName;
+        let search_params = {};
+        let attributes = [
+            {
+                table_id: 1,
+                attribute_name: "name",
+                is_shown: true,
+                at_filter: false,
+                attribute_type: "string"
+            },
+            {
+                table_id: 1,
+                attribute_name: "surname",
+                is_shown: true,
+                at_filter: false,
+                attribute_type: "string"
+            },
+            {
+                table_id: 1,
+                attribute_name: "countryname",
+                is_shown: false,
+                at_filter: true,
+                attribute_type: "string"
+            },
+            {
+                table_id: 1,
+                attribute_name: "number",
+                is_shown: false,
+                at_filter: true,
+                attribute_type: "number"
+            },
+            {
+                table_id: 1,
+                attribute_name: "phone",
+                is_shown: false,
+                at_filter: true,
+                attribute_type: "phone"
+            },
+            {
+                table_id: 1,
+                attribute_name: "email",
+                is_shown: false,
+                at_filter: true,
+                attribute_type: "email"
+            },
+            {
+                table_id: 1,
+                attribute_name: "date",
+                is_shown: false,
+                at_filter: true,
+                attribute_type: "date"
+            }
+        ]
 
-        let students = [];
-        console.log();
-        StudentService.getStudents().then(response => { 
-            console.log(response.data); 
-            this.students = response.data
+        let filtered_attributes = attributes.filter(function (el) {
+            return el.at_filter;
+        });
+
+        let examples = [];
+
+        StudentService.getStudents().then(response => {
+            console.log(response.data);
+            this.examples = response.data
         });
         return {
             tableName,
-            age: 0,
-            country: '',
-            studentStatus: '',
-            students
+            examples,
+            attributes,
+            filtered_attributes,
+            search_params
         };
     },
 
     methods: {
-        makeDynamicLink(id){
+        getTextFromShownValues(example) {
+            let represents = [];
+
+            this.attributes.forEach((attr) => {
+                if (attr.is_shown) {
+                    represents.push(example[attr.attribute_name]);
+                }
+            });
+
+            return represents.join(" ");
+        },
+        makeDynamicLink(id) {
             return '/students/' + id;
         },
+        applyFilter(submitEvent) {
+            for (let element of submitEvent.target.elements) {
+                if (element.value) {
+                    this.search_params[element.id] = element.value;
+                }
+            }
+            this.makeSearch();
+        },
         makeSearch() {
-            let params = {};
-
-            if (this.age != 0) {
-                params['age'] = this.age;
-            }
-
-            if (this.country) {
-                params['countryname'] = this.country;
-            }
-
-            if (this.studentStatus) {
-                params['status'] = this.studentStatus;
-            }
-
-            console.log(params);
-            StudentService.getStudents(params)
+            console.log(this.search_params);
+            StudentService.getStudents(this.search_params)
                 .then(response => {
-                    console.log(response.data); 
-                    this.students = response.data
+                    console.log(response.data);
+                    this.examples = response.data
                 });
+        },
+        clearFilterForm() {
+            let form = document.getElementById("filterForm");
+            for (let element of form.elements) {
+                element.value = null;
+            }
+            this.search_params = {};
         }
     }
 }
