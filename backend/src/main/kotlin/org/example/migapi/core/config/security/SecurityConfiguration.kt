@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
+@Suppress("VulnerableCodeUsages")
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -23,7 +24,9 @@ class SecurityConfiguration(
     @Autowired
     private val userDetailsService: MigUserDetailsService,
     @Autowired
-    private val jwtAuthenticationFilter: JwtAuthenticationFilter
+    private val jwtAuthenticationFilter: JwtAuthenticationFilter,
+    @Autowired
+    private val encoder: BCryptPasswordEncoder
 ) {
 
     @Bean
@@ -53,13 +56,10 @@ class SecurityConfiguration(
         val authProvider = DaoAuthenticationProvider()
 
         authProvider.setUserDetailsService(userDetailsService)
-        authProvider.setPasswordEncoder(passwordEncoder())
+        authProvider.setPasswordEncoder(encoder)
 
         return authProvider
     }
-
-    @Bean
-    fun passwordEncoder() = BCryptPasswordEncoder()
 
     @Bean
     fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager {

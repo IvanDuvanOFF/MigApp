@@ -39,12 +39,25 @@ class AuthenticationService(
 
     @Throws(
         exceptionClasses = [
+            UserBlockedException::class,
             BadCredentialsException::class,
             PersistenceException::class
         ]
     )
-    fun blockUser4Restore(emailOrPhone: String, httpServletRequest: HttpServletRequest): SignResponse {
-        val user = userService.findUserByEmailOrPhone(emailOrPhone)
+    fun blockUser4Restore(emailOrPhone: BlockRequest): SignResponse {
+
+        val user = when {
+            emailOrPhone.email.isNotEmpty() && migUtils.isEmail(emailOrPhone.email) ->
+                userService.findUserByEmail(emailOrPhone.email)
+
+            emailOrPhone.phone.isNotEmpty() && migUtils.isPhone(emailOrPhone.phone) ->
+                userService.findUserByPhone(emailOrPhone.phone)
+
+            else -> throw BadCredentialsException("Email or phone are incorrect")
+        }
+
+        if (user.isActive.not())
+            throw UserBlockedException()
 
         val totp = totpService.generateCode(user)
         emailService.sendTfaEmail(user.email, totp)
@@ -65,10 +78,12 @@ class AuthenticationService(
         ]
     )
     fun restoreUser(restoreRequest: RestoreRequest) {
-        val user = verifyTfaCode(restoreRequest.verification)
+        val user = userService.findUserByUsername(restoreRequest.verification.username)
 
         if (user.isActive)
             throw UserAlreadyActivatedException()
+
+        user.verifyTfaCode(restoreRequest.verification)
 
         if (restoreRequest.passwords.password != restoreRequest.passwords.confirmation)
             throw BadCredentialsException("Passwords are not the same")
@@ -121,7 +136,9 @@ class AuthenticationService(
         ]
     )
     fun verifyTfa(verificationRequest: VerificationRequest, request: HttpServletRequest): SignResponse =
-        verifyTfaCode(verificationRequest).generateSignResponse(request)
+        userService.findUserByUsername(verificationRequest.username)
+            .verifyTfaCode(verificationRequest)
+            .generateSignResponse(request)
 
 
     @Throws(
@@ -167,13 +184,11 @@ class AuthenticationService(
             PersistenceException::class
         ]
     )
-    private fun verifyTfaCode(verificationRequest: VerificationRequest): User {
-        val user = userService.findUserByUsername(verificationRequest.username)
-
-        if (!totpService.validateCode(user, verificationRequest.code))
+    private fun User.verifyTfaCode(verificationRequest: VerificationRequest): User {
+        if (!totpService.validateCode(this, verificationRequest.code))
             throw BadCredentialsException("Code not correct")
 
-        return user
+        return this
     }
 
     private fun User.block() {

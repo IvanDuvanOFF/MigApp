@@ -63,6 +63,7 @@ class DtoServiceImpl(
         id = userDto.id?.let { UUID.fromString(it) } ?: UUID.randomUUID(),
         username = userDto.username,
         password = encoder.encode(userDto.password),
+        email = userDto.email,
         isActive = userDto.isActive,
         role = try {
             Role(ERole.valueOf(userDto.role))

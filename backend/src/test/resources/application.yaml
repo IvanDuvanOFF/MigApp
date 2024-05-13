@@ -20,7 +20,7 @@ spring:
   data:
     redis:
       host: localhost
-      port: 6378
+      port: 6380
 
 mig:
   jwt:

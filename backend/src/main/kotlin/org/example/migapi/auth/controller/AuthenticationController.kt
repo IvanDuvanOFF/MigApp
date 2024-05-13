@@ -1,6 +1,5 @@
 package org.example.migapi.auth.controller
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -10,7 +9,10 @@ import org.example.migapi.auth.dto.*
 import org.example.migapi.auth.service.AuthenticationService
 import org.example.migapi.core.domain.dto.Error
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/auth")
@@ -140,14 +142,18 @@ class AuthenticationController(
                 content = [Content(schema = Schema(implementation = Error::class))]
             ),
             ApiResponse(
+                responseCode = "409",
+                description = "Пользователь уже заблокирован",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
                 responseCode = "500",
                 description = "Internal server error",
                 content = [Content(schema = Schema(implementation = Error::class))]
             )
         ]
     )
-    fun block(@RequestBody @JsonProperty("email_or_phone") emailOrPhone: String, request: HttpServletRequest) =
-        authenticationService.blockUser4Restore(emailOrPhone, request)
+    fun block(@RequestBody blockRequest: BlockRequest) = authenticationService.blockUser4Restore(blockRequest)
 
     @PostMapping("restore")
     @Operation(
