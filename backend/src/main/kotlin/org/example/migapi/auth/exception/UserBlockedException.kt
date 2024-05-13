@@ -3,4 +3,4 @@ package org.example.migapi.auth.exception
 import org.example.migapi.core.config.exception.MigApplicationException
 import org.springframework.http.HttpStatus
 
-class VerificationTokenExpiredException(message: String) : MigApplicationException(HttpStatus.GONE, message)
+class UserBlockedException : MigApplicationException(HttpStatus.CONFLICT, "User already blocked")

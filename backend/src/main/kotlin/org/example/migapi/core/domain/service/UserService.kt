@@ -1,6 +1,7 @@
 package org.example.migapi.core.domain.service
 
 import jakarta.persistence.PersistenceException
+import org.example.migapi.auth.exception.BadCredentialsException
 import org.example.migapi.auth.exception.RoleNotFoundException
 import org.example.migapi.core.domain.dto.UserDto
 import org.example.migapi.core.domain.exception.UserNotFoundException
@@ -31,6 +32,24 @@ interface UserService {
 
     @Throws(exceptionClasses = [UserNotFoundException::class, PersistenceException::class])
     fun findUserByUsername(username: String): User
+
+    @Throws(exceptionClasses = [UserNotFoundException::class, PersistenceException::class])
+    fun findUserByEmail(email: String): User
+
+    @Throws(exceptionClasses = [UserNotFoundException::class, PersistenceException::class])
+    fun findUserByUsernameOrEmail(usernameOrEmail: String): User
+
+    @Throws(
+        exceptionClasses = [
+            UserNotFoundException::class,
+            BadCredentialsException::class,
+            PersistenceException::class
+        ]
+    )
+    fun findUserByEmailOrPhone(emailOrPhone: String): User
+
+    @Throws(exceptionClasses = [UserNotFoundException::class, PersistenceException::class])
+    fun findUserByPhone(phone: String): User
 
     @Throws(exceptionClasses = [PersistenceException::class])
     fun findUsersByRole(roleName: ERole): List<User>

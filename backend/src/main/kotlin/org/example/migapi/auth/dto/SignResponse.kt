@@ -18,6 +18,10 @@ data class SignResponse(
     @Schema(required = false)
     val refreshToken: String = "",
 
+    @JsonProperty("username")
+    @SerializedName("username")
+    val username: String = "",
+
     @JsonProperty("tfa_enabled")
     @SerializedName("tfa_enabled")
     val tfaEnabled: Boolean = false
