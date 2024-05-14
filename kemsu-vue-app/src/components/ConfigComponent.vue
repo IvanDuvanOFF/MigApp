@@ -1,7 +1,7 @@
 <template>
     <div class="col" style="margin-top: 10%;">
         <h1>{{ $t("config.user_manage") }}</h1>
-        <table class="table table-dark">
+        <table class="table">
             <thead>
                 <tr>
                     <th scope="col">{{ $t("config.username") }}</th>

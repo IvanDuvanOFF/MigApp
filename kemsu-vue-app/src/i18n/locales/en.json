@@ -5,13 +5,18 @@
         "button": "Sign in"
     },
     "settings": {
-        "lang": "Language"
+        "lang": "Language",
+        "theme": "Theme",
+        "font": "Size of font",
+        "gmt": "GMT"
+
     },
     "navbar": {
         "record": "Record",
         "notifications": "Notifications",
         "settings": "Settings",
-        "exit": "Exit"
+        "exit": "Exit",
+        "config": "Config"
     },
     "list": {
         "filter": "Filter",
@@ -44,5 +49,21 @@
         "required": "This field is required",
         "phone": "Invalid phone number",
         "email": "Invalid email address"
+    },
+    "edit-table":{
+        "attr_name": "Name",
+        "is_shown": "In list",
+        "at_filter": "In filter",
+        "type": "Type"
+    },
+    "config":{
+        "user_manage": "Manage users",
+        "username": "Username",
+        "password": "Password",
+        "actions": "Actions",
+        "bd_path": "Path to DB",
+        "delete": "Delete",
+        "edit": "Edit",
+        "save": "Save"
     }
 }

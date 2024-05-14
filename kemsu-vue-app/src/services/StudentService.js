@@ -12,8 +12,7 @@ class StudentService {
 
     // Получить конкретного студента
     getStudent(id) {
-        return axios.get('students', {
-            params: { id: id },
+        return axios.get('/students/' + id, {            
             headers: AuthHeader()
         });
     }
@@ -22,41 +21,20 @@ class StudentService {
     updateStudent(id, params) {
         params.id = id;
 
-        return axios.put('students/' + id, {
-            id: params.id,
-            name: params.name,
-            surname: params.surname,
-            patronymic: params.patronymic,
-            birthday: params.birthday,
-            email: params.email,
-            phone: params.phone,
-            sex: params.sex,
-            status: params.status,
-            countryname: params.countryname
-        });
+        return axios.put('students/' + id, 
+            params
+        );
     }
 
     // Создать нового студента
     createStudent(params) {
-        return axios.post('students', {
-            name: params.name,
-            surname: params.surname,
-            patronymic: params.patronymic,
-            birthday: params.birthday,
-            email: params.email,
-            phone: params.phone,
-            sex: params.sex,
-            status: params.status,
-            countryname: params.countryname,
-
-            headers: AuthHeader()
-        })
+        return axios.post('students', params);
     }
 
     // Удалить конкретного студента
     removeStudent(id) {
         return axios.delete('students/' + id, {
-            params: { id: id },
+            id: id,
             headers: AuthHeader()
         })
     }
