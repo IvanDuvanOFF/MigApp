@@ -46,7 +46,10 @@ interface UserRepository : JpaRepository<User, UUID> {
             CachePut("user-email", key = "#entity.email"),
             CachePut("user-phone", key = "#entity.phone")
         ],
-        evict = [CacheEvict("user-role", allEntries = true)]
+        evict = [
+            CacheEvict("user-role", allEntries = true),
+            CacheEvict("tfa_user_id", key = "#entity.id")
+        ]
     )
     override fun <S : User> save(entity: S): S
 

@@ -33,6 +33,10 @@ class MigApiApplication {
 	}
 }
 
+fun Boolean.orThrow(throwable: () -> Throwable) {
+	if (!this) throw throwable()
+}
+
 fun main(args: Array<String>) {
 	runApplication<MigApiApplication>(*args)
 }

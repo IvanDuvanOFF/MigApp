@@ -3,12 +3,13 @@ package org.example.migapi.auth
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions
 import org.example.migapi.auth.dto.*
-import org.example.migapi.auth.exception.TfaCodeExpiredException
+import org.example.migapi.auth.exception.BadCredentialsException
 import org.example.migapi.auth.service.EmailService
 import org.example.migapi.auth.service.TotpService
 import org.example.migapi.auth.service.VerificationTokenService
 import org.example.migapi.config.TestRedisConfiguration
 import org.example.migapi.core.domain.dto.UserDto
+import org.example.migapi.core.domain.model.entity.TotpCode
 import org.example.migapi.core.domain.model.enums.ERole
 import org.example.migapi.core.domain.service.UserService
 import org.hamcrest.Matchers
@@ -30,6 +31,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultActionsDsl
 import org.springframework.test.web.servlet.post
+import java.time.LocalDateTime
 
 
 @SpringBootTest(classes = [TestRedisConfiguration::class])
@@ -72,8 +74,8 @@ class AuthenticationControllerTests(
         const val SIGN_URL = "$BASIC_URL/signing"
         const val SIGN_TFA_URL = "$BASIC_URL/tfa"
         const val REFRESH_URL = "$BASIC_URL/refresh"
-        const val BLOCK_URL = "$BASIC_URL/block"
         const val RESTORE_URL = "$BASIC_URL/restore"
+        const val BLOCK_URL = "$RESTORE_URL/block"
 
         const val ACCESS_TOKEN = "$.access_token"
         const val REFRESH_TOKEN = "$.refresh_token"
@@ -141,12 +143,16 @@ class AuthenticationControllerTests(
     @Test
     fun userCanSignInTfa() {
         val userDto = generateTestUser(isActive = true, tfaEnabled = true)
-        userService.saveUser(userDto)
+        val user = userService.saveUser(userDto)
         val request = SignRequest(userDto.username, "test")
 
         val totp = "666777"
+        val totpCode = TotpCode(
+            tfaId = TotpCode.TotpCodeId(code = totp, user),
+            expirationDate = LocalDateTime.now().plusHours(1)
+        )
 
-        Mockito.`when`(totpService.validateCode(any(), eq(totp))).thenReturn(true)
+        Mockito.`when`(totpService.findTfaByUser(any(), eq(totp))).thenReturn(totpCode)
 
         performRequest(SIGN_URL, request)
             .andExpect {
@@ -175,7 +181,7 @@ class AuthenticationControllerTests(
 
         val totp = "666777"
 
-        Mockito.`when`(totpService.validateCode(any(), eq(totp))).thenReturn(true)
+        Mockito.`when`(totpService.findTfaByUser(any(), any())).thenThrow(BadCredentialsException())
 
         performRequest(SIGN_URL, request)
             .andExpect {
@@ -200,8 +206,7 @@ class AuthenticationControllerTests(
         userService.saveUser(userDto)
         val request = SignRequest(userDto.username, "test")
 
-        val totp = "666777"
-        Mockito.`when`(totpService.validateCode(any(), eq(totp))).thenReturn(true)
+        Mockito.`when`(totpService.findTfaByUser(any(), any())).thenThrow(BadCredentialsException())
 
         performRequest(SIGN_URL, request)
             .andExpect {
@@ -296,7 +301,6 @@ class AuthenticationControllerTests(
         val totp = "666777"
 
         Mockito.`when`(totpService.generateCode(any())).thenReturn(totp)
-        Mockito.`when`(totpService.validateCode(any(), eq(totp))).thenReturn(true)
 
         performRequest(BLOCK_URL, blockRequest).andExpect {
             status { isOk() }
@@ -305,6 +309,12 @@ class AuthenticationControllerTests(
         }
 
         val user = userService.findUserByUsername(userDto.username)
+        val totpCode = TotpCode(
+            tfaId = TotpCode.TotpCodeId(code = totp, user),
+            expirationDate = LocalDateTime.now().plusHours(1)
+        )
+        Mockito.`when`(totpService.findTfaByUser(any(), eq(totp))).thenReturn(totpCode)
+
         Assertions.assertThat(user.isActive).isFalse()
 
         val restoreRequest = RestoreRequest(
@@ -325,7 +335,6 @@ class AuthenticationControllerTests(
         val totp = "666777"
 
         Mockito.`when`(totpService.generateCode(any())).thenReturn(totp)
-        Mockito.`when`(totpService.validateCode(any(), eq(totp))).thenReturn(true)
 
         performRequest(BLOCK_URL, blockRequest).andExpect {
             status { isOk() }
@@ -335,6 +344,12 @@ class AuthenticationControllerTests(
 
         val user = userService.findUserByUsername(userDto.username)
         Assertions.assertThat(user.isActive).isFalse()
+
+        val totpCode = TotpCode(
+            TotpCode.TotpCodeId(totp, user),
+            expirationDate = LocalDateTime.now().plusHours(1)
+        )
+        Mockito.`when`(totpService.findTfaByUser(any(), eq(totp))).thenReturn(totpCode)
 
         val restoreRequest = RestoreRequest(
             verification = VerificationRequest(username = userDto.username, code = totp),
@@ -347,14 +362,13 @@ class AuthenticationControllerTests(
     @Test
     fun userCannotRestoreUserRestored() {
         val userDto = generateTestUser()
-        userService.saveUser(userDto)
+        val user = userService.saveUser(userDto)
 
         val blockRequest = BlockRequest(email = userDto.email)
 
         val totp = "666777"
 
         Mockito.`when`(totpService.generateCode(any())).thenReturn(totp)
-        Mockito.`when`(totpService.validateCode(any(), eq(totp))).thenReturn(true)
 
         performRequest(BLOCK_URL, blockRequest).andExpect {
             status { isOk() }
@@ -362,9 +376,13 @@ class AuthenticationControllerTests(
             content { jsonPath(USERNAME, Matchers.matchesPattern(userDto.username)) }
         }
 
-        val user = userService.findUserByUsername(userDto.username)
-        user.isActive = true
-        userService.saveUser(user)
+        val totpCode = TotpCode(
+            tfaId = TotpCode.TotpCodeId(code = totp, user),
+            expirationDate = LocalDateTime.now().plusHours(1)
+        )
+        Mockito.`when`(totpService.findTfaByUser(any(), eq(totp))).thenReturn(totpCode)
+
+        Assertions.assertThat(user.isActive).isTrue()
 
         val restoreRequest = RestoreRequest(
             verification = VerificationRequest(username = userDto.username, code = totp),
@@ -384,7 +402,6 @@ class AuthenticationControllerTests(
         val totp = "666777"
 
         Mockito.`when`(totpService.generateCode(any())).thenReturn(totp)
-        Mockito.`when`(totpService.validateCode(any(), eq(totp))).thenReturn(true)
 
         performRequest(BLOCK_URL, blockRequest).andExpect {
             status { isOk() }
@@ -393,6 +410,8 @@ class AuthenticationControllerTests(
         }
 
         val user = userService.findUserByUsername(userDto.username)
+        Mockito.`when`(totpService.findTfaByUser(any(), any())).thenThrow(BadCredentialsException())
+
         Assertions.assertThat(user.isActive).isFalse()
 
         val restoreRequest = RestoreRequest(
@@ -413,7 +432,6 @@ class AuthenticationControllerTests(
         val totp = "666777"
 
         Mockito.`when`(totpService.generateCode(any())).thenReturn(totp)
-        Mockito.`when`(totpService.validateCode(any(), eq(totp))).thenThrow(TfaCodeExpiredException())
 
         performRequest(BLOCK_URL, blockRequest).andExpect {
             status { isOk() }
@@ -423,6 +441,12 @@ class AuthenticationControllerTests(
 
         val user = userService.findUserByUsername(userDto.username)
         Assertions.assertThat(user.isActive).isFalse()
+
+        val totpCode = TotpCode(
+            tfaId = TotpCode.TotpCodeId(code = totp, user),
+            expirationDate = LocalDateTime.now()
+        )
+        Mockito.`when`(totpService.findTfaByUser(any(), any())).thenReturn(totpCode)
 
         val restoreRequest = RestoreRequest(
             verification = VerificationRequest(username = userDto.username, code = totp),
