@@ -12,7 +12,7 @@
             <tbody>
                 <tr v-for="user in users" :key="user.id">
                     <td>{{ user.username }}</td>
-                    <td>{{ user.username }}</td>
+                    <td>{{ user.password }}</td>
                     <td class="column">
                         <button class="btn btn-danger">
                             {{ $t("config.delete") }}
