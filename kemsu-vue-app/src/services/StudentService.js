@@ -21,9 +21,7 @@ class StudentService {
     updateStudent(id, params) {
         params.id = id;
 
-        return axios.put('students/' + id, 
-            params
-        );
+        return axios.put('students/' + id, params);
     }
 
     // Создать нового студента

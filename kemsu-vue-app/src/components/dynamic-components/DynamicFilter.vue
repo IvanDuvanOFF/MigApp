@@ -3,6 +3,14 @@
         <label v-bind:for="attribute.attribute_name" class="form-label">
             {{ attribute.attribute_name }}
         </label>
+        <input v-bind:name="attribute.attribute_name" type="text"
+                v-bind:id="attribute.attribute_name" class="form-control w-75 rounded-0">
+    </div>
+
+    <div class="d-flex flex-column align-items-center" v-if="'list' == attribute.attribute_type">
+        <label v-bind:for="attribute.attribute_name" class="form-label">
+            {{ attribute.attribute_name }}
+        </label>
         <select v-bind:name="attribute.attribute_name"
                 v-bind:id="attribute.attribute_name" class="form-select w-75 rounded-0">
             <optgroup label="">

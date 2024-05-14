@@ -10,9 +10,9 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Mark</td>
-                    <td>****</td>
+                <tr v-for="user in users" :key="user.id">
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.username }}</td>
                     <td class="column">
                         <button class="btn btn-danger">
                             {{ $t("config.delete") }}
@@ -21,15 +21,13 @@
                         <button class="btn btn-info">
                             {{ $t("config.edit") }}
                         </button>
-                    </td>
+                    </td>                                    
                 </tr>
-                <tr>
-                    <td colspan="3">
+                <td colspan="3">
                         <button class="btn btn-light w-100">
                             +
                         </button>
-                    </td>
-                </tr>
+                </td>
             </tbody>
         </table>
 
@@ -45,5 +43,19 @@
 </template>
 
 <script>
+import UserService from '@/services/UserService.js';
 
+export default{
+    data(){
+        let users = []
+
+        UserService.getUsers(1).then(response => {
+            this.users = response.data;
+        });
+
+        return {
+            users
+        }
+    }
+}
 </script>

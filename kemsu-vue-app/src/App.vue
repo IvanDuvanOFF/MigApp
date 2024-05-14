@@ -4,13 +4,13 @@
     <router-view />
   </div>
 
-  <button @click="changeEditMode" v-if="isAdmin" class="btn" :class="[getEditMode ? 'btn-info' : 'btn-dark']"
+  <button @click="changeEditMode" v-if="isAdmin" class="btn" :class="[getEditMode ? 'btn-info' : 'btn-danger']"
     style="z-index: 10; position: fixed; right: 50px; top: 25px;">
-    Режим редактирования: {{ getEditMode ? 'ON' : 'OFF' }}
+    {{ $t("edit-mode.title") }}: {{ getEditMode ? 'ON' : 'OFF' }}
   </button>
 
   <div class="row h-100 m-0" v-if="currentUser">
-    <div class="col d-flex flex-column col-md-3 p-0 shadow h-100" style="background-color: #C8C3FF; width: 240px">
+    <div class="col d-flex flex-column col-md-3 p-0 shadow h-100" style="background-color: #595959; width: 240px">
       <a href="/">
         <img alt="Kemsu logo" class="img-fluid" src="./assets/logo.jpeg">
       </a>
@@ -50,7 +50,7 @@
 
 <script>
 import TableService from "@/services/TableService.js";
-import EditController from "./store/edit-controller.js";
+import SettingsController from "@/store/settings-controller.js";
 
 export default {
   name: 'App',
@@ -71,7 +71,13 @@ export default {
       remainingTables
     };
   },
-
+  mounted() {
+    document.onreadystatechange = () => {
+      if (document.readyState == "complete") {
+        this.switchTheme();
+      }
+    }
+  },
   computed: {
     currentUser() {
       console.log('user is');
@@ -87,10 +93,13 @@ export default {
       return user.is_admin;
     },
     getEditMode() {
-      return EditController.mode;
+      return SettingsController.getEditMode();
     }
   },
   methods: {
+    switchTheme() {
+      SettingsController.switchAll();
+    },
     logOut() {
       this.$store.dispatch('auth/logout');
 
@@ -98,10 +107,10 @@ export default {
       this.$router.push('/login');
     },
     changeEditMode() {
-      EditController.mode = !EditController.mode;
+      SettingsController.setEditMode(!SettingsController.getEditMode());
       this.$router.go();
     },
-    addRemainingTableToRecorded() {
+    addRemainingTableToRecorded() {      
       alert("Таблица должна добавиться в список учтенных");
     }
   }
@@ -135,24 +144,17 @@ export default {
   border-bottom-width: 1px !important;
   text-align: left !important;
   font-size: larger !important;
-}
-
-.navbar-link.exit {
-  background-color: rgba(255, 122, 0, 0.52);
-}
-
-.navbar-link.settings {
-  background-color: rgba(5, 0, 255, 0.32);
+  background-color: #D6D6D6 !important;
 }
 
 .navbar-link.sub-item {
-  background-color: rgba(92, 92, 92);
+  background-color: #404040 !important;
   color: white !important;
   padding-left: 20% !important;
 }
 
 .navbar-link:hover {
-  background-color: rgb(255, 255, 255) !important;
+  background-color: #eee7e7 !important;
   color: black !important;
   transition-duration: 250ms;
   font-size: larger !important;
@@ -162,9 +164,16 @@ body {
   height: 100vh;
 }
 
+.large-font{
+  font-size: x-large !important;
+}
+
+.small-font{
+  font-size: small !important;
+}
+
 #app {
-  font-family: Jura, sans-serif;
-  font-size: larger !important;
+  font-family: Jura, sans-serif;  
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -172,4 +181,7 @@ body {
   color: #2c3e50;
 }
 
+.dark {
+  background-color: black;
+}
 </style>

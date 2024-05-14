@@ -8,8 +8,14 @@
         "lang": "Language",
         "theme": "Theme",
         "font": "Size of font",
-        "gmt": "GMT"
-
+        "gmt": "GMT",
+        "large_font": "Large font",
+        "small_font": "Small font",
+        "dark_theme": "High Contrast",
+        "light_theme": "Light theme"
+    },
+    "edit-mode":{
+        "title": "Edit mode"
     },
     "navbar": {
         "record": "Record",

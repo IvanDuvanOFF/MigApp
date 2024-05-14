@@ -27,7 +27,7 @@ import Trans from '@/i18n/translate';
 
 import { LOCAL_URL } from './urls';
 import MainPage from './components/MainPage.vue';
-import EditController from './store/edit-controller';
+import EditController from './store/settings-controller';
 
 const app = createApp(App);
 const routes = [  
@@ -124,7 +124,7 @@ router.beforeEach((to, from, next) => {
   }
 
   if (to.meta.requiresEdit != null) {
-    if (to.meta.requiresEdit != EditController.mode) {
+    if (to.meta.requiresEdit != EditController.getEditMode()) {
       if (to.meta.requiresEdit) {
         console.log("Returning to normal version of this page...");
         let nameWithoutEdit = to.name.replace("Edit", "");

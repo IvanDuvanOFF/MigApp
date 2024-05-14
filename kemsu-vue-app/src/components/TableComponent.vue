@@ -3,7 +3,7 @@
         <h4 class="font-weight-bold mt-5">{{ $t("list.filter") }}</h4>
         <form id="filterForm" class="d-flex flex-column mt-5" @submit.prevent="applyFilter">
             <DynamicFilter :attribute="attr" v-for="attr in filtered_attributes" :key="attr.attribute_name" />
-            <div class="btn-group mt-2">
+            <div class="btn-group w-75 m-auto mt-2">
                 <button type="submit" class="btn btn-dark rounded-0">
                     <font-awesome-icon icon="search" />
                 </button>

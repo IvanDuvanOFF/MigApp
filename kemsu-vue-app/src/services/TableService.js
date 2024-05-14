@@ -2,10 +2,7 @@ import axios from 'axios';
 
 class TableService {    
     // 
-    getTables(config_id) {
-        // return axios.get('/tables', {
-
-        // });
+    getTables(config_id) {        
         console.log(config_id);
         let temp = ["Students", "Documents"];
         return temp;

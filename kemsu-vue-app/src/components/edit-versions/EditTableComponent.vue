@@ -47,33 +47,44 @@ export default {
     name: "EditTableComponent",
     data() {
         let tableName = this.$route.params.tableName;
-        let tableId = TableService.getTableByName(tableName).id;        
-        
+        let tableId = TableService.getTableByName(tableName).id;
+
         let types = PossibleAttributeTypes;
-        let attributes = [];        
+        let attributes = [];
+        let oldAttributes = [];
 
         AttributeService.getAttributes(tableId).then(response => {
-            this.attributes = response.data
+            this.attributes = response.data;
+            this.oldAttributes = JSON.parse(JSON.stringify(this.attributes));
         })
 
         return {
             tableName,
             attributes,
-            types            
+            types,
+            oldAttributes
         };
     },
-    methods:{
-        sendAttributes(){
-            console.log(this.attributes[0]);
-            AttributeService.updateAttributes(this.attributes[0]).then(() => 
-                {
-                    alert("Данные успешно изменеы");
-                    this.$router.go();
-                },
-                error => {
-                    alert("Данные не отправлены: " + error.message  );
-                }
-            )
+    methods: {
+        sendAttributes() {           
+            for (let index = 0; index < this.oldAttributes.length; index++) {
+                let newAttr = this.attributes[index];
+                let oldAttr = this.oldAttributes[index];
+
+                if (newAttr != oldAttr) {
+                    AttributeService.updateAttributes(newAttr).then(
+                        () => {
+                        },
+                        error => {
+                            alert("Данные не отправлены: " + error.message);
+                            return null;
+                        }
+                    )
+                }                
+            }
+
+            alert("Данные успешно изменены");
+            this.$router.go();
         }
     }
 }
