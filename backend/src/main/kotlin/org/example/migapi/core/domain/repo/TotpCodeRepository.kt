@@ -1,6 +1,6 @@
 package org.example.migapi.core.domain.repo
 
-import org.example.migapi.core.domain.model.entity.TfaCode
+import org.example.migapi.core.domain.model.entity.TotpCode
 import org.example.migapi.core.domain.model.entity.User
 import org.springframework.cache.annotation.CacheConfig
 import org.springframework.cache.annotation.CacheEvict
@@ -13,14 +13,14 @@ import java.util.*
 
 @Repository
 @CacheConfig(cacheNames = ["tfa_user_id"])
-interface TfaCodeRepository : JpaRepository<TfaCode, TfaCode.TfaCodeId> {
+interface TotpCodeRepository : JpaRepository<TotpCode, TotpCode.TotpCodeId> {
 
     @Cacheable("tfa_user_id", key = "#user.id")
-    fun findTfaCodesByTfaIdUser(user: User): List<TfaCode>
+    fun findAllByTfaIdUser(user: User): Optional<List<TotpCode>>
 
     @Caching(evict = [CacheEvict("tfa_user_id", key = "#entity.component1().user.id", allEntries = true)])
-    override fun delete(entity: TfaCode)
+    override fun delete(entity: TotpCode)
 
     @Caching(put = [CachePut("tfa_user_id", key = "#entity.component1().user.id")])
-    override fun <S : TfaCode> save(entity: S): S
+    override fun <S : TotpCode> save(entity: S): S
 }

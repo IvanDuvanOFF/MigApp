@@ -127,7 +127,7 @@ class AuthenticationController(
     fun refresh(@RequestBody refreshTokenRequest: RefreshTokenRequest, request: HttpServletRequest): SignResponse =
         authenticationService.refreshToken(refreshTokenRequest, request)
 
-    @PostMapping("block")
+    @PostMapping("restore/block")
     @Operation(
         summary = "Запрос на восстановление пароля",
         description = "Пользователь вводит email и ждет получения ссылки для восстановления пароля",
@@ -155,6 +155,41 @@ class AuthenticationController(
     )
     fun block(@RequestBody blockRequest: BlockRequest) = authenticationService.blockUser4Restore(blockRequest)
 
+    @PostMapping("restore/verify")
+    @Operation(
+        summary = "Запрос на верификацию одноразового пароля",
+        description = "Пользователь вводит пароль, пришедший ему на email",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Одноразовый пароль верный",
+                content = [Content(schema = Schema(implementation = SignResponse::class))]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Одноразовый пароль неверный",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "410",
+                description = "Одноразовый пароль просрочен",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Пользователь по заданному username не найден",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Internal server error",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            )
+        ]
+    )
+    fun validateTotp(@RequestBody verificationRequest: VerificationRequest) =
+        authenticationService.validateTotp(verificationRequest)
+
     @PostMapping("restore")
     @Operation(
         summary = "Пользователь восстанавливает доступ",
@@ -166,7 +201,7 @@ class AuthenticationController(
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "Пароли не совпадают",
+                description = "Пароли не совпадают или токен неверный",
                 content = [Content(schema = Schema(implementation = Error::class))]
             ),
             ApiResponse(
@@ -176,7 +211,7 @@ class AuthenticationController(
             ),
             ApiResponse(
                 responseCode = "404",
-                description = "Токен восстановления не найден",
+                description = "Пользователь не найден",
                 content = [Content(schema = Schema(implementation = Error::class))]
             ),
             ApiResponse(
