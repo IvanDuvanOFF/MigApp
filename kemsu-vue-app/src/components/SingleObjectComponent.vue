@@ -47,7 +47,7 @@ export default {
         if (this.$route.params.id) {
             let id = this.$route.params.id
             StudentService.getStudent(id).then(response => {
-                this.example = response.data[0]
+                this.example = response.data
                 console.log(this.example);
             });
 

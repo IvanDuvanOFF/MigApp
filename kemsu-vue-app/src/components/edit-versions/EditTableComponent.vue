@@ -1,6 +1,6 @@
 <template>
     <div class="col" style="margin-top: 10%;">
-        <table class="table table-dark">
+        <table class="table">
             <thead>
                 <tr>
                     <th scope="col">{{ $t("edit-table.attr_name") }}</th>
@@ -30,30 +30,51 @@
                 </tr>
             </tbody>
         </table>
+
+        <button class="btn btn-success w-75" @click="sendAttributes">
+            <font-awesome-icon icon="save" />
+        </button>
     </div>
 </template>
 
 <script>
+import AttributeService from '@/services/AttributeService';
+import TableService from '@/services/TableService';
+import PossibleAttributeTypes from '@/store/possible-attr-types.js';
+
 console.log(1);
 export default {
     name: "EditTableComponent",
     data() {
         let tableName = this.$route.params.tableName;
-        let types = ["email", "string", "number"];
-        let attr = {
-            table_id: 1,
-            attribute_name: "Attr",
-            is_shown: false,
-            at_filter: false,
-            attribute_type: "string"
-        }
-        let attributes = [attr, attr, attr];
+        let tableId = TableService.getTableByName(tableName).id;        
+        
+        let types = PossibleAttributeTypes;
+        let attributes = [];        
+
+        AttributeService.getAttributes(tableId).then(response => {
+            this.attributes = response.data
+        })
 
         return {
             tableName,
             attributes,
-            types
+            types            
         };
+    },
+    methods:{
+        sendAttributes(){
+            console.log(this.attributes[0]);
+            AttributeService.updateAttributes(this.attributes[0]).then(() => 
+                {
+                    alert("Данные успешно изменеы");
+                    this.$router.go();
+                },
+                error => {
+                    alert("Данные не отправлены: " + error.message  );
+                }
+            )
+        }
     }
 }
 </script>
