@@ -135,8 +135,9 @@ jobs:
             docker compose -f compose.yaml down
             
             docker compose -f compose-setup.yaml up -d nginx 
-            docker compose -f compose-setup.yaml run certbot certonly --webroot --webroot-path=/var/www/certbot --email ivan.duvanov.3@gmail.com --agree-tos --no-eff-email -d db.cute-example-deeplom.ru -d www.db.cute-example-deeplom.ru --preferred-challenges http
-            docker compose -f compose-setup.yaml run certbot certonly --webroot --webroot-path=/var/www/certbot --email ivan.duvanov.3@gmail.com --agree-tos --no-eff-email -d cute-example-deeplom.ru -d www.cute-example-deeplom.ru --preferred-challenges http
+            docker compose -f compose-setup.yaml run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email ivan.duvanov.3@gmail.com --agree-tos --no-eff-email -d db.cute-example-deeplom.ru -d www.db.cute-example-deeplom.ru --preferred-challenges http
+            docker compose -f compose-setup.yaml run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email ivan.duvanov.3@gmail.com --agree-tos --no-eff-email -d graf.cute-example-deeplom.ru -d www.graf.cute-example-deeplom.ru --preferred-challenges http
+            docker compose -f compose-setup.yaml run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email ivan.duvanov.3@gmail.com --agree-tos --no-eff-email -d cute-example-deeplom.ru -d www.cute-example-deeplom.ru --preferred-challenges http
             docker compose -f compose-setup.yaml down nginx
             
             docker compose -f compose.yaml up -d --build > logs.txt
