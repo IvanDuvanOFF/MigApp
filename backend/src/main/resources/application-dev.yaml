@@ -47,6 +47,20 @@ springdoc:
     enabled: true
     path: /api/swagger/api-docs
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'health, prometheus, info, metric'
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+
 logging:
   level:
     org:

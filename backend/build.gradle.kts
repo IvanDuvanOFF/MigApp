@@ -74,6 +74,9 @@ dependencies {
 	implementation("org.springdoc:springdoc-openapi-ui:1.7.0")
 	implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
 
+//	prometheus
+	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+
 //	database
 	runtimeOnly("org.postgresql:postgresql")
 
