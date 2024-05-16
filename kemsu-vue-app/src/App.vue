@@ -118,7 +118,10 @@ export default {
 </script>
 
 <style>
-@import url("https://fonts.googleapis.com/css?family=Jura");
+@font-face {
+  font-family: "Jura";
+  src: url("\\fonts\\jura.ttf");
+}
 
 .font-weight-bold {
   font-weight: bold;
@@ -134,6 +137,7 @@ export default {
 
 .application {
   font-family: "Jura", serif;
+ 
 }
 
 .navbar-link {
