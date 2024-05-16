@@ -21,20 +21,20 @@
                         <button class="btn btn-info">
                             {{ $t("config.edit") }}
                         </button>
-                    </td>                                    
+                    </td>
                 </tr>
                 <td colspan="3">
-                        <button class="btn btn-light w-100">
-                            +
-                        </button>
+                    <button class="btn btn-light w-100">
+                        +
+                    </button>
                 </td>
             </tbody>
         </table>
 
         <div class="rounded-2 row gap-2 justify-content-center mx-1 p-2 mt-5 border-danger border border-2 ">
             <h1>{{ $t("config.bd_path") }}</h1>
-            <input class="form-control" />
-            <button class="w-25 btn btn-dark">
+            <input class="form-control" name="dbPath" v-model="dbPath" />
+            <button class="w-25 btn btn-dark" @click="saveDbPath">
                 {{ $t("config.save") }}
             </button>
         </div>
@@ -44,17 +44,27 @@
 
 <script>
 import UserService from '@/services/UserService.js';
+import { LOCAL_URL } from '@/urls';
+import axios from 'axios';
 
-export default{
-    data(){
+export default {
+    data() {
         let users = []
+        let dbPath = LOCAL_URL;
 
         UserService.getUsers(1).then(response => {
             this.users = response.data;
         });
 
         return {
-            users
+            users,
+            dbPath
+        }
+    },
+    methods: {
+        saveDbPath() {
+            axios.defaults.baseURL = this.dbPath;
+            console.log
         }
     }
 }

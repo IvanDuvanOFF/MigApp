@@ -49,10 +49,10 @@
         <label v-bind:for="attribute.attribute_name" class="form-label">
             {{ attribute.attribute_name }}
         </label>
-        <input v-bind:name="attribute.attribute_name + '_min'" 
+        <input v-bind:name="attribute.attribute_name" 
                v-bind:id="attribute.attribute_name + '_min'" type="date" class="form-control w-75 rounded-0" />
-        <input v-bind:name="attribute.attribute_name + '_min'" 
-               v-bind:id="attribute.attribute_name + '_min'" type="date" class="form-control w-75 rounded-0" />
+        <input v-bind:name="attribute.attribute_name" 
+               v-bind:id="attribute.attribute_name + '_max'" type="date" class="form-control w-75 rounded-0" />
     </div>
 </template>
 

@@ -24,8 +24,8 @@
             </div>
 
             <div>
-                <a class="card-a rounded-0 text-decoration-none card" v-for="example in examples" :key="example.id"
-                    v-bind:href="$sanitize('/table/' + this.tableName + '/' + example.id)">
+                <a class="card-a rounded-0 text-decoration-none card" v-for="example in filtered_examples"
+                    :key="example.id" v-bind:href="$sanitize('/table/' + this.tableName + '/' + example.id)">
                     <div class=" card-body p-2 align-self-start">
                         <h4 class="card-title" align-self-start>
                             {{ getTextFromShownValues(example) }}
@@ -53,6 +53,7 @@ export default {
         let search_params = {};
         let attributes = [];
         let examples = [];
+        let filtered_examples = [];
         let filtered_attributes = [];
         let thisTable = {};
 
@@ -60,25 +61,25 @@ export default {
             this.thisTable = response.data;
 
             AttributeService.getAttributes(this.thisTable.id).then(response => {
-            console.log(response.data);
-            this.attributes = response.data;
-            this.filtered_attributes = this.attributes.filter(function (el) {
-                return el.at_filter;
-            });             
-        });
+                console.log(response.data);
+                this.attributes = response.data;
+                this.filtered_attributes = this.attributes.filter(function (el) {
+                    return el.at_filter;
+                });
+            });
         });
 
         StudentService.getStudents().then(response => {
             console.log(response.data);
-            this.examples = response.data
+            this.examples = response.data;
+            this.filtered_examples = JSON.parse(JSON.stringify(this.examples));
         });
-
-        
 
         return {
             tableName,
             thisTable,
             examples,
+            filtered_examples,
             attributes,
             filtered_attributes,
             search_params
@@ -100,13 +101,48 @@ export default {
         makeDynamicLink(id) {
             return '/students/' + id;
         },
+        filterByDiapason(attr_name) {
+            let maxValue = document.getElementById(attr_name + "_max").value;
+            if (maxValue) {
+                this.filtered_examples = this.filtered_examples.filter(
+                    (example) => example[attr_name] <= maxValue
+                );
+            }
+
+            let minValue = document.getElementById(attr_name + "_min").value;
+            if (minValue) {
+                this.filtered_examples = this.filtered_examples.filter(
+                    (example) => example[attr_name] >= minValue
+                );
+            }
+        },
+
         applyFilter(submitEvent) {
+            this.filtered_examples = JSON.parse(JSON.stringify(this.examples));
+
             for (let element of submitEvent.target.elements) {
                 if (element.value) {
+                    let attr_name = element.name;
+                    let attr = this.attributes.find(x => x.attribute_name == attr_name);
+
+                    if (attr.attribute_type == "string" || attr.attribute_type == "email"
+                        || attr.attribute_type == "phone") {
+                        this.filtered_examples = this.filtered_examples.filter(
+                            (example) => example[attr_name].indexOf(element.value) > -1
+                        );
+                    }
+                    else if (attr.attribute_type == "number" || attr.attribute_type == "date") {
+                        this.filterByDiapason(attr_name);
+                    }
+                    else {
+                        this.filtered_examples = this.filtered_examples.filter(
+                            (example) => example[attr_name] == element.value
+                        );
+                    }
+
                     this.search_params[element.id] = element.value;
                 }
             }
-            this.makeSearch();
         },
         makeSearch() {
             console.log(this.search_params);
@@ -119,7 +155,7 @@ export default {
         clearFilterForm() {
             let form = document.getElementById("filterForm");
             for (let element of form.elements) {
-                element.value = null;
+                element.value = "";
             }
             this.search_params = {};
         }
