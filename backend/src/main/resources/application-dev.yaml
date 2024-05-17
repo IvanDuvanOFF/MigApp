@@ -34,8 +34,8 @@ mig:
   jwt:
     secret: nevergonnagiveyouupnevergonnaletyoudownnevergonnarunaroundanddesertyou
     expiration-ms: 1440000
-    refresh-expiration: 10080000
-    verification-expiration: 1440000
+    refresh-expiration: 604800000
+    verification-expiration: 2628000000
   tfa:
     expiration-ms: 600000
 server:
