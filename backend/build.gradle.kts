@@ -46,6 +46,9 @@ dependencies {
 //    logging
 	implementation("org.slf4j:slf4j-api:2.0.9")
 	implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")
+//	implementation("com.github.piomin:logstash-logging-spring-boot-starter:2.0.3")
+	implementation("com.github.loki4j:loki-logback-appender:1.5.1")
+	implementation("io.opentelemetry:opentelemetry-api:1.38.0")
 
 //	serialization
 	implementation("com.google.code.gson:gson:2.8.9")
@@ -76,6 +79,11 @@ dependencies {
 
 //	prometheus
 	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+
+//	trace
+	implementation("io.micrometer:micrometer-tracing-bridge-brave:1.3.0")
+	implementation("io.zipkin.reporter2:zipkin-reporter-brave:3.4.0")
+	implementation("net.ttddyy.observation:datasource-micrometer-spring-boot:1.0.3")
 
 //	database
 	runtimeOnly("org.postgresql:postgresql")
