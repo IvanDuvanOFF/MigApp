@@ -51,11 +51,10 @@ class TotpService(
     @Throws(exceptionClasses = [BadCredentialsException::class])
     fun findTfaByUser(user: User, code: String): TotpCode {
         val codes =
-            totpCodeRepository.findAllByTfaIdUser(user).orElseThrow { BadCredentialsException("Code is incorrrrect") }
-                .firstOrNull { passwordEncoder.matches(code, it.tfaId.code) }
-                ?: throw BadCredentialsException("aboba")
+            totpCodeRepository.findByTfaIdUser(user.id).orElseThrow { BadCredentialsException("Code is incorrrrect") }
 
-        return codes
+        return codes.takeIf { passwordEncoder.matches(code, it.tfaId.code) }
+            ?: throw BadCredentialsException("aboba")
     }
 
     fun removeCode(totpCode: TotpCode) = totpCodeRepository.delete(totpCode)

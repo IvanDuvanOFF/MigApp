@@ -54,6 +54,8 @@ class JwtServiceImpl(
         return (username == userDetails.username && !isTokenExpired(token))
     }
 
+    override fun extractExpirationDate(token: String): Date = extractClaim(token, Claims::getExpiration)
+
     private fun isTokenExpired(token: String): Boolean = extractClaim(token, Claims::getExpiration).before(Date())
 
     private fun <T> extractClaim(token: String, claimsResolver: (claims: Claims) -> T): T =

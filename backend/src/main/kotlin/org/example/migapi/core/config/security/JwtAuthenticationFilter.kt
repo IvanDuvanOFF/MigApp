@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.example.migapi.auth.service.JwtService
 import org.example.migapi.auth.service.MigUserDetailsService
+import org.example.migapi.domain.service.impl.RevokedTokenService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
@@ -17,7 +18,9 @@ class JwtAuthenticationFilter(
     @Autowired
     private val jwtService: JwtService,
     @Autowired
-    private val homeUserDetailsService: MigUserDetailsService
+    private val homeUserDetailsService: MigUserDetailsService,
+    @Autowired
+    private val revokedTokenService: RevokedTokenService
 ) : OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -32,6 +35,12 @@ class JwtAuthenticationFilter(
         }
 
         val jwt = authHeader.substring(7)
+
+        if (revokedTokenService.isTokenRevoked(jwt)) {
+            filterChain.doFilter(request, response)
+            return
+        }
+
         val username = jwtService.extractUsername(jwt)
 
         if (username.isNotEmpty() && SecurityContextHolder.getContext().authentication == null) {
