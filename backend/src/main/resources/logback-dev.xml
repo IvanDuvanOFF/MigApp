@@ -24,8 +24,24 @@
         </encoder>
     </appender>
 
+    <appender name="loki" class="com.github.loki4j.logback.Loki4jAppender">
+        <http>
+            <url>http://loki:3100/loki/api/v1/push</url>
+        </http>
+        <format>
+            <label>
+                <pattern>application=${appName},host=${HOSTNAME},level=%level</pattern>
+                <readMarkers>true</readMarkers>
+            </label>
+            <message>
+                <pattern>%d %-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
+            </message>
+        </format>
+    </appender>
+
     <root level="INFO">
         <appender-ref ref="consoleAppender" />
         <appender-ref ref="rolling"/>
+        <appender-ref ref="loki"/>
     </root>
 </configuration>

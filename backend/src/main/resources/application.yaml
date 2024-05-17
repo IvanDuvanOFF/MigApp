@@ -66,3 +66,4 @@ logging:
       springframework:
         web: DEBUG
       hibernate: DEBUG
+  config: classpath:logback.xml
