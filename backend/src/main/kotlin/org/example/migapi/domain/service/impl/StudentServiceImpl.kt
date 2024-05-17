@@ -27,6 +27,15 @@ class StudentServiceImpl(
     override fun getById(id: String): StudentDto = dtoService.userToStudentDto(userService.findById(id))
 
     @Transactional
+    override fun updatePassword(username: String, password: String) {
+        val user = userService.findUserByUsername(username)
+
+        user.password = password
+
+        userService.saveUser(user)
+    }
+
+    @Transactional
     override fun put(studentDto: StudentDto) {
         userService.saveUser(dtoService.toUser(studentDto))
     }

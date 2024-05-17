@@ -28,6 +28,9 @@ interface StudentService {
     )
     fun getById(id: String): StudentDto
 
+    @Throws(exceptionClasses = [UserNotFoundException::class, PersistenceException::class])
+    fun updatePassword(username: String, password: String)
+
     @Throws(
         exceptionClasses = [
             CountryNotFoundException::class,

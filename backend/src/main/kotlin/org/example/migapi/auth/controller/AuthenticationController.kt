@@ -127,7 +127,7 @@ class AuthenticationController(
     fun refresh(@RequestBody refreshTokenRequest: RefreshTokenRequest, request: HttpServletRequest): SignResponse =
         authenticationService.refreshToken(refreshTokenRequest, request)
 
-    @PostMapping("restore/block")
+    @PostMapping("restore/sending_option")
     @Operation(
         summary = "Запрос на восстановление пароля",
         description = "Пользователь вводит email и ждет получения ссылки для восстановления пароля",

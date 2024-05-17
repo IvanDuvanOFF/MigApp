@@ -1,6 +1,7 @@
 package org.example.migapi.utils
 
 import jakarta.servlet.http.HttpServletRequest
+import org.example.migapi.auth.exception.UnauthorizedException
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Component
 
@@ -33,4 +34,9 @@ class MigUtils {
             .toRegex()
             .matches(string)
     }
+
+    @Throws(exceptionClasses = [UnauthorizedException::class])
+    fun extractJwt(request: HttpServletRequest): String =
+        request.getHeader("Authorization")?.takeIf { it.startsWith("Bearer ") }?.substring(7)
+            ?: throw UnauthorizedException()
 }

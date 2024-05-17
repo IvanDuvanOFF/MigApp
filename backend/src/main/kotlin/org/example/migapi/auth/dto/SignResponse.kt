@@ -20,9 +20,11 @@ data class SignResponse(
 
     @JsonProperty("username")
     @SerializedName("username")
+    @Schema(required = false)
     val username: String = "",
 
     @JsonProperty("tfa_enabled")
     @SerializedName("tfa_enabled")
-    val tfaEnabled: Boolean = false
+    @Schema(required = false)
+    val tfaEnabled: Boolean? = null
 ) : Serializable

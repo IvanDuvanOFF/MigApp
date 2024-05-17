@@ -10,6 +10,7 @@ import org.example.migapi.core.domain.model.SpringUser
 import org.example.migapi.core.domain.model.entity.TotpCode
 import org.example.migapi.core.domain.model.entity.User
 import org.example.migapi.core.domain.service.UserService
+import org.example.migapi.domain.service.impl.RevokedTokenService
 import org.example.migapi.orThrow
 import org.example.migapi.utils.MigUtils
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,16 +30,14 @@ class AuthenticationService(
     @Autowired
     private val authenticationManager: AuthenticationManager,
     @Autowired
+    private val revokedTokenService: RevokedTokenService,
+    @Autowired
     private val emailService: EmailService,
     @Autowired
     private val userService: UserService,
     @Autowired
-    private val migUtils: MigUtils,
+    private val migUtils: MigUtils
 ) {
-
-    companion object {
-        const val REMOTE_ADDRESS_NAME = "remote-address"
-    }
 
     @Throws(
         exceptionClasses = [
@@ -168,14 +167,29 @@ class AuthenticationService(
     )
     fun refreshToken(refreshTokenRequest: RefreshTokenRequest, request: HttpServletRequest): SignResponse {
         val username = jwtService.extractUsername(refreshTokenRequest.refreshToken)
-        val remoteIp = migUtils.getRemoteAddress(request)
-
         val user = userService.findUserByUsername(username)
 
-        if (!jwtService.isTokenValid(refreshTokenRequest.refreshToken, user, remoteIp))
+        if (!jwtService.isTokenValid(refreshTokenRequest.refreshToken, user))
             throw RefreshTokenExpiredException()
 
         return user.generateSignResponse(request)
+    }
+
+    @Throws(
+        exceptionClasses = [
+            UnauthorizedException::class,
+            JwtException::class,
+            UserNotFoundException::class,
+            PersistenceException::class
+        ]
+    )
+    fun logout(request: HttpServletRequest) {
+        val jwt = migUtils.extractJwt(request)
+        val username = jwtService.extractUsername(jwt)
+
+        val user = userService.findUserByUsername(username)
+
+        revokedTokenService.revokeToken(jwt, user, jwtService.extractExpirationDate(jwt))
     }
 
     @Throws(
@@ -190,17 +204,14 @@ class AuthenticationService(
         val user = userService.findUserByUsername(this.username)
 
         return user.let {
-            totpService.findTfaByUser(it, this.code).apply { validateCode().orThrow { TfaCodeExpiredException() } }
+            val totp = totpService.findTfaByUser(it, this.code)
+            totp.apply { validateCode().orThrow { TfaCodeExpiredException() } }
         }
     }
 
     fun User.generateSignResponse(request: HttpServletRequest): SignResponse {
-        val remoteIp = migUtils.getRemoteAddress(request)
-
-        val extraClaims = mutableMapOf(REMOTE_ADDRESS_NAME to remoteIp)
-
-        val jwt = jwtService.generateToken(this, extraClaims)
-        val refreshToken = jwtService.generateRefreshToken(this, extraClaims)
+        val jwt = jwtService.generateToken(this)
+        val refreshToken = jwtService.generateRefreshToken(this)
 
         return SignResponse(
             token = jwt,

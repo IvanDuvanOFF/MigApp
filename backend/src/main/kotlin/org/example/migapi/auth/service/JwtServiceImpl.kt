@@ -42,19 +42,19 @@ class JwtServiceImpl(
     override fun extractExtraClaim(token: String, claimName: String): String =
         extractAllClaims(token)[claimName] as String
 
-    override fun isTokenValid(token: String, user: User, remoteIp: String): Boolean {
+    override fun isTokenValid(token: String, user: User): Boolean {
         val username = extractUsername(token)
-        val jwtIp = extractExtraClaim(token, AuthenticationService.REMOTE_ADDRESS_NAME)
 
-        return (username == user.username && jwtIp == remoteIp && !isTokenExpired(token))
+        return (username == user.username && !isTokenExpired(token))
     }
 
-    override fun isTokenValid(token: String, userDetails: UserDetails, remoteIp: String): Boolean {
+    override fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
         val username = extractUsername(token)
-        val jwtIp = extractExtraClaim(token, AuthenticationService.REMOTE_ADDRESS_NAME)
 
-        return (username == userDetails.username && jwtIp == remoteIp && !isTokenExpired(token))
+        return (username == userDetails.username && !isTokenExpired(token))
     }
+
+    override fun extractExpirationDate(token: String): Date = extractClaim(token, Claims::getExpiration)
 
     private fun isTokenExpired(token: String): Boolean = extractClaim(token, Claims::getExpiration).before(Date())
 
