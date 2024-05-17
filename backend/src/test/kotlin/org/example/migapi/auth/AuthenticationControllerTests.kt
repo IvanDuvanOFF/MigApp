@@ -6,7 +6,6 @@ import org.example.migapi.auth.dto.*
 import org.example.migapi.auth.exception.BadCredentialsException
 import org.example.migapi.auth.service.EmailService
 import org.example.migapi.auth.service.TotpService
-import org.example.migapi.auth.service.VerificationTokenService
 import org.example.migapi.config.TestRedisConfiguration
 import org.example.migapi.core.domain.dto.UserDto
 import org.example.migapi.core.domain.model.entity.TotpCode
@@ -59,9 +58,6 @@ class AuthenticationControllerTests(
 
     @MockBean
     private lateinit var emailService: EmailService
-
-    @MockBean
-    private lateinit var verificationTokenService: VerificationTokenService
 
     @BeforeEach
     fun clearDb() = userService.dropTable()

@@ -17,9 +17,9 @@ class JwtServiceImpl(
     @Value("\${mig.jwt.secret}")
     private val jwtSecret: String,
     @Value("\${mig.jwt.expiration-ms}")
-    private val jwtExpirationMs: Int,
+    private val jwtExpirationMs: Long,
     @Value("\${mig.jwt.refresh-expiration}")
-    private val refreshExpiration: Int
+    private val refreshExpiration: Long
 ) : JwtService {
 
     override fun generateToken(user: User, extraClaims: Map<String, Any>): String {
