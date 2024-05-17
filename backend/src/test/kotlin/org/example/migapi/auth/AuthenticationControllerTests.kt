@@ -75,7 +75,7 @@ class AuthenticationControllerTests(
         const val SIGN_TFA_URL = "$BASIC_URL/tfa"
         const val REFRESH_URL = "$BASIC_URL/refresh"
         const val RESTORE_URL = "$BASIC_URL/restore"
-        const val BLOCK_URL = "$RESTORE_URL/block"
+        const val BLOCK_URL = "$RESTORE_URL/sending_option"
 
         const val ACCESS_TOKEN = "$.access_token"
         const val REFRESH_TOKEN = "$.refresh_token"
