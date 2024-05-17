@@ -168,11 +168,9 @@ class AuthenticationService(
     )
     fun refreshToken(refreshTokenRequest: RefreshTokenRequest, request: HttpServletRequest): SignResponse {
         val username = jwtService.extractUsername(refreshTokenRequest.refreshToken)
-        val remoteIp = migUtils.getRemoteAddress(request)
-
         val user = userService.findUserByUsername(username)
 
-        if (!jwtService.isTokenValid(refreshTokenRequest.refreshToken, user, remoteIp))
+        if (!jwtService.isTokenValid(refreshTokenRequest.refreshToken, user))
             throw RefreshTokenExpiredException()
 
         return user.generateSignResponse(request)

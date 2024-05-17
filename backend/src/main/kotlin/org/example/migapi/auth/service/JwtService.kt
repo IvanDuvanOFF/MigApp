@@ -15,7 +15,7 @@ interface JwtService {
     @Throws(exceptionClasses = [JwtException::class, ClassCastException::class])
     fun extractExtraClaim(token: String, claimName: String): String
 
-    fun isTokenValid(token: String, user: User, remoteIp: String): Boolean
+    fun isTokenValid(token: String, user: User): Boolean
 
-    fun isTokenValid(token: String, userDetails: UserDetails, remoteIp: String): Boolean
+    fun isTokenValid(token: String, userDetails: UserDetails): Boolean
 }
