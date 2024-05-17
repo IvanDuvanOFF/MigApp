@@ -135,30 +135,53 @@ services:
     depends_on:
       - front
 
+  loki:
+    image: grafana/loki
+    container_name: loki
+    networks:
+      app-network:
+        ipv4_address: 192.168.112.9
+    ports:
+      - '3100:3100'
+    volumes:
+      - type: bind
+        source: ./backend/loki
+        target: /etc/loki
+    command: -config.file=/etc/loki/loki-config.yml
+
   prometheus:
     image: prom/prometheus
     container_name: prometheus
+    command:
+      - --enable-feature=exemplar-storage
+      - --config.file=/etc/prometheus/prometheus.yml
     networks:
       app-network:
         ipv4_address: 192.168.112.7
     ports:
       - '9090:9090'
     volumes:
-      - ./backend/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - type: bind
+        source: ./backend/prometheus
+        target: /etc/prometheus/
     depends_on:
       - app
 
   grafana:
     image: grafana/grafana
     container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=ivan
+      - GF_SECURITY_ADMIN_PASSWORD=1234
     networks:
       app-network:
         ipv4_address: 192.168.112.8
     ports:
       - '3000:3000'
-    environment:
-      - GF_SECURITY_ADMIN_USER=ivan
-      - GF_SECURITY_ADMIN_PASSWORD=1234
+    volumes:
+      - type: volume
+        source: grafana-volume
+        target: /var/lib/grafana
     depends_on:
       - nginx
 
@@ -190,4 +213,6 @@ volumes:
   api-volume:
     driver: local
   pgadmin-volume:
+    driver: local
+  grafana-volume:
     driver: local
