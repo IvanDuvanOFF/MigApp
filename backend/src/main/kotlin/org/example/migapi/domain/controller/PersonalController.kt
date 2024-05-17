@@ -50,8 +50,8 @@ class PersonalController(
                 content = [Content(schema = Schema(implementation = Error::class))]
             ),
             ApiResponse(
-                responseCode = "401",
-                description = "Пользователь не авторизован",
+                responseCode = "403",
+                description = "Доступ запрещен",
                 content = [Content(schema = Schema(implementation = Error::class))]
             ),
             ApiResponse(
