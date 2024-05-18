@@ -20,7 +20,7 @@ jobs:
 
       - name: Generate firebase key
         run: |
-          mkdir -r ./backend/src/main/resources/firebase
+          mkdir -p ./backend/src/main/resources/firebase
           echo "$KEY" > ./backend/src/main/resources/firebase/firebase-key.json
         shell: bash
         env:
