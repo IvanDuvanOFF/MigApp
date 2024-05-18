@@ -7,10 +7,10 @@ import org.example.migapi.auth.exception.BadCredentialsException
 import org.example.migapi.auth.service.EmailService
 import org.example.migapi.auth.service.TotpService
 import org.example.migapi.config.TestRedisConfiguration
-import org.example.migapi.core.domain.dto.UserDto
-import org.example.migapi.core.domain.model.entity.TotpCode
+import org.example.migapi.domain.account.dto.UserDto
+import org.example.migapi.auth.model.TotpCode
 import org.example.migapi.core.domain.model.enums.ERole
-import org.example.migapi.core.domain.service.UserService
+import org.example.migapi.domain.account.service.UserService
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

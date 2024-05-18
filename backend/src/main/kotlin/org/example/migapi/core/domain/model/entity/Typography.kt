@@ -2,6 +2,7 @@ package org.example.migapi.core.domain.model.entity
 
 import jakarta.persistence.*
 import org.example.migapi.core.domain.model.Model
+import org.example.migapi.domain.account.model.User
 import java.time.LocalDate
 import java.util.*
 

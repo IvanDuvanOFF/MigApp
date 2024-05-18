@@ -2,9 +2,9 @@ package org.example.migapi.auth.service
 
 import jakarta.persistence.PersistenceException
 import org.example.migapi.auth.exception.BadCredentialsException
-import org.example.migapi.core.domain.model.entity.TotpCode
-import org.example.migapi.core.domain.model.entity.User
-import org.example.migapi.core.domain.repo.TotpCodeRepository
+import org.example.migapi.auth.model.TotpCode
+import org.example.migapi.domain.account.model.User
+import org.example.migapi.auth.repository.TotpCodeRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder

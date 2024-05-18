@@ -17,7 +17,7 @@ group = "org.example"
 version = "0.0.1-SNAPSHOT"
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.VERSION_21
 }
 
 repositories {
@@ -63,6 +63,12 @@ dependencies {
 
 //	migration
 	implementation("org.flywaydb:flyway-core")
+
+//	firebase
+	implementation("com.google.firebase:firebase-admin:9.2.0")
+
+//	files
+	implementation("ru.homyakin:iuliia-java:1.8")
 
 //	kotlin
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -113,7 +119,7 @@ dependencies {
 tasks.withType<KotlinCompile> {
 	kotlinOptions {
 		freeCompilerArgs += "-Xjsr305=strict"
-		jvmTarget = "17"
+		jvmTarget = "21"
 	}
 }
 

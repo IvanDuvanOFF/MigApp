@@ -1,4 +1,4 @@
-FROM gradle:8.7-jdk17-alpine AS build
+FROM gradle:8.7-jdk21-alpine AS build
 
 LABEL authors="Ivan Duvanov"
 
@@ -9,7 +9,7 @@ WORKDIR /project
 
 RUN gradle clean build -x test
 
-FROM amazoncorretto:17-alpine-jdk AS run
+FROM amazoncorretto:21-alpine-jdk AS run
 
 RUN mkdir /mig-api
 RUN addgroup -g 1001 ivangroup && \

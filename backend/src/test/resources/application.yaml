@@ -27,8 +27,12 @@ mig:
     secret: nevergonnagiveyouupnevergonnaletyoudownnevergonnarunaroundanddesertyou
     expiration-ms: 1440000
     refresh-expiration: 2000
-    verification-expiration: 1440000
   tfa:
     expiration-ms: 600000
 server:
   port: 8080
+
+firebase:
+  key: 'firebase/firebase-key.json'
+
+storage: '/tmp/app/mig-api'

@@ -5,3 +5,5 @@ build/
 /tmp/
 /.logs/
 /backend/.logs/
+/backend/src/main/resources/firebase/firebase-key.json
+/backend/src/main/resources/firebase-key.json
