@@ -21,7 +21,7 @@ jobs:
 
       - name: Generate firebase key
         working-directory: ./backend
-        run: echo ${{ FIREBASE_SECRET }} > ./src/main/resources/firebase/firebase-key.json
+        run: echo ${{ secrets.FIREBASE_SECRET }} > ./src/main/resources/firebase/firebase-key.json
 
       - name: Grand executive permission for gradlew
         working-directory: ./backend

@@ -20,7 +20,7 @@ jobs:
 
       - name: Generate firebase key
         working-directory: ./backend
-        run: echo ${{ FIREBASE_SECRET }} > ./src/main/resources/firebase/firebase-key.json
+        run: echo ${{ secrets.FIREBASE_SECRET }} > ./src/main/resources/firebase/firebase-key.json
 
       - name: Get GitHub context
         env:
