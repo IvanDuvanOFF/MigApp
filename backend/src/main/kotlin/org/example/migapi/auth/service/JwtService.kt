@@ -1,7 +1,7 @@
 package org.example.migapi.auth.service
 
 import io.jsonwebtoken.JwtException
-import org.example.migapi.core.domain.model.entity.User
+import org.example.migapi.domain.account.model.User
 import org.springframework.security.core.userdetails.UserDetails
 import java.util.*
 

@@ -5,12 +5,11 @@ import jakarta.persistence.PersistenceException
 import jakarta.servlet.http.HttpServletRequest
 import org.example.migapi.auth.dto.*
 import org.example.migapi.auth.exception.*
-import org.example.migapi.core.domain.exception.UserNotFoundException
+import org.example.migapi.domain.account.exception.UserNotFoundException
 import org.example.migapi.core.domain.model.SpringUser
-import org.example.migapi.core.domain.model.entity.TotpCode
-import org.example.migapi.core.domain.model.entity.User
-import org.example.migapi.core.domain.service.UserService
-import org.example.migapi.domain.service.impl.RevokedTokenService
+import org.example.migapi.auth.model.TotpCode
+import org.example.migapi.domain.account.model.User
+import org.example.migapi.domain.account.service.UserService
 import org.example.migapi.orThrow
 import org.example.migapi.utils.MigUtils
 import org.springframework.beans.factory.annotation.Autowired

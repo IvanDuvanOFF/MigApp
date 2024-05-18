@@ -1,13 +1,13 @@
 package org.example.migapi.core.domain.service
 
 import jakarta.persistence.PersistenceException
-import org.example.migapi.core.domain.dto.AdminDto
-import org.example.migapi.core.domain.dto.StudentDto
-import org.example.migapi.core.domain.dto.UserDto
-import org.example.migapi.core.domain.model.entity.User
-import org.example.migapi.core.domain.exception.CountryNotFoundException
+import org.example.migapi.domain.account.dto.AdminDto
+import org.example.migapi.domain.account.dto.StudentDto
+import org.example.migapi.domain.account.dto.UserDto
+import org.example.migapi.domain.account.model.User
+import org.example.migapi.domain.account.exception.CountryNotFoundException
 import org.example.migapi.auth.exception.RoleNotFoundException
-import org.example.migapi.domain.exception.StatusNotFoundException
+import org.example.migapi.domain.account.exception.StatusNotFoundException
 import java.time.DateTimeException
 import java.time.format.DateTimeParseException
 import kotlin.jvm.Throws
