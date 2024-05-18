@@ -22,6 +22,7 @@ jobs:
         run: |
           mkdir -p ./backend/src/main/resources/firebase
           echo "$KEY" > ./backend/src/main/resources/firebase/firebase-key.json
+          echo "$KEY" > ./backend/src/test/resources/firebase/firebase-key.json
         shell: bash
         env:
           KEY: ${{ secrets.FIREBASE_SECRET }}

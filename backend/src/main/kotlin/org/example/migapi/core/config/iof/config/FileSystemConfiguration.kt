@@ -12,7 +12,7 @@ import java.nio.file.Paths
 
 @Configuration
 class FileSystemConfiguration(
-    @Value("storage")
+    @Value("\${storage}")
     private val storagePath: String
 ) {
     private val logger = KotlinLogging.logger {  }

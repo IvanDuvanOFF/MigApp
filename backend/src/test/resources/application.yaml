@@ -31,3 +31,8 @@ mig:
     expiration-ms: 600000
 server:
   port: 8080
+
+firebase:
+  key: 'firebase/firebase-key.json'
+
+storage: '/tmp/app/mig-api'
