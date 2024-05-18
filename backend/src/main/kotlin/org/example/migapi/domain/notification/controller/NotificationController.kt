@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @PreAuthorize("hasRole('ROLE_USER')")
-@RequestMapping("/api/notification")
+@RequestMapping("/api/notificationы")
 class NotificationController(
     @Autowired
     private val firebaseTokenService: FirebaseTokenService

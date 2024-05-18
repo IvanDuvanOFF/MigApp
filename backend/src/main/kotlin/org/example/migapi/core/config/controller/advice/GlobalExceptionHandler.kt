@@ -16,7 +16,9 @@ import org.springframework.security.authentication.LockedException
 import org.springframework.security.core.AuthenticationException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.multipart.MaxUploadSizeExceededException
 import java.net.SocketException
+import java.nio.file.InvalidPathException
 import java.time.DateTimeException
 
 @RestControllerAdvice
@@ -25,6 +27,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(
         value = [
+            MaxUploadSizeExceededException::class,
             MigApplicationException::class,
             PersistenceException::class,
             DisabledException::class,
@@ -36,6 +39,7 @@ class GlobalExceptionHandler {
             SocketException::class,
             IllegalArgumentException::class,
             DateTimeException::class,
+            InvalidPathException::class,
             Exception::class
         ]
     )
@@ -43,6 +47,7 @@ class GlobalExceptionHandler {
         val status = when (e) {
             is MigApplicationException -> e.httpStatus
 
+            is InvalidPathException,
             is PersistenceException,
             is MessagingException,
             is DateTimeException,
@@ -53,11 +58,13 @@ class GlobalExceptionHandler {
 
             is DisabledException, is LockedException -> HttpStatus.LOCKED
 
+            is MaxUploadSizeExceededException,
             is BadCredentialsException,
             is JwtException -> HttpStatus.BAD_REQUEST
 
             is AuthenticationException -> HttpStatus.NOT_FOUND
             else -> {
+                e.printStackTrace()
                 logger.error { e.stackTrace }
                 HttpStatus.I_AM_A_TEAPOT
             }

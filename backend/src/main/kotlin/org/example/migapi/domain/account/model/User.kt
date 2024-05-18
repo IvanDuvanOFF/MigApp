@@ -1,9 +1,9 @@
 package org.example.migapi.domain.account.model
 
 import jakarta.persistence.*
+import org.example.migapi.auth.model.Role
 import org.example.migapi.core.domain.model.Model
 import org.example.migapi.core.domain.model.SpringUser
-import org.example.migapi.auth.model.Role
 import org.example.migapi.core.domain.model.enums.ESex
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails

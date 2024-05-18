@@ -28,6 +28,10 @@ spring:
     locations:
       - classpath:/db/migration
 #      - classpath:/db/callback
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 15MB
 
 mig:
   jwt:
@@ -69,3 +73,5 @@ logging:
 
 firebase:
   key: 'firebase/firebase-key.json'
+
+storage: 'C:/Users/Ivan/IdeaProjects/MigApp/tmp/app/mig-api'

@@ -67,6 +67,9 @@ dependencies {
 //	firebase
 	implementation("com.google.firebase:firebase-admin:9.2.0")
 
+//	files
+	implementation("ru.homyakin:iuliia-java:1.8")
+
 //	kotlin
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")

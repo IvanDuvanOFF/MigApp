@@ -17,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.DisabledException
 import org.springframework.security.authentication.LockedException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
@@ -184,7 +185,7 @@ class AuthenticationService(
     )
     fun logout(request: HttpServletRequest) {
         val jwt = migUtils.extractJwt(request)
-        val username = jwtService.extractUsername(jwt)
+        val username = (SecurityContextHolder.getContext().authentication.principal as SpringUser).username
 
         val user = userService.findUserByUsername(username)
 
