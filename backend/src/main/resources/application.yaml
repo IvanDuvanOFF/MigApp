@@ -66,3 +66,6 @@ logging:
         web: DEBUG
       hibernate: DEBUG
   config: classpath:logback.xml
+
+firebase:
+  key: 'firebase/firebase-key.json'

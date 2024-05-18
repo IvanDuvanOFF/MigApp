@@ -1,4 +1,4 @@
-FROM openjdk:17-alpine
+FROM openjdk:21
 LABEL authors="Ivan Duvanov"
 
 ENV JAVA_OPTS="-Dspring.profiles.active=default"
@@ -7,4 +7,4 @@ RUN ./gradlew bootJar
 
 EXPOSE 8080
 
-CMD java $JAVA_OPTS -jar ./build/libs/*SNAPSHOT.jar
+CMD java "$JAVA_OPTS" -jar ./build/libs/*SNAPSHOT.jar

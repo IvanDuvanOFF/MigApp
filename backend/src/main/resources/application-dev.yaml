@@ -67,3 +67,6 @@ logging:
         web: DEBUG
       hibernate: ERROR
   config: classpath:logback-dev.xml
+
+firebase:
+  key: 'firebase/firebase-key.json'

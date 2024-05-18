@@ -3,9 +3,11 @@ package org.example.migapi.utils
 import jakarta.servlet.http.HttpServletRequest
 import org.example.migapi.auth.exception.UnauthorizedException
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
 @Component
+@Scope("prototype")
 class MigUtils {
 
     fun getHostUrl(request: HttpServletRequest): String {

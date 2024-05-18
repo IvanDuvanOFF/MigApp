@@ -7,12 +7,14 @@ import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import org.example.migapi.domain.account.model.User
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Scope
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import java.security.Key
 import java.util.*
 
 @Service
+@Scope("prototype")
 class JwtServiceImpl(
     @Value("\${mig.jwt.secret}")
     private val jwtSecret: String,

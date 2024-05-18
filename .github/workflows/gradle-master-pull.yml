@@ -12,11 +12,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
+
+      - name: Generate firebase key
+        working-directory: ./backend
+        run: echo ${{ FIREBASE_SECRET }} > ./src/main/resources/firebase/firebase-key.json
 
       - name: Get GitHub context
         env:

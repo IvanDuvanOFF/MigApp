@@ -1,21 +1,21 @@
-package org.example.migapi.domain.account.service
+package org.example.migapi.core.domain.service
 
 import org.example.migapi.auth.exception.RoleNotFoundException
+import org.example.migapi.auth.model.Role
+import org.example.migapi.core.domain.model.enums.ERole
+import org.example.migapi.core.domain.model.enums.ESex
+import org.example.migapi.core.domain.model.enums.EStudentStatus
 import org.example.migapi.domain.account.dto.AdminDto
 import org.example.migapi.domain.account.dto.StudentDto
 import org.example.migapi.domain.account.dto.UserDto
 import org.example.migapi.domain.account.exception.CountryNotFoundException
+import org.example.migapi.domain.account.exception.StatusNotFoundException
 import org.example.migapi.domain.account.model.Country
-import org.example.migapi.auth.model.Role
 import org.example.migapi.domain.account.model.StudentStatus
 import org.example.migapi.domain.account.model.User
-import org.example.migapi.core.domain.model.enums.ERole
-import org.example.migapi.core.domain.model.enums.ESex
-import org.example.migapi.core.domain.model.enums.EStudentStatus
 import org.example.migapi.domain.account.repository.CountryRepository
-import org.example.migapi.core.domain.service.DtoService
-import org.example.migapi.domain.account.exception.StatusNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Scope
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -23,6 +23,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 @Service
+@Scope("prototype")
 class DtoServiceImpl(
     @Autowired
     private val formatter: DateTimeFormatter,
