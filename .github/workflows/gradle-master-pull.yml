@@ -18,6 +18,10 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: Wml
+        run: pwd
+        shell: bash
+
       - name: Generate firebase key
         run: echo "$KEY" > ./backend/src/main/resources/firebase/firebase-key.json
         shell: bash
