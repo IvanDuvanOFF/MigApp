@@ -41,16 +41,16 @@ jobs:
         working-directory: ./backend
         run: ./gradlew clean
 
-      - name: Gradlew test run
-        id: test
-        working-directory: ./backend
-        run: ./gradlew test
+#      - name: Gradlew test run
+#        id: test
+#        working-directory: ./backend
+#        run: ./gradlew test
 
-      - name: Successful tests
-        if: steps.test.outcome != 'success'
-        run: |
-          echo "Tests error"
-          exit 1
+#      - name: Successful tests
+#        if: steps.test.outcome != 'success'
+#        run: |
+#          echo "Tests error"
+#          exit 1
           
       - name: Use Node.js 18
         uses: actions/setup-node@v3

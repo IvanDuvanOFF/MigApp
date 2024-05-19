@@ -87,6 +87,40 @@ class NotificationController(
         notificationService.changeNotificationViewed(notificationViewedDto.id, notificationViewedDto.isViewed ?: true)
     }
 
+    @GetMapping("/user/{user_id}")
+    @Operation(
+        summary = "Клиент получает все уведомления",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Уведомления получены",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Пользователь не найден",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Неверный формат id",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Доступ запрещен",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Internal server error",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            )
+        ]
+    )
+    @SecurityRequirement(name = "JWT")
+    fun getAllUserNotifications(@PathVariable(name = "user_id") userId: String): List<NotificationDto> =
+        notificationService.findAllByUserId(userId)
+
     @DeleteMapping
     @Operation(
         summary = "Удаление уведомления",
