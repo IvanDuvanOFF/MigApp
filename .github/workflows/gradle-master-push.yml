@@ -73,6 +73,9 @@ jobs:
     needs:
       - build-test
     steps:
+      - name: Install zip
+        uses: montudor/action-zip@v1
+    
       - name: Archive project
         working-directory: .
         run: |
