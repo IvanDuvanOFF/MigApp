@@ -15,15 +15,15 @@ data class NotificationDto(
 
     @JsonProperty("user_id", required = false)
     @Schema(required = false)
-    val userId: String = "",
+    val userId: String? = null,
 
     @JsonProperty(required = false)
     @Schema(required = false)
-    val title: String = "",
+    val title: String? = null,
 
     @JsonProperty(required = false)
     @Schema(required = false)
-    val description: String = "",
+    val description: String? = null,
 
     @JsonProperty(required = false)
     @Schema(required = false)
@@ -35,5 +35,5 @@ data class NotificationDto(
 
     @JsonProperty(required = false)
     @Schema(required = false)
-    val status: String = ""
+    val status: String? = null
 ) : Dto

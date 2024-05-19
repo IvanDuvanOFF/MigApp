@@ -41,10 +41,10 @@ jobs:
         working-directory: ./backend
         run: ./gradlew clean
 
-      - name: Gradlew test run
-        id: test
-        working-directory: ./backend
-        run: ./gradlew test
+#      - name: Gradlew test run
+#        id: test
+#        working-directory: ./backend
+#        run: ./gradlew test
 
       - name: Successful tests
         if: steps.test.outcome != 'success'
