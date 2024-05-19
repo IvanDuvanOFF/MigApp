@@ -10,6 +10,7 @@ import org.example.migapi.domain.notification.dto.FirebaseTokenDto
 import org.example.migapi.domain.notification.dto.NotificationDto
 import org.example.migapi.domain.notification.service.FirebaseTokenService
 import org.example.migapi.domain.notification.service.NotificationService
+import org.example.migapi.getUsernameFromContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
@@ -87,7 +88,7 @@ class NotificationController(
         notificationService.changeNotificationViewed(notificationViewedDto.id, notificationViewedDto.isViewed ?: true)
     }
 
-    @GetMapping("/user/{user_id}")
+    @GetMapping
     @Operation(
         summary = "Клиент получает все уведомления",
         responses = [
@@ -118,8 +119,8 @@ class NotificationController(
         ]
     )
     @SecurityRequirement(name = "JWT")
-    fun getAllUserNotifications(@PathVariable(name = "user_id") userId: String): List<NotificationDto> =
-        notificationService.findAllByUserId(userId)
+    fun getAllUserNotifications(): List<NotificationDto> =
+        notificationService.findAllByUsername(getUsernameFromContext())
 
     @DeleteMapping
     @Operation(

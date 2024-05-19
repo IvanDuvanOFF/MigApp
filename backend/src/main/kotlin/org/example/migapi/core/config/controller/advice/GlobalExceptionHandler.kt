@@ -14,6 +14,7 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.DisabledException
 import org.springframework.security.authentication.LockedException
 import org.springframework.security.core.AuthenticationException
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.multipart.MaxUploadSizeExceededException
@@ -40,6 +41,7 @@ class GlobalExceptionHandler {
             IllegalArgumentException::class,
             DateTimeException::class,
             InvalidPathException::class,
+            AccessDeniedException::class,
             Exception::class
         ]
     )
@@ -61,6 +63,8 @@ class GlobalExceptionHandler {
             is MaxUploadSizeExceededException,
             is BadCredentialsException,
             is JwtException -> HttpStatus.BAD_REQUEST
+
+            is AccessDeniedException -> HttpStatus.FORBIDDEN
 
             is AuthenticationException -> HttpStatus.NOT_FOUND
             else -> {

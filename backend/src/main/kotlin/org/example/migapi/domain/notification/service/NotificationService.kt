@@ -17,22 +17,20 @@ import java.util.*
 @Service
 class NotificationService(
     @Autowired
-    private val notificationRepository: NotificationRepository,
-    @Autowired
-    private val firebaseTokenService: FirebaseTokenService
+    private val notificationRepository: NotificationRepository
 ) {
 
     @Throws(
         exceptionClasses = [
             NotFoundException::class,
             BadRequestException::class,
-            PersistenceException::class,
-            IllegalArgumentException::class]
+            PersistenceException::class
+        ]
     )
-    fun findAllByUserId(userId: String): List<NotificationDto> {
-        val firebaseToken = firebaseTokenService.findByUserId(userId)
+    fun findAllByUsername(username: String): List<NotificationDto> {
+        val notifications = notificationRepository.findAllByUserUsername(username)
 
-        return notificationRepository.findAllNotificationsByToken(firebaseToken).map { it.toDto() }
+        return notifications.map { it.toDto() }
     }
 
     @Throws(exceptionClasses = [BadRequestException::class, NotificationNotFoundException::class, PersistenceException::class])
