@@ -1,13 +1,13 @@
-package org.example.migapi.core.config.iof.service
+package org.example.migapi.domain.files.service
 
 import jakarta.persistence.PersistenceException
 import org.example.migapi.core.config.iof.config.FileSystemConfiguration
-import org.example.migapi.core.config.iof.controller.FileController
-import org.example.migapi.core.config.iof.exception.FileNotFoundException
-import org.example.migapi.core.config.iof.exception.FilenameNotFoundException
-import org.example.migapi.core.config.iof.exception.NoAccessException
-import org.example.migapi.core.config.iof.model.File
-import org.example.migapi.core.config.iof.repository.FileRepository
+import org.example.migapi.domain.files.controller.FileController
+import org.example.migapi.domain.files.exception.FileNotFoundException
+import org.example.migapi.domain.files.exception.FilenameNotFoundException
+import org.example.migapi.domain.files.exception.NoAccessException
+import org.example.migapi.domain.files.model.File
+import org.example.migapi.domain.files.repository.FileRepository
 import org.example.migapi.domain.account.exception.UserNotFoundException
 import org.example.migapi.domain.account.service.UserService
 import org.springframework.beans.factory.annotation.Autowired

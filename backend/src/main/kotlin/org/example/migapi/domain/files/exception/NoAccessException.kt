@@ -1,4 +1,4 @@
-package org.example.migapi.core.config.iof.exception
+package org.example.migapi.domain.files.exception
 
 import org.example.migapi.core.config.exception.MigApplicationException
 import org.springframework.http.HttpStatus

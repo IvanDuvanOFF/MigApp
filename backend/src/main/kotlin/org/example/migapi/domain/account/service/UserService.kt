@@ -8,6 +8,7 @@ import org.example.migapi.domain.account.exception.UserNotFoundException
 import org.example.migapi.auth.model.Role
 import org.example.migapi.domain.account.model.User
 import org.example.migapi.core.domain.model.enums.ERole
+import org.example.migapi.domain.files.exception.NoAccessException
 import org.jetbrains.annotations.TestOnly
 import org.springframework.stereotype.Service
 import java.util.*
@@ -32,6 +33,9 @@ interface UserService {
 
     @Throws(exceptionClasses = [UserNotFoundException::class, PersistenceException::class])
     fun findUserByUsername(username: String): User
+
+    @Throws(exceptionClasses = [UserNotFoundException::class, NoAccessException::class, PersistenceException::class])
+    fun findUserByUsernameAndId(username: String, id: String): User
 
     @Throws(exceptionClasses = [UserNotFoundException::class, PersistenceException::class])
     fun findUserByEmail(email: String): User

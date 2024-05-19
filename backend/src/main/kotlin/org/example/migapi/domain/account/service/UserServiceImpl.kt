@@ -1,5 +1,6 @@
 package org.example.migapi.domain.account.service
 
+import com.google.api.gax.rpc.InvalidArgumentException
 import org.example.migapi.auth.exception.BadCredentialsException
 import org.example.migapi.auth.exception.RoleNotFoundException
 import org.example.migapi.domain.account.dto.UserDto
@@ -8,8 +9,10 @@ import org.example.migapi.auth.model.Role
 import org.example.migapi.domain.account.model.User
 import org.example.migapi.core.domain.model.enums.ERole
 import org.example.migapi.auth.repository.RoleRepository
+import org.example.migapi.core.config.exception.BadRequestException
 import org.example.migapi.domain.account.repository.UserRepository
 import org.example.migapi.core.domain.service.DtoService
+import org.example.migapi.domain.files.exception.NoAccessException
 import org.example.migapi.utils.MigUtils
 import org.jetbrains.annotations.TestOnly
 import org.springframework.beans.factory.annotation.Autowired
@@ -39,11 +42,19 @@ class UserServiceImpl(
 
     override fun findUsersByRole(roleName: ERole): List<User> = userRepository.findUsersByRole(Role(roleName))
 
-    override fun findById(id: String): User = userRepository.findById(UUID.fromString(id))
-        .orElseThrow { UserNotFoundException("User not found") }
+    override fun findById(id: String): User = userRepository.findById(
+        try {
+            UUID.fromString(id)
+        } catch (e: InvalidArgumentException) {
+            throw BadRequestException("Invalid id")
+        }
+    ).orElseThrow { UserNotFoundException("User not found") }
 
     override fun findUserByUsername(username: String): User = userRepository.findUserByUsername(username)
         .orElseThrow { UserNotFoundException("User with username $username doesn't exists") }
+
+    override fun findUserByUsernameAndId(username: String, id: String): User =
+        findUserByUsername(username).takeIf { it.id.toString() == id } ?: throw NoAccessException()
 
     override fun findUserByEmail(email: String): User = userRepository.findUserByEmail(email)
         .orElseThrow { UserNotFoundException("User with email $email doesn't exists") }

@@ -37,6 +37,13 @@ data class User(
 
     var patronymic: String? = null,
 
+    var institute: String? = null,
+
+    @Column(name = "group_name")
+    var group: String? = null,
+
+    var photo: String? = null,
+
     @Enumerated(EnumType.STRING)
     var sex: ESex? = null,
 

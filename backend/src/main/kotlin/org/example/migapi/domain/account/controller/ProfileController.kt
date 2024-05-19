@@ -1,36 +1,49 @@
-package org.example.migapi.domain.notification.controller
+package org.example.migapi.domain.account.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.servlet.http.HttpServletRequest
+import org.example.migapi.auth.dto.Passwords
+import org.example.migapi.auth.exception.BadCredentialsException
+import org.example.migapi.auth.service.JwtService
 import org.example.migapi.core.domain.dto.Error
-import org.example.migapi.domain.notification.dto.FirebaseTokenDto
-import org.example.migapi.domain.notification.dto.NotificationDto
-import org.example.migapi.domain.notification.service.FirebaseTokenService
-import org.example.migapi.domain.notification.service.NotificationService
+import org.example.migapi.domain.account.dto.StudentDto
+import org.example.migapi.domain.account.dto.TfaTurnDto
+import org.example.migapi.domain.account.service.StudentService
+import org.example.migapi.getUsernameFromContext
+import org.example.migapi.utils.MigUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @PreAuthorize("hasRole('ROLE_USER')")
-@RequestMapping("/api/notifications")
-class NotificationController(
+@RequestMapping("/api/profile")
+class ProfileController(
     @Autowired
-    private val firebaseTokenService: FirebaseTokenService,
+    private val jwtService: JwtService,
     @Autowired
-    private val notificationService: NotificationService
+    private val studentService: StudentService,
+    @Autowired
+    private val migUtils: MigUtils
 ) {
 
-    @PutMapping
+    @PatchMapping
     @Operation(
-        summary = "Клиент добавляет свой токен Firebase в систему",
+        summary = "Студент меняет пароль",
+        description = "Пользователь отправляет старый и новый пароль",
         responses = [
             ApiResponse(
                 responseCode = "200",
-                description = "Токен добавлен",
+                description = "Пользователь сменил пароль",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Пароли не совпадают",
+                content = [Content(schema = Schema(implementation = Error::class))]
             ),
             ApiResponse(
                 responseCode = "404",
@@ -50,59 +63,34 @@ class NotificationController(
         ]
     )
     @SecurityRequirement(name = "JWT")
-    fun addToken(firebaseTokenDto: FirebaseTokenDto) = firebaseTokenService.save(firebaseTokenDto)
+    fun changePassword(passwords: Passwords, request: HttpServletRequest) {
+        val jwt = migUtils.extractJwt(request)
 
-    @PatchMapping
-    @Operation(
-        summary = "Клиент прочитал уведомление",
-        responses = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Уведомление прочитано",
-            ),
-            ApiResponse(
-                responseCode = "404",
-                description = "Уведомление не найдено",
-                content = [Content(schema = Schema(implementation = Error::class))]
-            ),
-            ApiResponse(
-                responseCode = "400",
-                description = "Неверный формат id",
-                content = [Content(schema = Schema(implementation = Error::class))]
-            ),
-            ApiResponse(
-                responseCode = "403",
-                description = "Доступ запрещен",
-                content = [Content(schema = Schema(implementation = Error::class))]
-            ),
-            ApiResponse(
-                responseCode = "500",
-                description = "Internal server error",
-                content = [Content(schema = Schema(implementation = Error::class))]
-            )
-        ]
-    )
-    @SecurityRequirement(name = "JWT")
-    fun viewNotification(notificationViewedDto: NotificationDto) {
-        notificationService.changeNotificationViewed(notificationViewedDto.id, notificationViewedDto.isViewed ?: true)
+        if (passwords.password != passwords.confirmation)
+            throw BadCredentialsException("Passwords are not the same")
+
+        val username = jwtService.extractUsername(jwt)
+
+        studentService.updatePassword(username, passwords.password)
     }
 
-    @DeleteMapping
+    @PatchMapping("/tfa")
     @Operation(
-        summary = "Удаление уведомления",
+        summary = "Студент включает / выключает",
+        description = "Пользователь отправляет старый и новый пароль",
         responses = [
             ApiResponse(
                 responseCode = "200",
-                description = "Уведомление удалено",
-            ),
-            ApiResponse(
-                responseCode = "404",
-                description = "Уведомление не найдено",
-                content = [Content(schema = Schema(implementation = Error::class))]
+                description = "Пользователь сменил пароль",
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "Неверный формат id",
+                description = "Пароли не совпадают",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Пользователь не найден",
                 content = [Content(schema = Schema(implementation = Error::class))]
             ),
             ApiResponse(
@@ -118,6 +106,41 @@ class NotificationController(
         ]
     )
     @SecurityRequirement(name = "JWT")
-    fun deleteNotification(notificationDto: NotificationDto) =
-        notificationService.deleteNotification(notificationDto.id)
+    fun turnTfa(tfaTurnDto: TfaTurnDto, request: HttpServletRequest): TfaTurnDto =
+        studentService.turnTfa(getUsernameFromContext(), tfaTurnDto)
+
+    @GetMapping("/{user_id}")
+    @Operation(
+        summary = "Получение учетной записи пользователя",
+        description = "Пользователь отправляет свой id и получает свою учетную запись",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Учетная запись найдена",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Id неверного формата",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Пользователь не найден",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Доступ запрещен",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Internal server error",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            )
+        ]
+    )
+    @SecurityRequirement(name = "JWT")
+    fun getStudentProfile(@PathVariable("user_id") userId: String): StudentDto =
+        studentService.getByUsernameAndId(getUsernameFromContext(), userId)
 }
