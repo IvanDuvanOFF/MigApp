@@ -9,26 +9,31 @@ import java.util.*
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 data class NotificationDto(
 
+    @JsonProperty("notification_id", required = true)
     @Schema(required = true)
     val id: String,
 
-    @JsonProperty("user_id")
-    @Schema(required = true)
-    val userId: String,
-
+    @JsonProperty("user_id", required = false)
     @Schema(required = false)
-    val title: String,
+    val userId: String = "",
 
+    @JsonProperty(required = false)
     @Schema(required = false)
-    val description: String,
+    val title: String = "",
 
+    @JsonProperty(required = false)
     @Schema(required = false)
-    val date: Date,
+    val description: String = "",
+
+    @JsonProperty(required = false)
+    @Schema(required = false)
+    val date: Date? = null,
 
     @JsonProperty("is_viewed")
-    @Schema(required = true)
-    val isViewed: Boolean,
+    @Schema(required = false)
+    val isViewed: Boolean? = false,
 
-    @Schema(required = true)
-    val status: String
+    @JsonProperty(required = false)
+    @Schema(required = false)
+    val status: String = ""
 ) : Dto

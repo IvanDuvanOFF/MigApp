@@ -1,4 +1,4 @@
-package org.example.migapi.core.config.iof.model
+package org.example.migapi.domain.files.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.Entity

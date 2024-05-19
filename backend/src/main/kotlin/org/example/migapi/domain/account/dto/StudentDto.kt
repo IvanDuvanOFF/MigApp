@@ -12,10 +12,16 @@ class StudentDto(
     
     @JsonProperty("is_active")
     isActive: Boolean = false,
+
     val name: String,
     val surname: String,
     val patronymic: String? = null,
+    val institute: String? = null,
+    val group: String? = null,
+    val photo: String? = null,
     val sex: String,
+
+    @JsonProperty("phone_number")
     val phone: String,
     val country: String,
     val birthday: String,

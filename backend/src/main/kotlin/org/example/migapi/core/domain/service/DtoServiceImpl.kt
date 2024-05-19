@@ -43,6 +43,9 @@ class DtoServiceImpl(
         name = studentDto.name
         surname = studentDto.surname
         patronymic = studentDto.patronymic
+        institute = studentDto.institute
+        group = studentDto.group
+        photo = studentDto.photo
         sex = ESex.valueOf(studentDto.sex)
         email = studentDto.email
         phone = studentDto.phone
@@ -101,6 +104,9 @@ class DtoServiceImpl(
         name = user.name,
         surname = user.surname,
         patronymic = user.patronymic,
+        institute = user.institute,
+        group = user.group,
+        photo = user.photo,
         sex = (user.sex?.name ?: throw IllegalArgumentException()),
         email = user.email,
         phone = user.phone,

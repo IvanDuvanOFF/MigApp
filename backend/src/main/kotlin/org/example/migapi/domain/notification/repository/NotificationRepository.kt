@@ -22,6 +22,9 @@ interface NotificationRepository : JpaRepository<Notification, UUID> {
     @CacheEvict("notification-id", key = "#entity.id")
     override fun delete(entity: Notification)
 
+    @CacheEvict("notification-id", key = "#id")
+    override fun deleteById(id: UUID)
+
     @CacheEvict("notification-id", allEntries = true)
     override fun deleteAll()
 }

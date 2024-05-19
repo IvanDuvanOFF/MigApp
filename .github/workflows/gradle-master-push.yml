@@ -73,6 +73,11 @@ jobs:
     needs:
       - build-test
     steps:
+      - name: Archive project
+        run: |
+          zip -r ./mig-app.zip . -x "*.git*" -x "*.idea*"
+        shell: bash
+
       - uses: actions/checkout@v4
       - name: copy file via ssh password
         uses: appleboy/scp-action@v0.1.7
@@ -81,8 +86,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
-          source: "."
-          target: "/home/admin/app/mig-app"
+          source: "./mig-app.zip"
+          target: "/home/admin/app/mig-app.zip"
 
   docker-build:
     name: Build docker image and send it to DockerHub
@@ -141,8 +146,12 @@ jobs:
           envs: DOCKERHUB_USER,DOCKER_IMAGE
           script: |
             cd /home/admin/app/mig-app
-            
             docker compose -f compose.yaml down
+            cd ../
+            rm -rf ./mig-app
+            
+            unzip ./mig-app.zip
+            cd ./mig-app
             
             docker compose -f compose-setup.yaml up -d nginx 
             docker compose -f compose-setup.yaml run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email ivan.duvanov.3@gmail.com --agree-tos --no-eff-email -d db.cute-example-deeplom.ru -d www.db.cute-example-deeplom.ru --preferred-challenges http
@@ -150,7 +159,7 @@ jobs:
             docker compose -f compose-setup.yaml run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email ivan.duvanov.3@gmail.com --agree-tos --no-eff-email -d cute-example-deeplom.ru -d www.cute-example-deeplom.ru --preferred-challenges http
             docker compose -f compose-setup.yaml down nginx
             
-            docker compose -f compose.yaml up -d --build > logs.txt
+            docker compose -f compose.yaml up -d --build > build-logs.txt
             
             echo "0 9 * * 1 /usr/bin/docker compose -f /home/admin/app/mig-app/compose-setup.yaml run certbot renew >> /var/log/renew-ssl.log && /usr/bin/docker compose -f /home/admin/app/mig-app/compose.yaml kill -s SIGHUP nginx" | crontab -
 

@@ -1,6 +1,6 @@
-package org.example.migapi.core.config.iof.repository
+package org.example.migapi.domain.files.repository
 
-import org.example.migapi.core.config.iof.model.File
+import org.example.migapi.domain.files.model.File
 import org.springframework.cache.annotation.CacheConfig
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut

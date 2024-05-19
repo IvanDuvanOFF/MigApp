@@ -2,7 +2,7 @@ package org.example.migapi.core.config.iof.config
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PostConstruct
-import org.example.migapi.core.config.iof.exception.FileNotFoundException
+import org.example.migapi.domain.files.exception.FileNotFoundException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
 import java.io.IOException
