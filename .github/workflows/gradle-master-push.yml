@@ -165,8 +165,9 @@ jobs:
             docker compose -f compose.yaml down
             cd ../
             rm -rf ./mig-app
-            
-            unzip ./mig-app.zip
+
+            mkdir ./mig-app
+            unzip ./mig-app.zip -d ./mig-app
             cd ./mig-app
             
             docker compose -f compose-setup.yaml up -d nginx 
