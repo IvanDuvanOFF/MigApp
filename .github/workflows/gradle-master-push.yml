@@ -103,7 +103,7 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
           source: "./mig-app.zip"
-          target: "/home/admin/app/mig-app.zip"
+          target: "/home/admin/app"
 
   docker-build:
     name: Build docker image and send it to DockerHub
