@@ -1,4 +1,4 @@
-package org.example.migapi.core.domain.model.entity
+package org.example.migapi.domain.typography.model
 
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
@@ -6,8 +6,8 @@ import jakarta.persistence.Table
 import org.example.migapi.core.domain.model.Model
 
 @Entity
-@Table(name = "typography_types")
-data class TypographyType(
+@Table(name = "document_types")
+data class DocumentType(
     @Id
     val name: String
 ) : Model
