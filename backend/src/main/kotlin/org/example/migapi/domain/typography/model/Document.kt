@@ -15,6 +15,8 @@ data class Document(
     @JoinColumn(name = "document_type")
     val documentType: DocumentType,
 
+    var status: String,
+
     val expirationDate: LocalDate,
 
     var link: String? = null,
