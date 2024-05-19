@@ -172,6 +172,7 @@ jobs:
               rm -rf ./mig-app
             fi
 
+            cd /home/admin/app
             mkdir -p ./mig-app
             unzip ./mig-app.zip -d ./mig-app
             cd ./mig-app
