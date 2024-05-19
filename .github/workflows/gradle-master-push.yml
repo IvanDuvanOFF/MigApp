@@ -76,7 +76,7 @@ jobs:
       - name: Archive project
         working-directory: .
         run: |
-          zip -r .mig-app.zip . -x "*.git*" -x "*.idea*"
+          zip -r mig-app.zip . -x "*.git*" -x "*.idea*"
         shell: bash
 
       - uses: actions/checkout@v4
