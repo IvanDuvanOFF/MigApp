@@ -1,4 +1,4 @@
-package org.example.migapi.core.domain.model.entity
+package org.example.migapi.domain.typography.model
 
 import jakarta.persistence.*
 import org.example.migapi.core.domain.model.Model
