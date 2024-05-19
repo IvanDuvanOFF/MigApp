@@ -59,7 +59,7 @@ class StudentController(
     )
     @CommonApiErrors
     @SecurityRequirement(name = "JWT")
-    fun put(studentDto: StudentDto) = studentService.put(studentDto)
+    fun put(@RequestBody studentDto: StudentDto) = studentService.put(studentDto)
 
     @PostMapping
     @Operation(summary = "Сохранить новую запись студента", description = "Администратор создает новую запись студента")

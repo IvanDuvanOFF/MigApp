@@ -1,16 +1,17 @@
 package org.example.migapi.domain.typography.service
 
-import org.example.migapi.core.config.exception.BadRequestException
 import org.example.migapi.core.config.exception.NotFoundException
-import org.example.migapi.domain.typography.dto.DocumentTitleDto
+import org.example.migapi.domain.typography.dto.DocumentDto
 import org.example.migapi.domain.typography.dto.TypographyDto
 import org.example.migapi.domain.typography.dto.TypographyTitleDto
+import org.example.migapi.domain.typography.model.DocumentType
 import org.example.migapi.domain.typography.model.Typography
 import org.example.migapi.domain.typography.repository.TypographyRepository
 import org.example.migapi.getUsernameFromContext
+import org.example.migapi.toDate
+import org.example.migapi.toUUID
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class TypographyService(
@@ -22,34 +23,42 @@ class TypographyService(
         typographyRepository.findAllByUserUsername(getUsernameFromContext()).map { it.toTitleDto() }
 
     fun findById(id: String): TypographyDto {
-        val typography = typographyRepository.findById(
-            try {
-                UUID.fromString(id)
-            } catch (e: IllegalArgumentException) {
-                throw BadRequestException()
-            }
-        ).orElseThrow { NotFoundException() }
+        val typography = typographyRepository.findById(id.toUUID()).orElseThrow { NotFoundException() }
+        val typographyDocuments = typography.documents
+        val docTypes = typography.typographyType.documentList
 
-        return typography.toDto()
+        val documents = docTypes.map { type ->
+            val doc = typographyDocuments
+                .filter { it.documentType.name == type.name }
+                .sortedByDescending { it.creationDate }.takeIf { it.isNotEmpty() }?.get(0)
+
+            DocumentDto(
+                id = doc?.id?.toString(),
+                title = type.name,
+                status = doc?.status?.toString(),
+                fileName = doc?.fileName,
+                creationDate = doc?.creationDate?.toDate(),
+                expirationDate = doc?.expirationDate?.toDate()
+            )
+        }
+
+        return TypographyDto(
+            id = typography.id.toString(),
+            title = typography.typographyType.name,
+            status = typography.status.name,
+            documents = documents
+        )
+    }
+
+    fun getTypographyListById(id: String): List<DocumentType> {
+        val typography = typographyRepository.findById(id.toUUID()).orElseThrow { NotFoundException() }
+
+        return typography.typographyType.documentList
     }
 
     fun Typography.toTitleDto(): TypographyTitleDto = TypographyTitleDto(
         id = this.id.toString(),
         title = this.typographyType.name,
         status = this.status.name
-    )
-
-    fun Typography.toDto(): TypographyDto = TypographyDto(
-        id = this.id.toString(),
-        title = this.typographyType.name,
-        status = this.status.name,
-        documents = this.documents.map {
-            DocumentTitleDto(
-                id = it.id.toString(),
-                title = it.documentType.name,
-                status = it.status,
-                link = it.link ?: ""
-            )
-        }
     )
 }

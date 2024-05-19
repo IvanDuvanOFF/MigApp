@@ -63,7 +63,7 @@ class ProfileController(
         ]
     )
     @SecurityRequirement(name = "JWT")
-    fun changePassword(passwords: Passwords, request: HttpServletRequest) {
+    fun changePassword(@RequestBody passwords: Passwords, request: HttpServletRequest) {
         val jwt = migUtils.extractJwt(request)
 
         if (passwords.password != passwords.confirmation)
@@ -106,7 +106,7 @@ class ProfileController(
         ]
     )
     @SecurityRequirement(name = "JWT")
-    fun turnTfa(tfaTurnDto: TfaTurnDto, request: HttpServletRequest): TfaTurnDto =
+    fun turnTfa(@RequestBody tfaTurnDto: TfaTurnDto, request: HttpServletRequest): TfaTurnDto =
         studentService.turnTfa(getUsernameFromContext(), tfaTurnDto)
 
     @GetMapping

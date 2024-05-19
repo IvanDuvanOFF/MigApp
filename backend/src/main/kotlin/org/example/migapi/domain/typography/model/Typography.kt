@@ -29,9 +29,7 @@ data class Typography(
     @JoinColumn(name = "status")
     var status: TypographyStatus,
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "typography_documents",
-        joinColumns = [JoinColumn(name = "typography_id", referencedColumnName = "id")],
-        inverseJoinColumns = [JoinColumn(name = "document_id", referencedColumnName = "id")])
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "typography_id")
     val documents: MutableSet<Document>
 ) : Model

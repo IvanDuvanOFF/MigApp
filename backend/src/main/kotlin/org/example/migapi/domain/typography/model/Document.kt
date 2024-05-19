@@ -15,9 +15,18 @@ data class Document(
     @JoinColumn(name = "document_type")
     val documentType: DocumentType,
 
-    var status: String,
+    @Column(name = "typography_id")
+    val typographyId: UUID,
 
-    val expirationDate: LocalDate,
+    @Enumerated(EnumType.STRING)
+    var status: DocumentStatus,
 
-    var link: String? = null,
+    @Column(name = "creation_date")
+    val creationDate: LocalDate? = null,
+
+    @Column(name = "expiration_date")
+    val expirationDate: LocalDate? = null,
+
+    @Column(name = "file_name")
+    var fileName: String? = null,
 ) : Model

@@ -15,10 +15,6 @@ data class Notification(
     @Id
     val id: UUID,
 
-    @ManyToOne(targetEntity = FirebaseToken::class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "recipient_token")
-    val token: FirebaseToken,
-
     @ManyToOne(targetEntity = User::class, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     val user: User,
@@ -36,7 +32,7 @@ data class Notification(
     @Enumerated(EnumType.STRING)
     var status: ENotificationStatus
 ) : Model {
-    fun message(): Message {
+    fun message(token: FirebaseToken): Message {
         val firebaseNotification = FirebaseNotification
             .builder()
             .setTitle(title)

@@ -4,5 +4,5 @@ data class TypographyDto(
     val id: String,
     val title: String,
     val status: String,
-    val documents: List<DocumentTitleDto>
+    val documents: List<DocumentDto>
 )

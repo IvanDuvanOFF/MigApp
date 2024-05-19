@@ -5,12 +5,15 @@ import jakarta.persistence.PersistenceException
 import jakarta.transaction.Transactional
 import org.example.migapi.core.config.exception.BadRequestException
 import org.example.migapi.core.config.exception.NotFoundException
+import org.example.migapi.core.domain.model.enums.ENotificationStatus
+import org.example.migapi.domain.account.model.User
 import org.example.migapi.domain.notification.dto.NotificationDto
 import org.example.migapi.domain.notification.exception.NotificationNotFoundException
 import org.example.migapi.domain.notification.model.Notification
 import org.example.migapi.domain.notification.repository.NotificationRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
 
@@ -31,6 +34,20 @@ class NotificationService(
         val notifications = notificationRepository.findAllByUserUsername(username)
 
         return notifications.map { it.toDto() }
+    }
+
+    fun createNewNotification(user: User, notificationDto: NotificationDto): Notification {
+        val notification = Notification(
+            id = UUID.randomUUID(),
+            user = user,
+            title = notificationDto.title ?: throw BadRequestException(),
+            description = notificationDto.description ?: throw BadRequestException(),
+            date = LocalDateTime.now(),
+            isViewed = false,
+            status = ENotificationStatus.INFO
+        )
+
+        return notification
     }
 
     @Throws(exceptionClasses = [BadRequestException::class, NotificationNotFoundException::class, PersistenceException::class])

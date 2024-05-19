@@ -11,7 +11,7 @@ data class NotificationDto(
 
     @JsonProperty("notification_id", required = true)
     @Schema(required = true)
-    val id: String,
+    val id: String? = null,
 
     @JsonProperty("user_id", required = false)
     @Schema(required = false)

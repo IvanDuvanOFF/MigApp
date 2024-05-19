@@ -1,19 +1,23 @@
 package org.example.migapi.domain.notification.repository
 
+import org.example.migapi.domain.account.model.User
 import org.example.migapi.domain.notification.model.FirebaseToken
 import org.springframework.cache.annotation.*
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 
-@CacheConfig(cacheNames = ["firebase-token-id"])
+@CacheConfig(cacheNames = ["firebase-token-id", "firebase-token-user-name"])
 interface FirebaseTokenRepository : JpaRepository<FirebaseToken, String> {
 
     @Cacheable("firebase-token-id", key = "#id", unless = "#result == null")
     override fun findById(id: String): Optional<FirebaseToken>
 
+    @Cacheable("firebase-token-user-name", key = "#user.username", unless = "#result == null")
+    fun findAllByUser(user: User): List<FirebaseToken>
+
     @Caching(
         put = [
-            CachePut("firebase-token-id", key = "#entity.token"),
+            CachePut("firebase-token-id", key = "#entity.token")
         ]
     )
     override fun <S : FirebaseToken> save(entity: S): S
@@ -21,6 +25,7 @@ interface FirebaseTokenRepository : JpaRepository<FirebaseToken, String> {
     @Caching(
         evict = [
             CacheEvict("firebase-token-id", key = "#entity.token"),
+            CacheEvict("firebase-token-user-name", allEntries = true),
         ]
     )
     override fun delete(entity: FirebaseToken)
@@ -28,6 +33,7 @@ interface FirebaseTokenRepository : JpaRepository<FirebaseToken, String> {
     @Caching(
         evict = [
             CacheEvict("firebase-token-id", allEntries = true),
+            CacheEvict("firebase-token-user-name", allEntries = true),
         ]
     )
     override fun deleteAll()

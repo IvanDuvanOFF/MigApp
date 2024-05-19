@@ -1,5 +1,6 @@
 package org.example.migapi.domain.notification.service
 
+import org.example.migapi.domain.account.model.User
 import org.example.migapi.domain.account.service.UserService
 import org.example.migapi.domain.notification.dto.FirebaseTokenDto
 import org.example.migapi.domain.notification.model.FirebaseToken
@@ -22,4 +23,7 @@ class FirebaseTokenService(
 
         firebaseTokenRepository.save(firebaseToken)
     }
+
+    fun findAllFirebaseTokensByUsername(user: User): List<FirebaseToken> =
+        firebaseTokenRepository.findAllByUser(user)
 }

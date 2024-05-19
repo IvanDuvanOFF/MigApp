@@ -1,8 +1,8 @@
 package org.example.migapi.domain.typography.dto
 
 data class DocumentTitleDto(
-    val id: String,
+    val id: String? = null,
     val title: String,
-    val link: String,
-    val status: String
+    val link: String? = null,
+    val status: String? = null
 )
