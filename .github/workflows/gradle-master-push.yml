@@ -74,6 +74,17 @@ jobs:
       - build-test
     steps:
       - uses: actions/checkout@v4
+
+      - name: Generate firebase key
+        run: |
+          mkdir -p ./backend/src/main/resources/firebase
+          mkdir -p ./backend/src/test/resources/firebase
+          echo "$KEY" > ./backend/src/main/resources/firebase/firebase-key.json
+          echo "$KEY" > ./backend/src/test/resources/firebase/firebase-key.json
+        shell: bash
+        env:
+          KEY: ${{ secrets.FIREBASE_SECRET }}
+      
       - name: Install zip
         uses: montudor/action-zip@v1
 
