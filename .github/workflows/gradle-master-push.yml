@@ -80,7 +80,7 @@ jobs:
       - name: Archive project
         working-directory: .
         run: |
-          zip -qq -r mig-app.zip . -x "*.git*" -x "*.idea*"
+          zip -r mig-app.zip . -x "*.git*" -x "*.idea*"
         shell: bash
 
       # - uses: vimtor/action-zip@v1.2
@@ -161,12 +161,18 @@ jobs:
           port: 22
           envs: DOCKERHUB_USER,DOCKER_IMAGE
           script: |
-            cd /home/admin/app/mig-app
-            docker compose -f compose.yaml down
-            cd ../
-            rm -rf ./mig-app
+            if [ -d "/home/admin/app/mig-app" ]; then
+              cd /home/admin/app/mig-app
 
-            mkdir ./mig-app
+              if [ -f "/home/admin/app/mig-app/compose.yaml" ]; then
+                docker compose -f compose.yaml down
+              fi
+              
+              cd ../
+              rm -rf ./mig-app
+            fi
+
+            mkdir -p ./mig-app
             unzip ./mig-app.zip -d ./mig-app
             cd ./mig-app
             
