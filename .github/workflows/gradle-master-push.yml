@@ -73,14 +73,20 @@ jobs:
     needs:
       - build-test
     steps:
-      - name: Install zip
-        uses: montudor/action-zip@v1
+      # - name: Install zip
+      #   uses: montudor/action-zip@v1
     
-      - name: Archive project
-        working-directory: .
-        run: |
-          zip -qq -r mig-app.zip . -x "*.git*" -x "*.idea*"
-        shell: bash
+      # - name: Archive project
+      #   working-directory: .
+      #   run: |
+      #     zip -qq -r mig-app.zip . -x "*.git*" -x "*.idea*"
+      #   shell: bash
+
+      - uses: vimtor/action-zip@v1.2
+        with:
+          files: .
+          recursive: true
+          dest: mig-app.zip
 
       - uses: actions/checkout@v4
       - name: copy file via ssh password
