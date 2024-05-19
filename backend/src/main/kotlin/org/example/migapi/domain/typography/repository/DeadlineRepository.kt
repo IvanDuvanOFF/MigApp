@@ -1,4 +1,4 @@
-package org.example.migapi.core.domain.repo
+package org.example.migapi.domain.typography.repository
 
 import org.example.migapi.domain.typography.model.Deadline
 import org.springframework.data.jpa.repository.JpaRepository
