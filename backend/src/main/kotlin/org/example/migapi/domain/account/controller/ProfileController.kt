@@ -109,7 +109,7 @@ class ProfileController(
     fun turnTfa(tfaTurnDto: TfaTurnDto, request: HttpServletRequest): TfaTurnDto =
         studentService.turnTfa(getUsernameFromContext(), tfaTurnDto)
 
-    @GetMapping("/{user_id}")
+    @GetMapping
     @Operation(
         summary = "Получение учетной записи пользователя",
         description = "Пользователь отправляет свой id и получает свою учетную запись",
@@ -141,6 +141,6 @@ class ProfileController(
         ]
     )
     @SecurityRequirement(name = "JWT")
-    fun getStudentProfile(@PathVariable("user_id") userId: String): StudentDto =
-        studentService.getByUsernameAndId(getUsernameFromContext(), userId)
+    fun getStudentProfile(): StudentDto =
+        studentService.getByUsername(getUsernameFromContext())
 }
