@@ -88,6 +88,12 @@ jobs:
           recursive: true
           dest: mig-app.zip
 
+      - name: echo
+        working-directory: .
+        run: |
+          ls -la
+        shell: bash
+
       - uses: actions/checkout@v4
       - name: copy file via ssh password
         uses: appleboy/scp-action@v0.1.7
