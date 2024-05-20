@@ -27,7 +27,7 @@ data class NotificationDto(
 
     @JsonProperty(required = false)
     @Schema(required = false)
-    val date: Date? = null,
+    val date: String? = null,
 
     @JsonProperty("is_viewed")
     @Schema(required = false)
