@@ -22,11 +22,16 @@ class TypographyService(
     private val migUtils: MigUtils
 ) {
 
-    fun findAllTitlesByUsername(username: String, filterDate: String): List<TypographyTitleDto> {
-        val date = migUtils.stringToLocalDate(filterDate)
+    fun findAllTitlesByUsername(username: String, filterDate: String?): List<TypographyTitleDto> {
+        val typographies = typographyRepository.findAllByUserUsername(getUsernameFromContext())
 
-        return typographyRepository.findAllByUserUsername(getUsernameFromContext()).filter { date <= it.creationDate }
-            .map { it.toTitleDto() }
+        return if (filterDate == null)
+            typographies.map { it.toTitleDto() }
+        else {
+            val date = migUtils.stringToLocalDate(filterDate)
+
+            typographies.filter { date <= it.creationDate }.map { it.toTitleDto() }
+        }
     }
 
     fun findById(id: String): TypographyDto {
