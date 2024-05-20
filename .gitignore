@@ -7,3 +7,5 @@ build/
 /backend/.logs/
 /backend/src/main/resources/firebase/firebase-key.json
 /backend/src/main/resources/firebase-key.json
+/jmeter/res/
+/jmeter/logs/
