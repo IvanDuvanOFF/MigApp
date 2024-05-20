@@ -52,7 +52,7 @@ class TypographyService(
         return TypographyDto(
             id = typography.id.toString(),
             title = typography.typographyType.name,
-            status = typography.status.name,
+            status = typography.status.name.lowercase(),
             date = migUtils.localDateToString(typography.creationDate),
             documents = documents
         )
@@ -66,7 +66,7 @@ class TypographyService(
 
     fun Typography.toTitleDto(): TypographyTitleDto = TypographyTitleDto(
         id = this.id.toString(),
-        title = this.typographyType.name,
+        title = this.typographyType.name.lowercase(),
         status = this.status.name,
         date = migUtils.localDateToString(this.creationDate)
     )
