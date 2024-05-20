@@ -54,8 +54,8 @@ class TypographyController(
         ]
     )
     @SecurityRequirement(name = "JWT")
-    fun allApplications(): List<TypographyTitleDto> =
-        typographyService.findAllTitlesByUsername(getUsernameFromContext())
+    fun allApplications(@RequestBody(required = false) filterDate: String): List<TypographyTitleDto> =
+        typographyService.findAllTitlesByUsername(getUsernameFromContext(), filterDate)
 
     @GetMapping("/{application_id}")
     @Operation(

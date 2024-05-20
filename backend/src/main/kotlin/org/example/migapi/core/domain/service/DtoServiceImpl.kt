@@ -14,6 +14,8 @@ import org.example.migapi.domain.account.model.Country
 import org.example.migapi.domain.account.model.StudentStatus
 import org.example.migapi.domain.account.model.User
 import org.example.migapi.domain.account.repository.CountryRepository
+import org.example.migapi.parseLocalDate
+import org.example.migapi.serialize
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -26,7 +28,9 @@ import java.util.*
 @Scope("prototype")
 class DtoServiceImpl(
     @Autowired
-    private val formatter: DateTimeFormatter,
+    private val dateFormatter: DateTimeFormatter,
+    @Autowired
+    private val dateTimeFormatter: DateTimeFormatter,
     @Autowired
     private val encoder: BCryptPasswordEncoder,
     @Autowired
@@ -51,7 +55,7 @@ class DtoServiceImpl(
         phone = studentDto.phone
         country = Country(studentDto.country).takeIf { countryRepository.findById(it.name).isPresent }
             ?: throw CountryNotFoundException("No country ${studentDto.country} found")
-        birthday = LocalDate.parse(studentDto.birthday, formatter)
+        birthday = studentDto.birthday.parseLocalDate(dateFormatter)
         status = try {
             StudentStatus(EStudentStatus.valueOf(studentDto.status))
         } catch (e: IllegalArgumentException) {
@@ -111,7 +115,7 @@ class DtoServiceImpl(
         email = user.email,
         phone = user.phone,
         country = user.country.name,
-        birthday = user.birthday.format(formatter),
+        birthday = user.birthday.serialize(dateFormatter),
         status = user.status.name.name
     )
 }
