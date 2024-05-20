@@ -2,13 +2,47 @@ package org.example.migapi.utils
 
 import jakarta.servlet.http.HttpServletRequest
 import org.example.migapi.auth.exception.UnauthorizedException
+import org.example.migapi.core.config.exception.BadRequestException
+import org.example.migapi.core.config.exception.InternalServerException
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
+import java.time.DateTimeException
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 @Component
 @Scope("prototype")
 class MigUtils {
+
+    private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    private val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")
+
+    fun localDateToString(localDate: LocalDate): String = try {
+        localDate.format(dateFormatter)
+    } catch (e: DateTimeException) {
+        throw InternalServerException("date has incorrect format")
+    }
+
+    fun stringToLocalDate(string: String): LocalDate = try {
+        LocalDate.parse(string, dateFormatter)
+    } catch (e: DateTimeParseException) {
+        throw BadRequestException("date has incorrect format")
+    }
+
+    fun localDateTimeToString(localDateTime: LocalDateTime): String = try {
+        localDateTime.format(dateTimeFormatter)
+    } catch (e: DateTimeException) {
+        throw InternalServerException("date has incorrect format")
+    }
+
+    fun stringToLocalDateTime(string: String): LocalDateTime = try {
+        LocalDateTime.parse(string, dateTimeFormatter)
+    } catch (e: DateTimeParseException) {
+        throw BadRequestException("date has incorrect format")
+    }
 
     fun getHostUrl(request: HttpServletRequest): String {
         val replace = request

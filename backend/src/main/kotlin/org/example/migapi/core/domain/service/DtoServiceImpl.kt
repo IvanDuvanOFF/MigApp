@@ -14,23 +14,18 @@ import org.example.migapi.domain.account.model.Country
 import org.example.migapi.domain.account.model.StudentStatus
 import org.example.migapi.domain.account.model.User
 import org.example.migapi.domain.account.repository.CountryRepository
-import org.example.migapi.parseLocalDate
-import org.example.migapi.serialize
+import org.example.migapi.utils.MigUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 @Service
 @Scope("prototype")
 class DtoServiceImpl(
     @Autowired
-    private val dateFormatter: DateTimeFormatter,
-    @Autowired
-    private val dateTimeFormatter: DateTimeFormatter,
+    private val migUtils: MigUtils,
     @Autowired
     private val encoder: BCryptPasswordEncoder,
     @Autowired
@@ -55,7 +50,7 @@ class DtoServiceImpl(
         phone = studentDto.phone
         country = Country(studentDto.country).takeIf { countryRepository.findById(it.name).isPresent }
             ?: throw CountryNotFoundException("No country ${studentDto.country} found")
-        birthday = studentDto.birthday.parseLocalDate(dateFormatter)
+        birthday = migUtils.stringToLocalDate(studentDto.birthday)
         status = try {
             StudentStatus(EStudentStatus.valueOf(studentDto.status))
         } catch (e: IllegalArgumentException) {
@@ -115,7 +110,7 @@ class DtoServiceImpl(
         email = user.email,
         phone = user.phone,
         country = user.country.name,
-        birthday = user.birthday.serialize(dateFormatter),
+        birthday = migUtils.localDateToString(user.birthday),
         status = user.status.name.name
     )
 }

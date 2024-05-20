@@ -25,8 +25,11 @@ class StudentServiceImpl(
 
     override fun getById(id: String): StudentDto = dtoService.userToStudentDto(userService.findById(id))
 
-    override fun getByUsername(username: String): StudentDto =
-        dtoService.userToStudentDto(userService.findUserByUsername(username))
+    override fun getByUsername(username: String): StudentDto {
+        val user = userService.findUserByUsername(username)
+
+        return dtoService.userToStudentDto(user)
+    }
 
     override fun getByUsernameAndId(username: String, id: String): StudentDto =
         dtoService.userToStudentDto(userService.findUserByUsernameAndId(username, id))
