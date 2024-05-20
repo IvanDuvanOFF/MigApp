@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "516218419174",
+    "project_id": "migapp-3aa25",
+    "storage_bucket": "migapp-3aa25.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:516218419174:android:1cb22e9de60b979b6d8827",
+        "android_client_info": {
+          "package_name": "com.example.deeplom"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARzmmiKjbvIgeGLfPeATBatTq7TFKJNvY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
