@@ -47,6 +47,8 @@ class NotificationService(
             status = ENotificationStatus.INFO
         )
 
+        notificationRepository.save(notification)
+
         return notification
     }
 
