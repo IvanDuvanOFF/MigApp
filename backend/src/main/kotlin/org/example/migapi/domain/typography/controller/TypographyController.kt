@@ -26,7 +26,7 @@ class TypographyController(
     private val documentService: DocumentService
 ) {
 
-    @GetMapping("/{filter_date}")
+    @GetMapping("/all/{filter_date}")
     @Operation(
         summary = "Список всех оформлений кратко",
         description = "Пользователь получает список всех оформлений кратко",
@@ -53,7 +53,7 @@ class TypographyController(
         ]
     )
     @SecurityRequirement(name = "JWT")
-    fun allApplications(@PathVariable(required = false, name = "filter_date") filterDate: String) =
+    fun allApplications(@PathVariable(required = false, name = "filter_date") filterDate: String? = null) =
         typographyService.findAllTitlesByUsername(getUsernameFromContext(), filterDate)
 
     @GetMapping("/{application_id}")
