@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">cute-example-deeplom.ru</domain>
+        <!-- Добавьте ваш целевой домен, чтобы разрешить перехват HTTPS-трафика -->
+        <trust-anchors>
+            <certificates src="@raw/charles_ssl_proxying_certificate" />
+        </trust-anchors>
+    </domain-config>
+</network-security-config>
