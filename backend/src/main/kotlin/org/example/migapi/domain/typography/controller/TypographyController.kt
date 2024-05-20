@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.example.migapi.core.domain.dto.Error
 import org.example.migapi.domain.typography.dto.DocumentDto
 import org.example.migapi.domain.typography.dto.TypographyDto
-import org.example.migapi.domain.typography.dto.TypographyTitleDto
 import org.example.migapi.domain.typography.model.DocumentType
 import org.example.migapi.domain.typography.service.DocumentService
 import org.example.migapi.domain.typography.service.TypographyService
@@ -27,7 +26,7 @@ class TypographyController(
     private val documentService: DocumentService
 ) {
 
-    @GetMapping
+    @GetMapping("/{filter_date}")
     @Operation(
         summary = "Список всех оформлений кратко",
         description = "Пользователь получает список всех оформлений кратко",
@@ -54,7 +53,7 @@ class TypographyController(
         ]
     )
     @SecurityRequirement(name = "JWT")
-    fun allApplications(@RequestBody(required = false) filterDate: String): List<TypographyTitleDto> =
+    fun allApplications(@PathVariable(required = false, name = "filter_date") filterDate: String) =
         typographyService.findAllTitlesByUsername(getUsernameFromContext(), filterDate)
 
     @GetMapping("/{application_id}")

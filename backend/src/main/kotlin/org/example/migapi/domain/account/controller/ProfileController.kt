@@ -141,6 +141,9 @@ class ProfileController(
         ]
     )
     @SecurityRequirement(name = "JWT")
-    fun getStudentProfile(): StudentDto =
-        studentService.getByUsername(getUsernameFromContext())
+    fun getStudentProfile(): StudentDto {
+        val username = getUsernameFromContext()
+
+        return studentService.getByUsername(username)
+    }
 }

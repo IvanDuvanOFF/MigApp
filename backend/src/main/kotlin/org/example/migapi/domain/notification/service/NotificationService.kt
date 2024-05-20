@@ -11,21 +11,18 @@ import org.example.migapi.domain.notification.dto.NotificationDto
 import org.example.migapi.domain.notification.exception.NotificationNotFoundException
 import org.example.migapi.domain.notification.model.Notification
 import org.example.migapi.domain.notification.repository.NotificationRepository
-import org.example.migapi.serialize
+import org.example.migapi.utils.MigUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.*
-import javax.swing.text.DateFormatter
 
 @Service
 class NotificationService(
     @Autowired
     private val notificationRepository: NotificationRepository,
     @Autowired
-    private val dateTimeFormatter: DateTimeFormatter
+    private val migUtils: MigUtils
 ) {
 
     @Throws(
@@ -91,7 +88,7 @@ class NotificationService(
         id = this.id.toString(),
         title = this.title,
         description = this.description,
-        date = this.date.serialize(dateTimeFormatter),
+        date = migUtils.localDateTimeToString(this.date),
         isViewed = this.isViewed,
         status = this.status.name
     )

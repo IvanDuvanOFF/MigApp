@@ -1,6 +1,5 @@
 package org.example.migapi.domain.typography.service
 
-import org.example.migapi.*
 import org.example.migapi.core.config.exception.NotFoundException
 import org.example.migapi.domain.typography.dto.DocumentDto
 import org.example.migapi.domain.typography.dto.TypographyDto
@@ -8,21 +7,23 @@ import org.example.migapi.domain.typography.dto.TypographyTitleDto
 import org.example.migapi.domain.typography.model.DocumentType
 import org.example.migapi.domain.typography.model.Typography
 import org.example.migapi.domain.typography.repository.TypographyRepository
+import org.example.migapi.getUsernameFromContext
+import org.example.migapi.toDate
+import org.example.migapi.toUUID
+import org.example.migapi.utils.MigUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.time.format.DateTimeFormatter
-import java.util.*
 
 @Service
 class TypographyService(
     @Autowired
     private val typographyRepository: TypographyRepository,
     @Autowired
-    private val dateFormatter: DateTimeFormatter
+    private val migUtils: MigUtils
 ) {
 
     fun findAllTitlesByUsername(username: String, filterDate: String): List<TypographyTitleDto> {
-        val date = filterDate.parseLocalDate(dateFormatter)
+        val date = migUtils.stringToLocalDate(filterDate)
 
         return typographyRepository.findAllByUserUsername(getUsernameFromContext()).filter { date <= it.creationDate }
             .map { it.toTitleDto() }
@@ -52,7 +53,7 @@ class TypographyService(
             id = typography.id.toString(),
             title = typography.typographyType.name,
             status = typography.status.name,
-            date = typography.creationDate.serialize(dateFormatter),
+            date = migUtils.localDateToString(typography.creationDate),
             documents = documents
         )
     }
@@ -67,6 +68,6 @@ class TypographyService(
         id = this.id.toString(),
         title = this.typographyType.name,
         status = this.status.name,
-        date = this.creationDate.serialize(dateFormatter)
+        date = migUtils.localDateToString(this.creationDate)
     )
 }
