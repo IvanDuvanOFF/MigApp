@@ -23,7 +23,8 @@ data class Typography(
     @Column(name = "creation_date")
     val creationDate: LocalDate = LocalDate.now(),
 
-    var link: String? = null,
+    @Column(name = "file_name")
+    var fileName: String? = null,
 
     @ManyToOne(targetEntity = TypographyStatus::class, fetch = FetchType.EAGER)
     @JoinColumn(name = "status")
