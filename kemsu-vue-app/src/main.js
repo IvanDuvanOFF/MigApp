@@ -28,9 +28,10 @@ import Trans from '@/i18n/translate';
 import { LOCAL_URL } from './urls';
 import MainPage from './components/MainPage.vue';
 import EditController from './store/settings-controller';
+import WelcomePage from './components/WelcomePage.vue';
 
 const app = createApp(App);
-const routes = [  
+const routes = [
   {
     path: '/',
     name: 'Index',
@@ -39,6 +40,11 @@ const routes = [
       requiresAuth: true,
       requiresEdit: false
     }
+  },
+  {
+    path: '/welcome',
+    name: 'Welcome',
+    component: WelcomePage
   },
   {
     path: '/edit',
@@ -123,18 +129,22 @@ router.beforeEach((to, from, next) => {
     next({ name: 'Login' });
   }
 
+  if (!to.meta.requiresAuth && loggedIn) {
+    next({ name: 'Index' });
+  }
+
   if (to.meta.requiresEdit != null) {
     if (to.meta.requiresEdit != EditController.getEditMode()) {
       if (to.meta.requiresEdit) {
         console.log("Returning to normal version of this page...");
         let nameWithoutEdit = to.name.replace("Edit", "");
-        next({ name: nameWithoutEdit, params: {tableName: to.params.tableName} });
+        next({ name: nameWithoutEdit, params: { tableName: to.params.tableName } });
       }
       else {
         console.log(to, from);
         console.log("Going to edit version of this page...");
-        next({ name: "Edit" + to.name, params: {tableName: to.params.tableName} });
-        
+        next({ name: "Edit" + to.name, params: { tableName: to.params.tableName } });
+
       }
     }
   }

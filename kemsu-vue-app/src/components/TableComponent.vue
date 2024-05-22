@@ -79,14 +79,14 @@
 import StudentService from '@/services/StudentService.js';
 import AttributeService from '@/services/AttributeService.js';
 import TableService from '@/services/TableService';
-import DynamicFilter from '@/components/dynamic-components/DynamicFilter.vue';
+// import DynamicFilter from '@/components/dynamic-components/DynamicFilter.vue';
 import DynamicForm from '@/components/dynamic-components/DynamicForm.vue';
 import DynamicInput from './dynamic-components/DynamicInput.vue';
 
 export default {
     name: "TableComponent",
     components: {
-        DynamicFilter,
+        // DynamicFilter,
         DynamicInput,
         DynamicForm
     },

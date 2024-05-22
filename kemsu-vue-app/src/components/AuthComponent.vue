@@ -1,7 +1,10 @@
 <template>
+    <a href="/welcome" class="position-absolute btn btn-dark" style="top: 0px; left: 0px">
+        {{ "<<" + $t("auth.back") }}
+    </a>
     <div id="root">
         <Form name="loginForm" @submit="handleLogin" :validation-schema="schema">
-            <div class="d-flex flex-column mt-5 flex-wrap w-25 m-auto align-items-center">
+            <div class="d-flex flex-column flex-wrap align-items-center">
                 <label for="username">{{ $t("auth.username") }}</label>
                 <Field id="username" v-model="user.username" type="text" class="form-control mt-3 mb-3" name="username"
                     autocomplete="off" />

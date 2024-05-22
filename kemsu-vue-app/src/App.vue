@@ -1,6 +1,5 @@
-<template>
-  <img alt="Kemsu logo" src="./assets/logo.jpeg" v-if="!currentUser">
-  <div class="container" v-if="!currentUser">
+<template>  
+  <div class="container d-flex align-items-center justify-content-center h-100" v-if="!currentUser">
     <router-view />
   </div>
 

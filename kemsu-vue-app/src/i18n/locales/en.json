@@ -2,6 +2,7 @@
     "auth": {
         "username": "Login",
         "password": "Password",
+        "back": "To welcome page",
         "button": "Sign in"
     },
     "settings": {
@@ -14,7 +15,7 @@
         "dark_theme": "High Contrast",
         "light_theme": "Light theme"
     },
-    "edit-mode":{
+    "edit-mode": {
         "title": "Edit mode"
     },
     "navbar": {
@@ -38,12 +39,10 @@
         "email": "Email*",
         "phone": "Phone*",
         "male": "Male",
-        "female": "Female",        
+        "female": "Female",
         "birth": "Birhtday*",
         "send": "Save",
-        "edit": "Edit",
-        "send-doc": "Save documents",
-        "add-doc": "Add new document"
+        "edit": "Edit"
     },
     "mail-modal": {
         "label": "Email for student",
@@ -55,15 +54,16 @@
     "errors": {
         "required": "This field is required",
         "phone": "Invalid phone number",
-        "email": "Invalid email address"
+        "email": "Invalid email address",
+        "repeat_password": "Passwords must match"
     },
-    "edit-table":{
+    "edit-table": {
         "attr_name": "Name",
         "is_shown": "In list",
         "at_filter": "In filter",
         "type": "Type"
     },
-    "config":{
+    "config": {
         "user_manage": "Manage users",
         "username": "Username",
         "password": "Password",
@@ -72,5 +72,12 @@
         "delete": "Delete",
         "edit": "Edit",
         "save": "Save"
+    },
+    "welcome": {
+        "bd_explanation": "Path to the database. Can be configured later",
+        "title": "Customize your all-in-one console!",
+        "login": "Sign in",
+        "create_account": "Create account",
+        "register": "Sign up"
     }
 }
