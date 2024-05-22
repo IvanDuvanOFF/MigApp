@@ -1,52 +1,94 @@
-<template>
-    <div class="col d-flex flex-column col-3" style="border: 1px solid darkgrey;">
-        <h4 class="font-weight-bold mt-5">{{ $t("list.filter") }}</h4>
-        <form id="filterForm" class="d-flex flex-column mt-5" @submit.prevent="applyFilter">
-            <DynamicFilter :attribute="attr" v-for="attr in filtered_attributes" :key="attr.attribute_name" />
-            <div class="btn-group w-75 m-auto mt-2">
-                <button type="submit" class="btn btn-dark rounded-0">
-                    <font-awesome-icon icon="search" />
-                </button>
-                <button type="button" @click="clearFilterForm" class="btn btn-danger rounded-0">
-                    <font-awesome-icon icon="trash-can" />
-                </button>
+<template>    
+    <div class="col table-responsive" style="margin-top: 100px;">
+        <div class="input-group">
+            <span class="input-group-text">
+                <font-awesome-icon icon="search" />
+            </span>
+            <input class="form-control" type="text" data-filter-for="table" autocomplete="off" @change="initFilter"
+                :placeholder="$t('list.search')" />
+            <button class="btn btn-info sub-item dropdown-toggle" data-bs-toggle="dropdown" aria-bs-haspopup="true"
+                aria-bs-expanded="false" id="dropdownAttrs">
+                &#x2699;
+            </button>
+            <div class="dropdown-menu" aria-bs-labelledby="dropdownAttrs">
+                <div class="form-check" v-for="attr in attributes" :key="attr">
+                    <input :name="attr.attribute_name" type="checkbox" class="form-check-input" v-model="attr.is_shown"
+                        @change="updateFiltererdAttributes" />
+                    <label :for="attr.attribute_name" class="form-check-label">
+                        {{ attr.attribute_name }}
+                    </label>
+                </div>
             </div>
-        </form>
-    </div>
-
-    <div class="col d-flex flex-column p-0">
-        <div>
-            <div class="input-group">
-                <a class="btn btn-primary rounded-0" v-bind:href="$sanitize('/table/' + this.tableName + '/create')"
+            <a class="btn btn-primary" v-bind:href="$sanitize('/table/' + this.tableName + '/create')"
                     type="button">
                     <font-awesome-icon icon="user-plus" />
                 </a>
-            </div>
-
-            <div>
-                <a class="card-a rounded-0 text-decoration-none card" v-for="example in filtered_examples"
-                    :key="example.id" v-bind:href="$sanitize('/table/' + this.tableName + '/' + example.id)">
-                    <div class=" card-body p-2 align-self-start">
-                        <h4 class="card-title" align-self-start>
-                            {{ getTextFromShownValues(example) }}
-                        </h4>
-                    </div>
-                </a>
-            </div>
         </div>
-    </div>
+        <div class="table-responsive card mt-5">
+            <table class="table table-striped table-hover" id="table" data-sorter>
+                <thead>
+                    <tr>
+                        <th>
+
+                        </th>
+                        <th v-for="attr in filtered_attributes" :key="attr" @click="initSorter">
+                            {{ attr.attribute_name }}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="d-talbe" v-for="example in filtered_examples" :key="example">
+                        <td>
+                            <div>
+                                <button class="btn btn-success" :name="example.id"
+                                    v-if="examplesInEditMode.includes(example.id)" :form="'form-' + example.id">
+                                    <font-awesome-icon icon="save" />
+                                </button>
+                                <button class="btn btn-primary" :name="example.id" v-else
+                                    @click="activeEditMode(example.id)">
+                                    <font-awesome-icon icon="pen" />
+                                </button>
+                                <a class="btn btn-info" v-bind:href="$sanitize('/table/' + this.tableName + '/' + example.id)" :name="example.id">
+                                    <font-awesome-icon icon="pen" />
+                                </a>
+                            </div>
+                        </td>
+                        <DynamicForm v-if="examplesInEditMode.includes(example.id)" :modelValue="example"
+                            :attributes="filtered_attributes">
+
+                        </DynamicForm>
+                        <td v-for="attr in filtered_attributes" :key="attr">
+                            <DynamicInput :attribute="attr" :disabled="false" :modelValue="example"
+                                :key="attr.attribute_name" v-if="examplesInEditMode.includes(example.id)" />
+                            <span v-else>
+                                {{ example[attr.attribute_name] }}
+                            </span>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+            <form @submit="print" id="form1">
+            </form>            
+        </div>        
+    </div>    
+
 </template>
 
 <script>
 import StudentService from '@/services/StudentService.js';
 import AttributeService from '@/services/AttributeService.js';
-import DynamicFilter from '@/components/dynamic-components/DynamicFilter.vue';
 import TableService from '@/services/TableService';
+import DynamicFilter from '@/components/dynamic-components/DynamicFilter.vue';
+import DynamicForm from '@/components/dynamic-components/DynamicForm.vue';
+import DynamicInput from './dynamic-components/DynamicInput.vue';
 
 export default {
     name: "TableComponent",
     components: {
-        DynamicFilter
+        DynamicFilter,
+        DynamicInput,
+        DynamicForm
     },
     data() {
         let tableName = this.$route.params.tableName;
@@ -64,7 +106,7 @@ export default {
                 console.log(response.data);
                 this.attributes = response.data;
                 this.filtered_attributes = this.attributes.filter(function (el) {
-                    return el.at_filter;
+                    return el.is_shown;
                 });
             });
         });
@@ -82,11 +124,118 @@ export default {
             filtered_examples,
             attributes,
             filtered_attributes,
-            search_params
+            search_params,
+            examplesInEditMode: []
         };
     },
-
     methods: {
+        print() {
+            alert(1);
+        },
+        initSorter(event) {
+            let table = document.getElementById("table");
+            // get cell values, parsing dates in d/m/yyyy format
+            let rxDate = /^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/;
+            let getCellValue = (tr, idx) => {
+                let value = tr.children[idx].innerText;
+                let match = rxDate && value.match(rxDate);
+                if (match) {
+                    //try {
+                    // parse dates (correct ones only)
+                    value = new Date(match[3] + "-" + match[2] + "-" + match[1]);
+                    //} catch {}
+                }
+                return value;
+            }
+
+            // compare two cells in the same column
+            let comparer = (idx, asc) => (a, b) =>
+                ((v1, v2) =>
+                    v1 !== "" && v2 !== "" && !isNaN(v1) && !isNaN(v2)
+                        ? v1 - v2
+                        : v1.toString().localeCompare(v2))(
+                            getCellValue(asc ? a : b, idx),
+                            getCellValue(asc ? b : a, idx)
+                        );
+
+            let headers = Array.from(table.tHead.children[0].querySelectorAll("th"));
+            let tbody = table.querySelector("tbody");
+            let originalRows = Array.from(tbody.querySelectorAll("tr"));
+
+            console.log(headers);
+
+            let hdr = event.target;
+            let index = headers.indexOf(hdr);
+
+            // keep order per column
+            let asc = hdr.classList.contains("sort-asc");
+            let desc = hdr.classList.contains("sort-desc");
+
+            // remove old sort symbols
+            headers.forEach(h => {
+                h.classList.toggle("sort-asc", false);
+                h.classList.toggle("sort-desc", false);
+            });
+
+            // remove sort from this column if already in descending order (three-way cycle)
+            if (desc) {
+                originalRows.forEach(row => tbody.appendChild(row));
+                return;
+            }
+
+            // sort the rows
+            let rows = Array.from(tbody.querySelectorAll("tr"));
+            rows.sort(comparer(index, asc = !asc));
+            rows.forEach(row => tbody.appendChild(row));
+
+            // add new sort symbols
+            hdr.classList.toggle("sort-asc", asc);
+            hdr.classList.toggle("sort-desc", !asc);
+
+
+        },
+
+        initFilter(event) {
+            let table = document.getElementById(event.target.getAttribute("data-filter-for"));
+            let rows = table.tBodies[0].rows;
+
+            let search = event.target.value;
+
+            // get terms to filter on
+            let terms = search
+                .split(/\s+/)
+                .filter((x) => x.length > 0) // skip empty terms
+                .map((x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")); // escape regex
+
+            // build pattern/regex
+            let pattern = "(" + terms.join("|") + ")";
+            let regEx = new RegExp(pattern, "gi");
+
+            // apply to all rows
+            for (const element of rows) {
+                let row = element;
+                let match = row.textContent.match(regEx);
+                row.classList.toggle(
+                    "hide-row",
+                    match == null || match.length < terms.length
+                );
+            }
+        },
+
+        updateFiltererdAttributes() {
+            this.filtered_attributes = this.attributes.filter(function (el) {
+                return el.is_shown;
+            });
+        },
+        activeEditMode(id) {
+            this.examplesInEditMode.push(id);
+            console.log(this.examplesInEditMode);
+        },
+        disactiveEditMode(id) {
+            const index = this.examplesInEditMode.indexOf(id);
+            this.examplesInEditMode.splice(index, 1);
+            console.log(this.examplesInEditMode);
+        },
         getTextFromShownValues(example) {
             let represents = [];
 
@@ -169,5 +318,48 @@ export default {
 .card-a:hover {
     background-color: gray !important;
     transition-duration: 500ms
+}
+
+/* data-filter */
+div.input-group.data-filter {
+    display: inline-flex;
+    width: 16em;
+}
+
+/* data-colpicker */
+div[data-colpicker-for] {
+    display: inline-block;
+    vertical-align: top;
+    width: 12em;
+}
+
+ul.dropdown-menu li {
+    margin: 0.15em 1em;
+}
+
+ul.dropdown-menu li label {
+    width: 100%;
+}
+
+/* data-sorter */
+table[data-sorter] thead th {
+    cursor: pointer;
+}
+
+table[data-sorter] thead th.sort-asc:after {
+    content: '\25B2';
+    margin-left: 0.5em;
+}
+
+table[data-sorter] thead th.sort-desc:after {
+    content: '\25BC';
+    margin-left: 0.5em;
+}
+
+/* hide table rows/columns */
+th.hide-cell,
+td.hide-cell,
+tr.hide-row {
+    display: none;
 }
 </style>

@@ -1,31 +1,31 @@
 <template>
-    <div class="input-group d-flex flex-column" v-if="'string' == attribute.attribute_type">
+    <div class=" d-flex flex-column" v-if="'string' == attribute.attribute_type">
         <label :for="attribute.attribute_name" class="form-label">
             {{ attribute.attribute_name }}
         </label>
-        <Field :disabled="disabled" type="text" class="form-control w-100 rounded-0" @change="updateInput"        
+        <Field :disabled="disabled" type="text" class="form-control w-100 " @change="updateInput"        
             :value="modelValue[attribute.attribute_name]"
             :name="attribute.attribute_name" :id="attribute.attribute_name"        
             v-on:keypress="isLetter($event)" />
         <ErrorMessage class="alert alert-danger" :name="attribute.attribute_name"></ErrorMessage>
     </div>
 
-    <div class="input-group d-flex flex-column" v-if="'number' == attribute.attribute_type">
+    <div class=" d-flex flex-column" v-if="'number' == attribute.attribute_type">
         <label :for="attribute.attribute_name" class="form-label">
             {{ attribute.attribute_name }}
         </label>
-        <Field :disabled="disabled" type="number" class="form-control w-100 rounded-0"
+        <Field :disabled="disabled" type="number" class="form-control w-100 "
             :value="modelValue[attribute.attribute_name]" 
             :name="attribute.attribute_name" :id="attribute.attribute_name"/>
         <ErrorMessage class="alert alert-danger" :name="attribute.attribute_name"></ErrorMessage>
     </div>
 
-    <div class="input-group d-flex flex-column" v-if="'email' == attribute.attribute_type">
+    <div class=" d-flex flex-column" v-if="'email' == attribute.attribute_type">
         <label :for="attribute.attribute_name" class="form-label">
             {{ attribute.attribute_name }}
         </label>
         <div class="input-group">
-            <Field :disabled="disabled" type="email" class="form-control rounded-0" 
+            <Field :disabled="disabled" type="email" class="form-control " 
                 :value="modelValue[attribute.attribute_name]"
                 :name="attribute.attribute_name" :id="attribute.attribute_name" />
 
@@ -46,21 +46,21 @@
         </label>
     </div>
 
-    <div class="input-group d-flex flex-column" v-if="'phone' == attribute.attribute_type">
+    <div class=" d-flex flex-column" v-if="'phone' == attribute.attribute_type">
         <label :for="attribute.attribute_name" class="form-label">
             {{ attribute.attribute_name }}
         </label>
-        <Field :disabled="disabled" type="text" class="form-control w-100 rounded-0" 
+        <Field :disabled="disabled" type="text" class="form-control w-100 " 
             :value="modelValue[attribute.attribute_name]"
             :name="attribute.attribute_name" :id="attribute.attribute_name" />
         <ErrorMessage class="alert alert-danger" :name="attribute.attribute_name"></ErrorMessage>
     </div>
 
-    <div class="input-group d-flex flex-column" v-if="'date' == attribute.attribute_type">
+    <div class=" d-flex flex-column" v-if="'date' == attribute.attribute_type">
         <label :for="attribute.attribute_name" class="form-label">
             {{ attribute.attribute_name }}
         </label>
-        <Field :disabled="disabled" type="date" class="form-control w-100 rounded-0" 
+        <Field :disabled="disabled" type="date" class="form-control w-100 " 
             :value="modelValue[attribute.attribute_name]"
             :name="attribute.attribute_name" :id="attribute.attribute_name" />
         <ErrorMessage class="alert alert-danger" :name="attribute.attribute_name"></ErrorMessage>
@@ -88,7 +88,7 @@ export default {
             else e.preventDefault();
         },
         updateInput(){
-            this.$emit()
+            
         }
     }
 }

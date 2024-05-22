@@ -7,7 +7,7 @@
                 v-bind:id="attribute.attribute_name" class="form-control w-75 rounded-0">
     </div>
 
-    <div class="d-flex flex-column align-items-center" v-if="'list' == attribute.attribute_type">
+    <div class="d-flex flex-column align-items-center" v-else-if="'list' == attribute.attribute_type">
         <label v-bind:for="attribute.attribute_name" class="form-label">
             {{ attribute.attribute_name }}
         </label>
@@ -19,7 +19,7 @@
         </select>
     </div>
 
-    <div class="d-flex flex-column align-items-center" v-if="'number' == attribute.attribute_type">
+    <div class="d-flex flex-column align-items-center" v-else-if="'number' == attribute.attribute_type">
         <label v-bind:for="attribute.attribute_name" class="form-label">
             {{ attribute.attribute_name }}
         </label>
@@ -29,7 +29,7 @@
                v-bind:id="attribute.attribute_name + '_max'" type="number" class="form-control w-75 rounded-0" />
     </div>
 
-    <div class="d-flex flex-column align-items-center" v-if="'email' == attribute.attribute_type">
+    <div class="d-flex flex-column align-items-center" v-else-if="'email' == attribute.attribute_type">
         <label v-bind:for="attribute.attribute_name" class="form-label">
             {{ attribute.attribute_name }}
         </label>
@@ -37,7 +37,7 @@
                v-bind:id="attribute.attribute_name" type="text" class="form-control w-75 rounded-0" />
     </div>
 
-    <div class="d-flex flex-column align-items-center" v-if="'phone' == attribute.attribute_type">
+    <div class="d-flex flex-column align-items-center" v-else-if="'phone' == attribute.attribute_type">
         <label v-bind:for="attribute.attribute_name" class="form-label">
             {{ attribute.attribute_name }}
         </label>
@@ -45,7 +45,7 @@
                v-bind:id="attribute.attribute_name" type="text" class="form-control w-75 rounded-0" />
     </div>
 
-    <div class="d-flex flex-column align-items-center" v-if="'date' == attribute.attribute_type">
+    <div class="d-flex flex-column align-items-center" v-else-if="'date' == attribute.attribute_type">
         <label v-bind:for="attribute.attribute_name" class="form-label">
             {{ attribute.attribute_name }}
         </label>

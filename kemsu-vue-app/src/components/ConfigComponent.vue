@@ -63,8 +63,7 @@ export default {
     },
     methods: {
         saveDbPath() {
-            axios.defaults.baseURL = this.dbPath;
-            console.log
+            axios.defaults.baseURL = this.dbPath;         
         }
     }
 }

@@ -1,16 +1,15 @@
 <template>
     <div id="root">
-        <Form name="loginForm" novalidate @submit="handleLogin">
+        <Form name="loginForm" @submit="handleLogin" :validation-schema="schema">
             <div class="d-flex flex-column mt-5 flex-wrap w-25 m-auto align-items-center">
                 <label for="username">{{ $t("auth.username") }}</label>
-                <Field :rules="validateField" id="username" v-model="user.username" v-validate="'required'" type="text"
-                    class="form-control mt-3 mb-3" name="username" autocomplete="off" />
+                <Field id="username" v-model="user.username" type="text" class="form-control mt-3 mb-3" name="username"
+                    autocomplete="off" />
                 <ErrorMessage name="username" class="alert alert-danger"></ErrorMessage>
 
                 <label for="password">{{ $t("auth.password") }}</label>
-                <Field :rules="validateField" id="password" v-model="user.password" v-validate="'required'"
-                    type="password" class="form-control mt-3 mb-3" name="password" autocomplete="off" />
-
+                <Field id="password" v-model="user.password" type="password" class="form-control mt-3 mb-3"
+                    name="password" autocomplete="off" />
                 <ErrorMessage name="password" class="alert alert-danger"></ErrorMessage>
 
                 <button class="btn btn-dark btn-lg" type="submit">{{ $t("auth.button") }}</button>
@@ -26,6 +25,7 @@
 <script>
 import { Field, Form, ErrorMessage } from 'vee-validate';
 import User from '../models/user';
+import * as yup from 'yup';
 
 export default {
     name: "AuthComponent",
@@ -38,7 +38,11 @@ export default {
         return {
             user: new User('', ''),
             loading: false,
-            message: ''
+            message: '',
+            schema: yup.object({
+                "username": yup.string().required(this.$t("errors.required")),
+                "password": yup.string().required(this.$t("errors.required"))
+            })
         }
     },
     computed: {
@@ -53,34 +57,26 @@ export default {
     },
 
     methods: {
-        validateField(value) {
-            if (!value) {
-                return 'Поле должно быть заполнено';
-            }
-
-            return true;
-        },
-
         handleLogin() {
-            this.loading = true;            
+            this.loading = true;
             if (this.user.username && this.user.password) {
                 this.$store.dispatch('auth/login', this.user).then(
                     () => {
                         console.log(localStorage.getItem('user'));
-                        if (this.$store.state.auth.status.loggedIn) {                            
+                        if (this.$store.state.auth.status.loggedIn) {
                             window.location.replace("/");
                         }
-                        else {                            
+                        else {
                             window.location.replace("/login/tfa");
                         }
 
                     },
                     error => {
-                        this.loading = false;                        
+                        this.loading = false;
                         let errorMessage = error.message;
-                        if(error.response){
-                            errorMessage += "\n" + error.response.data.message; 
-                        }                           
+                        if (error.response) {
+                            errorMessage += "\n" + error.response.data.message;
+                        }
                         console.log("error is" + errorMessage);
                         this.message = errorMessage;
                     }
