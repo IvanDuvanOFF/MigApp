@@ -44,7 +44,7 @@
                                     v-if="examplesInEditMode.includes(example.id)" :form="'form-' + example.id">
                                     <font-awesome-icon icon="save" />
                                 </button>
-                                <button class="btn btn-primary" :name="example.id" v-else
+                                <button class="btn btn-primary" :name="example.id" v-else hidden
                                     @click="activeEditMode(example.id)">
                                     <font-awesome-icon icon="pen" />
                                 </button>

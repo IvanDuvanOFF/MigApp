@@ -1,18 +1,22 @@
-<template>  
+<template>
   <div class="container d-flex align-items-center justify-content-center h-100" v-if="!currentUser">
     <router-view />
   </div>
 
-  <button @click="changeEditMode" v-if="isAdmin" class="btn" :class="[getEditMode ? 'btn-info' : 'btn-danger']"
-    style="z-index: 10; position: fixed; right: 50px; top: 25px;">
-    {{ $t("edit-mode.title") }}: {{ getEditMode ? 'ON' : 'OFF' }}
-  </button>
-
   <div class="row h-100 m-0" v-if="currentUser">
     <div class="col d-flex flex-column col-md-3 p-0 shadow h-100" style="background-color: #595959; width: 240px">
-      <a href="/">
+      <a href="/" class="logo" v-if="isAdmin">
+        <div class="align-content-center d-flex hide-logo justify-content-center position-absolute">
+          <a class="btn btn-info mt-1 mx-1">
+            <font-awesome-icon icon="image" />            
+          </a>          
+        </div>
+        <img alt="Kemsu logo" class="img-fluid logo" src="./assets/logo.jpeg">
+      </a>
+      <a href="/" v-else>
         <img alt="Kemsu logo" class="img-fluid" src="./assets/logo.jpeg">
       </a>
+
 
       <a class="btn rounded-0 navbar-link" data-bs-toggle="collapse" href="#collapse">{{ $t("navbar.record") }}</a>
       <div class="collapse" id="collapse">
@@ -20,15 +24,15 @@
           <div class="d-grid" v-for="table in recordedTables" :key="table.id">
             <a class="btn rounded-0 navbar-link sub-item" v-bind:href="$sanitize('/table/' + table.table_name)">{{
     table.table_name }}</a>
-            <button v-if="getEditMode" class="btn btn-danger position-absolute rounded-0 h-50" style="right: 0">
+            <button v-if="isAdmin == true" class="btn btn-danger position-absolute rounded-0 h-50" style="right: 0">
               <font-awesome-icon icon="trash-can" />
             </button>
           </div>
 
-          <a v-if="getEditMode" class="btn rounded-0 navbar-link sub-item dropdown-toggle" id="dropdownMenuLink"
+          <a v-if="isAdmin" class="btn rounded-0 navbar-link sub-item dropdown-toggle" id="dropdownMenuLink"
             data-bs-toggle="dropdown" aria-bs-haspopup="true" aria-bs-expanded="false">
           </a>
-          <div v-if="getEditMode" class="dropdown-menu" aria-bs-labelledby="dropdownMenuLink">
+          <div v-if="isAdmin" class="dropdown-menu" aria-bs-labelledby="dropdownMenuLink">
             <a v-for="table in remainingTables" @click="addRemainingTableToRecorded" :key="table" class="dropdown-item"
               href="#">
               {{ table }}
@@ -90,9 +94,6 @@ export default {
       }
 
       return user.is_admin;
-    },
-    getEditMode() {
-      return SettingsController.getEditMode();
     }
   },
   methods: {
@@ -105,11 +106,7 @@ export default {
       this.$router.go();
       this.$router.push('/login');
     },
-    changeEditMode() {
-      SettingsController.setEditMode(!SettingsController.getEditMode());
-      this.$router.go();
-    },
-    addRemainingTableToRecorded() {      
+    addRemainingTableToRecorded() {
       alert("Таблица должна добавиться в список учтенных");
     }
   }
@@ -136,7 +133,7 @@ export default {
 
 .application {
   font-family: "Jura", serif;
- 
+
 }
 
 .navbar-link {
@@ -167,16 +164,16 @@ body {
   height: 100vh;
 }
 
-.large-font{
+.large-font {
   font-size: x-large !important;
 }
 
-.small-font{
+.small-font {
   font-size: small !important;
 }
 
 #app {
-  font-family: Jura, sans-serif;  
+  font-family: Jura, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

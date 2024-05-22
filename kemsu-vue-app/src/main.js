@@ -38,8 +38,9 @@ const routes = [
     component: MainPage,
     meta: {
       requiresAuth: true,
-      requiresEdit: false
-    }
+      requiresEdit: false,
+      title: "Главная страница"
+    },
   },
   {
     path: '/welcome',
@@ -52,7 +53,8 @@ const routes = [
     component: EditMainPage,
     meta: {
       requiresAuth: true,
-      requiresEdit: true
+      requiresEdit: true,
+      title: "Редактировать главную страницу"
     }
   },
   {
@@ -60,6 +62,7 @@ const routes = [
     name: 'SingleObject',
     component: SingleObjectComponent,
     meta: {
+      title: "Просмотр экземпляра таблицы \"tableName\"",
       requiresAuth: true
     }
   },
@@ -68,6 +71,7 @@ const routes = [
     name: 'CreateSingleStudent',
     component: SingleObjectComponent,
     meta: {
+      title: "Создать новый экземпляр таблицы \"tableName\"",
       requiresAuth: true
     }
   },
@@ -76,6 +80,7 @@ const routes = [
     name: 'Table',
     component: TableComponent,
     meta: {
+      title: "Таблица \"tableName\"",
       requiresAuth: true,
       requiresEdit: false
     }
@@ -86,7 +91,8 @@ const routes = [
     component: EditTableComponent,
     meta: {
       requiresAuth: true,
-      requiresEdit: true
+      requiresEdit: true,
+      title: "Редактировать таблицу"
     }
   },
   {
@@ -94,7 +100,8 @@ const routes = [
     name: 'Config',
     component: ConfigComponent,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      title: "Конфигурация"
     }
   },
   {
@@ -102,18 +109,25 @@ const routes = [
     name: 'Settings',
     component: SettingsComponent,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      title: "Настройки"
     }
   },
   {
     path: '/login',
     name: 'Login',
+    meta: {
+      title: "Вход"
+    },
     component: AuthComponent,
   },
   {
     path: '/login/tfa',
     name: 'Tfa',
-    component: CodeComponent
+    component: CodeComponent,
+    meta: {
+      title: "Проверочный код"
+    },
   }
 ];
 const router = createRouter({
@@ -121,6 +135,13 @@ const router = createRouter({
   routes
 });
 router.beforeEach((to, from, next) => {
+  let titleWithParams = to.meta?.title ?? 'Универсальная Консоль';
+  if (to.params) {
+    Object.getOwnPropertyNames(to.params).forEach(param => {
+      titleWithParams = titleWithParams.replace(param, to.params[param]);
+    });
+  }
+  document.title = titleWithParams;  
   Trans.switchLanguage(Trans.getPersistedLocale());
 
   const loggedIn = thisstore.state.auth.status.loggedIn;

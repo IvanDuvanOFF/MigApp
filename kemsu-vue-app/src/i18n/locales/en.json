@@ -1,4 +1,7 @@
 {
+    "index": {
+        "title": "Главная страница"
+    },
     "auth": {
         "username": "Login",
         "password": "Password",
