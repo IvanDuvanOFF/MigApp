@@ -1,4 +1,4 @@
-<template>    
+<template>
     <div class="col table-responsive" style="margin-top: 100px;">
         <div class="input-group">
             <span class="input-group-text">
@@ -10,6 +10,9 @@
                 aria-bs-expanded="false" id="dropdownAttrs">
                 &#x2699;
             </button>
+            <a class="btn btn-success" @click="exportTable" id="exportButton">
+                <font-awesome-icon icon="file-excel"></font-awesome-icon>
+            </a>
             <div class="dropdown-menu" aria-bs-labelledby="dropdownAttrs">
                 <div class="form-check" v-for="attr in attributes" :key="attr">
                     <input :name="attr.attribute_name" type="checkbox" class="form-check-input" v-model="attr.is_shown"
@@ -19,13 +22,33 @@
                     </label>
                 </div>
             </div>
-            <a class="btn btn-primary" v-bind:href="$sanitize('/table/' + this.tableName + '/create')"
-                    type="button">
-                    <font-awesome-icon icon="user-plus" />
-                </a>
+            <button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#filterForm"
+                aria-expanded="false" aria-controls="filterForm">
+                <font-awesome-icon icon="filter" />
+            </button>
+            <a class="btn btn-primary" v-bind:href="$sanitize('/table/' + this.tableName + '/create')" type="button">
+                <font-awesome-icon icon="user-plus" />
+            </a>
         </div>
+
+        <form @submit.prevent="applyFilter" class="card card-body collapse text-bg-dark" id="filterForm">
+            <DynamicFilter :attribute="attr" v-for="attr in filtered_attributes" :key="attr">
+
+            </DynamicFilter>
+            <div class="input-group mt-5 w-75 m-auto d-inline">
+                <button type="submit" class="btn btn-success w-50">
+                    <font-awesome-icon icon="save" />
+                </button>
+                <button type="button" @click="clearFilterForm" class="btn btn-danger w-50">
+                    <font-awesome-icon icon="trash-can" />
+                </button>
+            </div>
+
+            
+        </form>
+
         <div class="table-responsive card mt-5">
-            <table class="table table-striped table-hover" id="table" data-sorter>
+            <table class="table table-bordered table-striped table-hover" id="table" data-sorter>
                 <thead>
                     <tr>
                         <th>
@@ -48,15 +71,14 @@
                                     @click="activeEditMode(example.id)">
                                     <font-awesome-icon icon="pen" />
                                 </button>
-                                <a class="btn btn-info" v-bind:href="$sanitize('/table/' + this.tableName + '/' + example.id)" :name="example.id">
+                                <a class="btn btn-info"
+                                    v-bind:href="$sanitize('/table/' + this.tableName + '/' + example.id)"
+                                    :name="example.id">
                                     <font-awesome-icon icon="pen" />
                                 </a>
                             </div>
                         </td>
-                        <DynamicForm v-if="examplesInEditMode.includes(example.id)" :modelValue="example"
-                            :attributes="filtered_attributes">
 
-                        </DynamicForm>
                         <td v-for="attr in filtered_attributes" :key="attr">
                             <DynamicInput :attribute="attr" :disabled="false" :modelValue="example"
                                 :key="attr.attribute_name" v-if="examplesInEditMode.includes(example.id)" />
@@ -68,10 +90,9 @@
 
                 </tbody>
             </table>
-            <form @submit="print" id="form1">
-            </form>            
-        </div>        
-    </div>    
+
+        </div>
+    </div>
 
 </template>
 
@@ -79,16 +100,14 @@
 import StudentService from '@/services/StudentService.js';
 import AttributeService from '@/services/AttributeService.js';
 import TableService from '@/services/TableService';
-// import DynamicFilter from '@/components/dynamic-components/DynamicFilter.vue';
-import DynamicForm from '@/components/dynamic-components/DynamicForm.vue';
+import DynamicFilter from '@/components/dynamic-components/DynamicFilter.vue';
 import DynamicInput from './dynamic-components/DynamicInput.vue';
 
 export default {
     name: "TableComponent",
     components: {
-        // DynamicFilter,
-        DynamicInput,
-        DynamicForm
+        DynamicFilter,
+        DynamicInput
     },
     data() {
         let tableName = this.$route.params.tableName;
@@ -129,8 +148,14 @@ export default {
         };
     },
     methods: {
-        print() {
-            alert(1);
+        exportTable() {
+            let elem = document.getElementById('exportButton');
+            let table = document.getElementById("table");
+            let html = table.outerHTML;
+            let url = 'data:application/vnd.ms-excel,' + escape(html); // Set your html table into url 
+            elem.setAttribute("href", url);
+            elem.setAttribute("download", "export.xls"); // Choose the file name
+            return false;
         },
         initSorter(event) {
             let table = document.getElementById("table");

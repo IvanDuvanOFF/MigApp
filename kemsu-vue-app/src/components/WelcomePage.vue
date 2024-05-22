@@ -8,7 +8,7 @@
         </a>
 
         <a class="btn btn-danger" data-bs-toggle="collapse" href="#registerForm" aria-expanded="false"
-            aria-controls="collapseExample">
+            aria-controls="registerForm">
             {{ $t("welcome.register") }}
         </a>
 
