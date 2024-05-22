@@ -19,6 +19,25 @@ class TableService {
             table_name: table_name
         });
     }
+
+    getTableData(config_id, table_id){
+        return axios.get('/tables/data', {
+            config_id: config_id,
+            id: table_id
+        });
+    }
+
+    updateTableData(table_id, params){
+        params.table_id = table_id;
+        return axios.post('/tables/data', params)
+    }
+
+    removeTableData(table_id, id){
+        return axios.delete('/table/data', {
+            table_id: table_id,
+            id: id
+        })
+    }
 }
 
 export default new TableService();
