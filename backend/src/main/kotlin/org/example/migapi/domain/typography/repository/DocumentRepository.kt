@@ -1,0 +1,8 @@
+package org.example.migapi.domain.typography.repository
+
+import org.example.migapi.domain.typography.model.Document
+import org.springframework.data.jpa.repository.JpaRepository
+import java.util.UUID
+
+interface DocumentRepository : JpaRepository<Document, UUID> {
+}

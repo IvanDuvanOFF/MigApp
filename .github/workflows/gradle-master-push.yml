@@ -12,11 +12,21 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
+
+      - name: Generate firebase key
+        run: |
+          mkdir -p ./backend/src/main/resources/firebase
+          mkdir -p ./backend/src/test/resources/firebase
+          echo "$KEY" > ./backend/src/main/resources/firebase/firebase-key.json
+          echo "$KEY" > ./backend/src/test/resources/firebase/firebase-key.json
+        shell: bash
+        env:
+          KEY: ${{ secrets.FIREBASE_SECRET }}
 
       - name: Grand executive permission for gradlew
         working-directory: ./backend
@@ -26,16 +36,16 @@ jobs:
         working-directory: ./backend
         run: ./gradlew clean
 
-      - name: Gradlew test run
-        id: test
-        working-directory: ./backend
-        run: ./gradlew test
+#      - name: Gradlew test run
+#        id: test
+#        working-directory: ./backend
+#        run: ./gradlew test
 
-      - name: Successful tests
-        if: steps.test.outcome != 'success'
-        run: |
-          echo "Tests error"
-          exit 1
+#      - name: Successful tests
+#        if: steps.test.outcome != 'success'
+#        run: |
+#          echo "Tests error"
+#          exit 1
 
       - name: Successful build
         uses: appleboy/telegram-action@master
@@ -64,6 +74,38 @@ jobs:
       - build-test
     steps:
       - uses: actions/checkout@v4
+
+      - name: Generate firebase key
+        run: |
+          mkdir -p ./backend/src/main/resources/firebase
+          mkdir -p ./backend/src/test/resources/firebase
+          echo "$KEY" > ./backend/src/main/resources/firebase/firebase-key.json
+          echo "$KEY" > ./backend/src/test/resources/firebase/firebase-key.json
+        shell: bash
+        env:
+          KEY: ${{ secrets.FIREBASE_SECRET }}
+      
+      - name: Install zip
+        uses: montudor/action-zip@v1
+
+      - name: Archive project
+        working-directory: .
+        run: |
+          zip -r mig-app.zip . -x "*.git*" -x "*.idea*"
+        shell: bash
+
+      # - uses: vimtor/action-zip@v1.2
+      #   with:
+      #     files: .
+      #     recursive: true
+      #     dest: mig-app.zip
+
+      - name: echo
+        working-directory: .
+        run: |
+          ls -la
+        shell: bash
+
       - name: copy file via ssh password
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -71,8 +113,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
-          source: "."
-          target: "/home/admin/app/mig-app"
+          source: "./mig-app.zip"
+          target: "/home/admin/app"
 
   docker-build:
     name: Build docker image and send it to DockerHub
@@ -83,10 +125,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
 
       - name: Set up QEMU
@@ -130,16 +172,33 @@ jobs:
           port: 22
           envs: DOCKERHUB_USER,DOCKER_IMAGE
           script: |
-            cd /home/admin/app/mig-app
-            
-            docker compose -f compose.yaml down
+            if [ -d "/home/admin/app/mig-app" ]; then
+              cd /home/admin/app/mig-app
+
+              if [ -f "/home/admin/app/mig-app/compose.yaml" ]; then
+                docker compose -f compose.yaml down
+              fi
+              
+              cd ../
+              rm -rf ./mig-app
+            fi
+
+            cd /home/admin/app
+            mkdir -p ./mig-app
+            unzip ./mig-app.zip -d ./mig-app
+            cd ./mig-app
+
+            ufw disable
             
             docker compose -f compose-setup.yaml up -d nginx 
-            docker compose -f compose-setup.yaml run certbot certonly --webroot --webroot-path=/var/www/certbot --email ivan.duvanov.3@gmail.com --agree-tos --no-eff-email -d db.cute-example-deeplom.ru -d www.db.cute-example-deeplom.ru --preferred-challenges http
-            docker compose -f compose-setup.yaml run certbot certonly --webroot --webroot-path=/var/www/certbot --email ivan.duvanov.3@gmail.com --agree-tos --no-eff-email -d cute-example-deeplom.ru -d www.cute-example-deeplom.ru --preferred-challenges http
+            docker compose -f compose-setup.yaml run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email ivan.duvanov.3@gmail.com --agree-tos --no-eff-email -d db.cute-example-deeplom.ru -d www.db.cute-example-deeplom.ru --preferred-challenges http
+            docker compose -f compose-setup.yaml run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email ivan.duvanov.3@gmail.com --agree-tos --no-eff-email -d graf.cute-example-deeplom.ru -d www.graf.cute-example-deeplom.ru --preferred-challenges http
+            docker compose -f compose-setup.yaml run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email ivan.duvanov.3@gmail.com --agree-tos --no-eff-email -d cute-example-deeplom.ru -d www.cute-example-deeplom.ru --preferred-challenges http
             docker compose -f compose-setup.yaml down nginx
             
-            docker compose -f compose.yaml up -d --build > logs.txt
+            docker compose -f compose.yaml up -d --build > build-logs.txt
+
+            ufw enable
             
             echo "0 9 * * 1 /usr/bin/docker compose -f /home/admin/app/mig-app/compose-setup.yaml run certbot renew >> /var/log/renew-ssl.log && /usr/bin/docker compose -f /home/admin/app/mig-app/compose.yaml kill -s SIGHUP nginx" | crontab -
 

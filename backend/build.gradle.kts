@@ -17,7 +17,7 @@ group = "org.example"
 version = "0.0.1-SNAPSHOT"
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.VERSION_21
 }
 
 repositories {
@@ -46,6 +46,9 @@ dependencies {
 //    logging
 	implementation("org.slf4j:slf4j-api:2.0.9")
 	implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")
+//	implementation("com.github.piomin:logstash-logging-spring-boot-starter:2.0.3")
+	implementation("com.github.loki4j:loki-logback-appender:1.5.1")
+	implementation("io.opentelemetry:opentelemetry-api:1.38.0")
 
 //	serialization
 	implementation("com.google.code.gson:gson:2.8.9")
@@ -61,6 +64,12 @@ dependencies {
 //	migration
 	implementation("org.flywaydb:flyway-core")
 
+//	firebase
+	implementation("com.google.firebase:firebase-admin:9.2.0")
+
+//	files
+	implementation("ru.homyakin:iuliia-java:1.8")
+
 //	kotlin
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -73,6 +82,14 @@ dependencies {
 	implementation("io.swagger.core.v3:swagger-annotations:2.2.20")
 	implementation("org.springdoc:springdoc-openapi-ui:1.7.0")
 	implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
+
+//	prometheus
+	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+
+//	trace
+	implementation("io.micrometer:micrometer-tracing-bridge-brave:1.3.0")
+	implementation("io.zipkin.reporter2:zipkin-reporter-brave:3.4.0")
+	implementation("net.ttddyy.observation:datasource-micrometer-spring-boot:1.0.3")
 
 //	database
 	runtimeOnly("org.postgresql:postgresql")
@@ -102,7 +119,7 @@ dependencies {
 tasks.withType<KotlinCompile> {
 	kotlinOptions {
 		freeCompilerArgs += "-Xjsr305=strict"
-		jvmTarget = "17"
+		jvmTarget = "21"
 	}
 }
 

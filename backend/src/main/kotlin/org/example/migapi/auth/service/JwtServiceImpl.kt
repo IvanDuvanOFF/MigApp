@@ -5,21 +5,23 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
-import org.example.migapi.core.domain.model.entity.User
+import org.example.migapi.domain.account.model.User
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Scope
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import java.security.Key
 import java.util.*
 
 @Service
+@Scope("prototype")
 class JwtServiceImpl(
     @Value("\${mig.jwt.secret}")
     private val jwtSecret: String,
     @Value("\${mig.jwt.expiration-ms}")
-    private val jwtExpirationMs: Int,
+    private val jwtExpirationMs: Long,
     @Value("\${mig.jwt.refresh-expiration}")
-    private val refreshExpiration: Int
+    private val refreshExpiration: Long
 ) : JwtService {
 
     override fun generateToken(user: User, extraClaims: Map<String, Any>): String {
@@ -42,19 +44,19 @@ class JwtServiceImpl(
     override fun extractExtraClaim(token: String, claimName: String): String =
         extractAllClaims(token)[claimName] as String
 
-    override fun isTokenValid(token: String, user: User, remoteIp: String): Boolean {
+    override fun isTokenValid(token: String, user: User): Boolean {
         val username = extractUsername(token)
-        val jwtIp = extractExtraClaim(token, AuthenticationService.REMOTE_ADDRESS_NAME)
 
-        return (username == user.username && jwtIp == remoteIp && !isTokenExpired(token))
+        return (username == user.username && !isTokenExpired(token))
     }
 
-    override fun isTokenValid(token: String, userDetails: UserDetails, remoteIp: String): Boolean {
+    override fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
         val username = extractUsername(token)
-        val jwtIp = extractExtraClaim(token, AuthenticationService.REMOTE_ADDRESS_NAME)
 
-        return (username == userDetails.username && jwtIp == remoteIp && !isTokenExpired(token))
+        return (username == userDetails.username && !isTokenExpired(token))
     }
+
+    override fun extractExpirationDate(token: String): Date = extractClaim(token, Claims::getExpiration)
 
     private fun isTokenExpired(token: String): Boolean = extractClaim(token, Claims::getExpiration).before(Date())
 

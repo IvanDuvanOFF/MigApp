@@ -28,13 +28,16 @@ spring:
     locations:
       - classpath:/db/migration
 #      - classpath:/db/callback
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 15MB
 
 mig:
   jwt:
     secret: nevergonnagiveyouupnevergonnaletyoudownnevergonnarunaroundanddesertyou
     expiration-ms: 1440000
     refresh-expiration: 10080000
-    verification-expiration: 1440000
   tfa:
     expiration-ms: 600000
 server:
@@ -50,8 +53,15 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
-      base-path: /actuator
+        include: 'health, prometheus, info, metric'
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
 
 logging:
   level:
@@ -59,3 +69,12 @@ logging:
       springframework:
         web: DEBUG
       hibernate: DEBUG
+  config: classpath:logback.xml
+
+firebase:
+  key: 'firebase/firebase-key.json'
+
+storage: 'C:/Users/Ivan/IdeaProjects/MigApp/tmp/app/mig-api'
+
+kemsu:
+  logo: 'https://vuzoteka.ru/files/images/80/c1/18/80c118dbda0ee2600bbd9aa76b9594dc_logo7.jpeg'

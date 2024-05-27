@@ -1,0 +1,1 @@
+alter table notifications drop column recipient_token;

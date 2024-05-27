@@ -18,6 +18,11 @@ spring:
           starttls:
             enable: true
             required: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 15MB
+
   cache:
     type: redis
   data:
@@ -33,9 +38,8 @@ spring:
 mig:
   jwt:
     secret: nevergonnagiveyouupnevergonnaletyoudownnevergonnarunaroundanddesertyou
-    expiration-ms: 1440000
-    refresh-expiration: 10080000
-    verification-expiration: 1440000
+    expiration-ms: 604800000
+    refresh-expiration: 2628000000
   tfa:
     expiration-ms: 600000
 server:
@@ -47,9 +51,29 @@ springdoc:
     enabled: true
     path: /api/swagger/api-docs
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'health, prometheus, info, metric'
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+
 logging:
   level:
     org:
       springframework:
         web: DEBUG
       hibernate: ERROR
+  config: classpath:logback-dev.xml
+
+firebase:
+  key: 'firebase/firebase-key.json'
+
+storage: '/tmp/app/mig-api'

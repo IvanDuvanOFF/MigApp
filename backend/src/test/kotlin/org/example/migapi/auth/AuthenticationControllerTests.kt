@@ -3,16 +3,14 @@ package org.example.migapi.auth
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions
 import org.example.migapi.auth.dto.*
-import org.example.migapi.auth.exception.VerificationTokenExpiredException
-import org.example.migapi.auth.exception.VerificationTokenNotFoundException
+import org.example.migapi.auth.exception.BadCredentialsException
 import org.example.migapi.auth.service.EmailService
 import org.example.migapi.auth.service.TotpService
-import org.example.migapi.auth.service.VerificationTokenService
 import org.example.migapi.config.TestRedisConfiguration
-import org.example.migapi.core.domain.dto.UserDto
-import org.example.migapi.core.domain.model.entity.VerificationToken
+import org.example.migapi.domain.account.dto.UserDto
+import org.example.migapi.auth.model.TotpCode
 import org.example.migapi.core.domain.model.enums.ERole
-import org.example.migapi.core.domain.service.UserService
+import org.example.migapi.domain.account.service.UserService
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -33,8 +31,6 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultActionsDsl
 import org.springframework.test.web.servlet.post
 import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
-import java.util.*
 
 
 @SpringBootTest(classes = [TestRedisConfiguration::class])
@@ -46,9 +42,7 @@ import java.util.*
 ])
 class AuthenticationControllerTests(
     @Value("\${mig.jwt.refresh-expiration}")
-    private val refreshExpiration: Int,
-    @Value("\${mig.jwt.verification-expiration}")
-    private val verificationExpiration: Int
+    private val refreshExpiration: Int
 ) {
     @Autowired
     private lateinit var mapper: ObjectMapper
@@ -65,9 +59,6 @@ class AuthenticationControllerTests(
     @MockBean
     private lateinit var emailService: EmailService
 
-    @MockBean
-    private lateinit var verificationTokenService: VerificationTokenService
-
     @BeforeEach
     fun clearDb() = userService.dropTable()
 
@@ -77,14 +68,16 @@ class AuthenticationControllerTests(
         private const val BASIC_URL = "/api/auth"
 
         const val SIGN_URL = "$BASIC_URL/signing"
-        const val SIGN_TFA_URL = "$SIGN_URL/tfa"
+        const val SIGN_TFA_URL = "$BASIC_URL/tfa"
         const val REFRESH_URL = "$BASIC_URL/refresh"
         const val RESTORE_URL = "$BASIC_URL/restore"
+        const val BLOCK_URL = "$RESTORE_URL/sending_option"
 
         const val ACCESS_TOKEN = "$.access_token"
         const val REFRESH_TOKEN = "$.refresh_token"
         const val TFA_ENABLED = "$.tfa_enabled"
         const val STATUS_CODE = "$.status.code"
+        const val USERNAME = "$.username"
     }
 
     fun generateTestUser(isActive: Boolean = true, tfaEnabled: Boolean = false): UserDto = UserDto(
@@ -146,12 +139,16 @@ class AuthenticationControllerTests(
     @Test
     fun userCanSignInTfa() {
         val userDto = generateTestUser(isActive = true, tfaEnabled = true)
-        userService.saveUser(userDto)
+        val user = userService.saveUser(userDto)
         val request = SignRequest(userDto.username, "test")
 
         val totp = "666777"
+        val totpCode = TotpCode(
+            tfaId = TotpCode.TotpCodeId(code = totp, user),
+            expirationDate = LocalDateTime.now().plusHours(1)
+        )
 
-        Mockito.`when`(totpService.validateCode(any(), eq(totp))).thenReturn(true)
+        Mockito.`when`(totpService.findTfaByUser(any(), eq(totp))).thenReturn(totpCode)
 
         performRequest(SIGN_URL, request)
             .andExpect {
@@ -180,7 +177,7 @@ class AuthenticationControllerTests(
 
         val totp = "666777"
 
-        Mockito.`when`(totpService.validateCode(any(), eq(totp))).thenReturn(true)
+        Mockito.`when`(totpService.findTfaByUser(any(), any())).thenThrow(BadCredentialsException())
 
         performRequest(SIGN_URL, request)
             .andExpect {
@@ -205,8 +202,7 @@ class AuthenticationControllerTests(
         userService.saveUser(userDto)
         val request = SignRequest(userDto.username, "test")
 
-        val totp = "666777"
-        Mockito.`when`(totpService.validateCode(any(), eq(totp))).thenReturn(true)
+        Mockito.`when`(totpService.findTfaByUser(any(), any())).thenThrow(BadCredentialsException())
 
         performRequest(SIGN_URL, request)
             .andExpect {
@@ -294,110 +290,165 @@ class AuthenticationControllerTests(
     @Test
     fun userCanRestore() {
         val userDto = generateTestUser()
-        val user = userService.saveUser(userDto)
-        val token = UUID.randomUUID()
-        val verificationToken = VerificationToken(
-            token = token,
-            expirationDate = LocalDateTime.now().plus(verificationExpiration.toLong(), ChronoUnit.MILLIS),
-            user = user
+        userService.saveUser(userDto)
+
+        val blockRequest = BlockRequest(email = userDto.email)
+
+        val totp = "666777"
+
+        Mockito.`when`(totpService.generateCode(any())).thenReturn(totp)
+
+        performRequest(BLOCK_URL, blockRequest).andExpect {
+            status { isOk() }
+            content { contentType(MediaType.APPLICATION_JSON) }
+            content { jsonPath(USERNAME, Matchers.matchesPattern(userDto.username)) }
+        }
+
+        val user = userService.findUserByUsername(userDto.username)
+        val totpCode = TotpCode(
+            tfaId = TotpCode.TotpCodeId(code = totp, user),
+            expirationDate = LocalDateTime.now().plusHours(1)
         )
-
-        Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
-
-        performRequest(RESTORE_URL, mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
+        Mockito.`when`(totpService.findTfaByUser(any(), eq(totp))).thenReturn(totpCode)
 
         Assertions.assertThat(user.isActive).isFalse()
 
-        Mockito.`when`(verificationTokenService.deleteVerificationToken(eq(token.toString())))
-            .thenReturn(verificationToken)
+        val restoreRequest = RestoreRequest(
+            verification = VerificationRequest(username = userDto.username, code = totp),
+            passwords = Passwords("newpass", "newpass")
+        )
 
-        performRequest("$RESTORE_URL/$token", Passwords("newpass", "newpass")).andExpect { status { isOk() } }
+        performRequest(RESTORE_URL, restoreRequest).andExpect { status { isOk() } }
     }
 
     @Test
     fun userCannotRestoreIncorrectPasswords() {
         val userDto = generateTestUser()
-        val token = UUID.randomUUID()
-        val user = userService.saveUser(userDto)
-        val verificationToken = VerificationToken(
-            token = token,
-            expirationDate = LocalDateTime.now().plus(verificationExpiration.toLong(), ChronoUnit.MILLIS),
-            user = user
-        )
+        userService.saveUser(userDto)
 
-        Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
+        val blockRequest = BlockRequest(email = userDto.email)
 
-        performRequest(RESTORE_URL, mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
+        val totp = "666777"
 
+        Mockito.`when`(totpService.generateCode(any())).thenReturn(totp)
+
+        performRequest(BLOCK_URL, blockRequest).andExpect {
+            status { isOk() }
+            content { contentType(MediaType.APPLICATION_JSON) }
+            content { jsonPath(USERNAME, Matchers.matchesPattern(userDto.username)) }
+        }
+
+        val user = userService.findUserByUsername(userDto.username)
         Assertions.assertThat(user.isActive).isFalse()
 
-        performRequest("$RESTORE_URL/$token", Passwords("newpass", "fakepass"))
-            .andExpect { status { isBadRequest() } }
+        val totpCode = TotpCode(
+            TotpCode.TotpCodeId(totp, user),
+            expirationDate = LocalDateTime.now().plusHours(1)
+        )
+        Mockito.`when`(totpService.findTfaByUser(any(), eq(totp))).thenReturn(totpCode)
+
+        val restoreRequest = RestoreRequest(
+            verification = VerificationRequest(username = userDto.username, code = totp),
+            passwords = Passwords("newpass", "fakepass")
+        )
+
+        performRequest(RESTORE_URL, restoreRequest).andExpect { status { isBadRequest() } }
     }
 
     @Test
     fun userCannotRestoreUserRestored() {
         val userDto = generateTestUser()
-        val token = UUID.randomUUID()
         val user = userService.saveUser(userDto)
-        val verificationToken = VerificationToken(
-            token = token,
-            expirationDate = LocalDateTime.now().plus(verificationExpiration.toLong(), ChronoUnit.MILLIS),
-            user = user
+
+        val blockRequest = BlockRequest(email = userDto.email)
+
+        val totp = "666777"
+
+        Mockito.`when`(totpService.generateCode(any())).thenReturn(totp)
+
+        performRequest(BLOCK_URL, blockRequest).andExpect {
+            status { isOk() }
+            content { contentType(MediaType.APPLICATION_JSON) }
+            content { jsonPath(USERNAME, Matchers.matchesPattern(userDto.username)) }
+        }
+
+        val totpCode = TotpCode(
+            tfaId = TotpCode.TotpCodeId(code = totp, user),
+            expirationDate = LocalDateTime.now().plusHours(1)
+        )
+        Mockito.`when`(totpService.findTfaByUser(any(), eq(totp))).thenReturn(totpCode)
+
+        Assertions.assertThat(user.isActive).isTrue()
+
+        val restoreRequest = RestoreRequest(
+            verification = VerificationRequest(username = userDto.username, code = totp),
+            passwords = Passwords("newpass", "newpass")
         )
 
-        Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
-
-        performRequest(RESTORE_URL, mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
-
-        user.isActive = true
-
-        Mockito.`when`(verificationTokenService.deleteVerificationToken(any())).thenReturn(verificationToken)
-
-        performRequest("$RESTORE_URL/$token", Passwords("newpass", "newpass"))
-            .andExpect { status { isConflict() } }
+        performRequest(RESTORE_URL, restoreRequest).andExpect { status { isConflict() } }
     }
 
     @Test
     fun userCannotRestoreTokenNotFound() {
         val userDto = generateTestUser()
-        val token = UUID.randomUUID()
-        val user = userService.saveUser(userDto)
-        val verificationToken = VerificationToken(
-            token = token,
-            expirationDate = LocalDateTime.now().plus(verificationExpiration.toLong(), ChronoUnit.MILLIS),
-            user = user
+        userService.saveUser(userDto)
+
+        val blockRequest = BlockRequest(email = userDto.email)
+
+        val totp = "666777"
+
+        Mockito.`when`(totpService.generateCode(any())).thenReturn(totp)
+
+        performRequest(BLOCK_URL, blockRequest).andExpect {
+            status { isOk() }
+            content { contentType(MediaType.APPLICATION_JSON) }
+            content { jsonPath(USERNAME, Matchers.matchesPattern(userDto.username)) }
+        }
+
+        val user = userService.findUserByUsername(userDto.username)
+        Mockito.`when`(totpService.findTfaByUser(any(), any())).thenThrow(BadCredentialsException())
+
+        Assertions.assertThat(user.isActive).isFalse()
+
+        val restoreRequest = RestoreRequest(
+            verification = VerificationRequest(username = userDto.username, code = ""),
+            passwords = Passwords("newpass", "newpass")
         )
 
-        Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
-
-        performRequest(RESTORE_URL, mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
-
-        Mockito.`when`(verificationTokenService.deleteVerificationToken(any()))
-            .thenThrow(VerificationTokenNotFoundException("Token not found"))
-
-        performRequest("$RESTORE_URL/$token", Passwords("newpass", "newpass"))
-            .andExpect { status { isNotFound() } }
+        performRequest(RESTORE_URL, restoreRequest).andExpect { status { isBadRequest() } }
     }
 
     @Test
     fun userCannotRestoreTokenExpired() {
         val userDto = generateTestUser()
-        val token = UUID.randomUUID()
-        val user = userService.saveUser(userDto)
-        val verificationToken = VerificationToken(
-            token = token,
-            expirationDate = LocalDateTime.now().plus(verificationExpiration.toLong(), ChronoUnit.MILLIS),
-            user = user
+        userService.saveUser(userDto)
+
+        val blockRequest = BlockRequest(email = userDto.email)
+
+        val totp = "666777"
+
+        Mockito.`when`(totpService.generateCode(any())).thenReturn(totp)
+
+        performRequest(BLOCK_URL, blockRequest).andExpect {
+            status { isOk() }
+            content { contentType(MediaType.APPLICATION_JSON) }
+            content { jsonPath(USERNAME, Matchers.matchesPattern(userDto.username)) }
+        }
+
+        val user = userService.findUserByUsername(userDto.username)
+        Assertions.assertThat(user.isActive).isFalse()
+
+        val totpCode = TotpCode(
+            tfaId = TotpCode.TotpCodeId(code = totp, user),
+            expirationDate = LocalDateTime.now()
+        )
+        Mockito.`when`(totpService.findTfaByUser(any(), any())).thenReturn(totpCode)
+
+        val restoreRequest = RestoreRequest(
+            verification = VerificationRequest(username = userDto.username, code = totp),
+            passwords = Passwords("newpass", "newpass")
         )
 
-        Mockito.`when`(verificationTokenService.createVerificationToken(any())).thenReturn(verificationToken)
-
-        performRequest(RESTORE_URL, mutableMapOf("email" to userDto.email)).andExpect { status { isOk() } }
-
-        Mockito.`when`(verificationTokenService.deleteVerificationToken(any()))
-            .thenThrow(VerificationTokenExpiredException("Verification token has been expired"))
-
-        performRequest("$RESTORE_URL/$token", Passwords("newpass", "newpass")).andExpect { status { isGone() } }
+        performRequest(RESTORE_URL, restoreRequest).andExpect { status { isGone() } }
     }
 }
