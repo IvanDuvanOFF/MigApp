@@ -1,0 +1,27 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: admin-backend
+
+  datasource:
+    username: myuser
+    password: secret
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5433/mydatabase
+
+  docker:
+    compose:
+      enabled: true
+      file: admin-compose.yaml
+
+  flyway:
+    locations:
+      - classpath:/db/migration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
