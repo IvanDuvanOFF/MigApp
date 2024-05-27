@@ -62,5 +62,7 @@ create table attribute (
     is_nullable bool not null default true,
     reference_table text,
     reference_column text,
-    check_constraint text
+    check_constraint text,
+
+    primary key (table_id, name)
 );
