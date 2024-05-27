@@ -56,6 +56,33 @@ services:
       retries: 3
       start_period: 90s
 
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=ivan.duvanov.3@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=pASSword
+      - PGADMIN_CONFIG_SERVER_MODE=False
+    networks:
+      app-network:
+        ipv4_address: 192.168.112.4
+    ports:
+      - '5050:80'
+    volumes:
+      - type: volume
+        source: pgadmin-volume
+        target: /var/lib/pgadmin
+    links:
+      - db
+    depends_on:
+      - db
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+
   redis:
     image: redis
     container_name: redis
