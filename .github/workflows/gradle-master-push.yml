@@ -201,6 +201,7 @@ jobs:
             ufw enable
             
             echo "0 9 * * 1 /usr/bin/docker compose -f /home/admin/app/mig-app/compose-setup.yaml run certbot renew >> /var/log/renew-ssl.log && /usr/bin/docker compose -f /home/admin/app/mig-app/compose.yaml kill -s SIGHUP nginx" | crontab -
+            echo "30 7 * * * /usr/bin/docker compose -f /home/admin/app/mig-app/compose.yaml run api-backup -a backup >> /var/log/backup.log" | crontab -
 
       - name: Successful tests
         if: steps.deploy.outcome != 'success'
