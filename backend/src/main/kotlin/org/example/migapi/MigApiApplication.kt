@@ -1,6 +1,8 @@
 package org.example.migapi
 
 import com.google.gson.Gson
+import io.swagger.v3.oas.annotations.OpenAPIDefinition
+import io.swagger.v3.oas.annotations.servers.Server
 import org.example.migapi.core.config.exception.BadRequestException
 import org.example.migapi.core.domain.model.SpringUser
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -15,7 +17,12 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.util.*
 
-
+@OpenAPIDefinition(
+    servers = [
+        Server(url = "https://cute-example-deeplom.ru", description = "Prod server url"),
+        Server(url = "http://localhost:8080", description = "Localhost")
+    ]
+)
 @SpringBootApplication
 @EnableCaching
 class MigApiApplication {
