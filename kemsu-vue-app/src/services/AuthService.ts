@@ -2,19 +2,18 @@ import axios from 'axios'
 
 class AuthService {
     signing(user) {
-        return axios.post("signing", {
+        return axios.post("auth/signing", {
             login: user.username, password: user.password
-        }).then(response => {
+        }).then(response => {                        
             if (response.data) {
                 let userData = {
                     username: user.username,
-                    jwt: response.data.access_token,
-                    tfa: response.data.tfa_enabled,
-                    is_admin: true,
-                    edit_mode: false
+                    access_token: response.data.access_token,
+                    tfa_enabled: response.data.tfa_enabled,
+                    is_admin: true                    
                 }
                 localStorage.setItem('user', JSON.stringify(userData));
-            }
+            }            
             return response.data;
         });
     }
@@ -26,8 +25,8 @@ class AuthService {
         }).then(response => {
             let userData = {
                 username: user.username,
-                jwt: response.data.access_token,
-                tfa: false
+                access_token: response.data.access_token,
+                tfa_enabled: false
             }
             localStorage.setItem('user', JSON.stringify(userData));
 

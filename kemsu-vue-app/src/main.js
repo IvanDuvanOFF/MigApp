@@ -25,7 +25,7 @@ import { auth } from './store/auth.module';
 import i18n from '@/i18n/index.js';
 import Trans from '@/i18n/translate';
 
-import { LOCAL_URL } from './urls';
+import { DEFENDED_BASE_URL } from './urls';
 import MainPage from './components/MainPage.vue';
 import EditController from './store/settings-controller';
 import WelcomePage from './components/WelcomePage.vue';
@@ -176,7 +176,7 @@ router.beforeEach((to, from, next) => {
 const thisstore = createStore(store);
 thisstore.registerModule('auth', auth);
 
-axios.defaults.baseURL = LOCAL_URL;
+axios.defaults.baseURL = DEFENDED_BASE_URL;
 axios.interceptors.response.use(response => {
   return response;
 });
