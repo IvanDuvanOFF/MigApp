@@ -56,7 +56,7 @@ const SettingsController = {
     },
 
     switchTheme() {
-        if (this.getDarkTheme()) {
+        if (this.getDarkTheme() && localStorage.getItem("user")) {
             let app = document.querySelector("#app");
             app.classList.add("dark", "text-white");
 

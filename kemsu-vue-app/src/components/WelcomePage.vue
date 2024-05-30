@@ -1,8 +1,14 @@
 <template>
-    <div id="root">
+    <div class="video-container">
+        <video autoplay="autoplay" muted="muted" loop="loop" id="myVideo" playsinline="playsinline">
+            <source src="../assets/footage.mp4" type="video/mp4">
+        </video>
+    </div>
+
+
+    <div id="root" class="rounded-5 text-white">
         <h1>{{ $t("welcome.title") }}</h1>
 
-        
         <a class="btn btn-primary" href="/login">
             {{ $t("welcome.login") }}
         </a>
@@ -80,3 +86,39 @@ export default {
     }
 }
 </script>
+
+<style>
+.video-container {
+    position: fixed;
+    z-index: -3;
+    background-color: black;
+    height: 75vh;
+    min-height: 25rem;
+    width: 100%;    
+}
+
+video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    object-fit: cover;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -2;
+    -ms-transform: translateX(-50%) translateY(-50%);
+    -moz-transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
+}
+
+body {
+    background-color: rgba(0, 0, 0, 0) !important;
+}
+
+#root {
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    padding: 5em;
+}
+</style>
