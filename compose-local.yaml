@@ -1,6 +1,24 @@
 version: '3.8'
 
 services:
+  api-backup:
+    image: api-backup
+    container_name: api-backup
+    build:
+      context: ./backend/backup
+      dockerfile: ./Dockerfile
+    volumes:
+      - type: bind
+        source: ./tmp/app/mig-api
+        target: /tmp/source
+      - type: volume
+        source: api-volume
+        target: /tmp/dist
+      - type: volume
+        source: api-backup-volume
+        target: /tmp/back
+    command: [ '-a', 'check' ]
+
   app:
     image: mig-api:latest
     container_name: app
@@ -21,6 +39,7 @@ services:
         source: api-volume
         target: /tmp/mig-app/api
     depends_on:
+      - api-backup
       - db
       - redis
     restart: on-failure
@@ -55,6 +74,33 @@ services:
       timeout: 10s
       retries: 3
       start_period: 90s
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=ivan.duvanov.3@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=pASSword
+      - PGADMIN_CONFIG_SERVER_MODE=False
+    networks:
+      app-network:
+        ipv4_address: 192.168.112.4
+    ports:
+      - '5050:80'
+    volumes:
+      - type: volume
+        source: pgadmin-volume
+        target: /var/lib/pgadmin
+    links:
+      - db
+    depends_on:
+      - db
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
 
   redis:
     image: redis
@@ -162,6 +208,8 @@ volumes:
   db-volume:
     driver: local
   api-volume:
+    driver: local
+  api-backup-volume:
     driver: local
   pgadmin-volume:
     driver: local
