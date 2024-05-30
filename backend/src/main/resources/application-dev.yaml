@@ -76,4 +76,7 @@ logging:
 firebase:
   key: 'firebase/firebase-key.json'
 
+kemsu:
+  logo: 'https://vuzoteka.ru/files/images/80/c1/18/80c118dbda0ee2600bbd9aa76b9594dc_logo7.jpeg'
+
 storage: '/tmp/app/mig-api'

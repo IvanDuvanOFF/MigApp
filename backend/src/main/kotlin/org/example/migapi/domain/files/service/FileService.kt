@@ -2,7 +2,6 @@ package org.example.migapi.domain.files.service
 
 import jakarta.persistence.PersistenceException
 import org.example.migapi.core.config.iof.config.FileSystemConfiguration
-import org.example.migapi.domain.files.controller.FileController
 import org.example.migapi.domain.files.exception.FileNotFoundException
 import org.example.migapi.domain.files.exception.FilenameNotFoundException
 import org.example.migapi.domain.files.exception.NoAccessException
@@ -15,14 +14,11 @@ import org.springframework.core.io.Resource
 import org.springframework.core.io.UrlResource
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder
 import ru.homyakin.iuliia.Schemas
 import ru.homyakin.iuliia.Translator
 import java.io.IOException
 import java.net.MalformedURLException
-import java.nio.file.FileSystemException
-import java.nio.file.Files
-import java.nio.file.InvalidPathException
+import java.nio.file.*
 import java.util.*
 
 @Service
@@ -44,7 +40,7 @@ class FileService(
             PersistenceException::class
         ]
     )
-    fun storeFile(file: MultipartFile, username: String): File {
+    fun storePrivateFile(file: MultipartFile, username: String): File {
         val user = userService.findUserByUsername(username)
 
         val translator = Translator(Schemas.GOST_52535)
@@ -53,14 +49,16 @@ class FileService(
         fileName = translator.translate(fileName)
         fileName = "${UUID.randomUUID()}_$fileName"
 
-        Files.copy(file.inputStream, fileSystemConfiguration.path.resolve(fileName))
+        val path = fileSystemConfiguration.path.resolve("${user.id}")
+        if (!Files.exists(path))
+            Files.createDirectory(path)
+
+        Files.copy(file.inputStream, fileSystemConfiguration.path.resolve("${user.id}/$fileName"))
 
         val resultFile = File(
             name = fileName,
             user = user,
-            link = MvcUriComponentsBuilder
-                .fromMethodName(FileController::class.java, "uploadFile", fileName)
-                .toString()
+            link = "/api/files/$fileName"
         )
 
         return resultFile.save()
@@ -75,21 +73,24 @@ class FileService(
             PersistenceException::class
         ]
     )
-    fun load(fileName: String, username: String): Resource {
+    fun loadPrivateFile(fileName: String, username: String): Resource {
         val file = auth(fileName, username)
 
-        val filePath = fileSystemConfiguration.path.resolve(file.name)
+        val filePath = fileSystemConfiguration.path.resolve("${file.user.id}/${file.name}")
 
-        val resource = try {
-            UrlResource(filePath.toUri())
-        } catch (e: MalformedURLException) {
-            throw FileNotFoundException()
-        }
+        return loadResource(filePath)
+    }
 
-        return if (resource.exists() && resource.isReadable)
-            resource
-        else
-            throw FileNotFoundException()
+    @Throws(
+        exceptionClasses = [
+            FileNotFoundException::class,
+            InvalidPathException::class,
+        ]
+    )
+    fun loadPublicFile(fileName: String): Resource {
+        val filePath = fileSystemConfiguration.publicPath.resolve(fileName)
+
+        return loadResource(filePath)
     }
 
     @Throws(
@@ -101,11 +102,10 @@ class FileService(
             PersistenceException::class
         ]
     )
-    fun delete(fileName: String, username: String): Boolean {
+    fun deletePrivateFile(fileName: String, username: String): Boolean {
         val file = auth(fileName, username)
 
-        val filePath = fileSystemConfiguration.path.resolve(file.name)
-
+        val filePath = fileSystemConfiguration.path.resolve("${file.user.id}/${file.name}")
 
         return try {
             file.delete()
@@ -133,4 +133,17 @@ class FileService(
     fun File.delete() = fileRepository.delete(this)
 
     fun File.save() = fileRepository.save(this)
+
+    private fun loadResource(filePath: Path): Resource {
+        val resource = try {
+            UrlResource(filePath.toUri())
+        } catch (e: MalformedURLException) {
+            throw FileNotFoundException()
+        }
+
+        return if (resource.exists() && resource.isReadable)
+            resource
+        else
+            throw FileNotFoundException()
+    }
 }

@@ -37,7 +37,7 @@ services:
     volumes:
       - type: volume
         source: api-volume
-        target: /tmp/mig-app/api
+        target: /tmp/app/mig-api
     depends_on:
       - api-backup
       - db
