@@ -1,5 +1,5 @@
 <template>
-    <div class="modal fade" id="mailModal" @focus="showRecipient" tabindex="-1" aria-labelledby="mailModalLabel" aria-hidden="true">
+    <div class="modal fade text-black" id="mailModal" @focus="showRecipient" tabindex="-1" aria-labelledby="mailModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">

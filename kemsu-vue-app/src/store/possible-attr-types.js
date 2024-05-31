@@ -4,7 +4,8 @@ const PossibleAttributeTypes = [
     "number",
     "phone",
     "date",
-    "string non-required"
+    "string non-required",
+    "password"
 ]
 
 export default PossibleAttributeTypes;

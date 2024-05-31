@@ -24,9 +24,9 @@ class UserService {
         // password: string
         // workspace_id: int        
         return axios.post('users', {
-            username: username,
+            username,
             password,
-            workspace_id: workspace_id
+            workspace_id
         })
     }
 

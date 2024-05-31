@@ -60,28 +60,36 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="d-talbe" v-for="example in filtered_examples" :key="example">
+                    <tr v-for="example in filtered_examples" :key="example">
                         <td>
-                            <div>
-                                <button class="btn btn-success" :name="example.id"
-                                    v-if="examplesInEditMode.includes(example.id)" :form="'form-' + example.id">
-                                    <font-awesome-icon icon="save" />
-                                </button>
-                                <button class="btn btn-primary" :name="example.id" v-else hidden
-                                    @click="activeEditMode(example.id)">
+                            <div v-if="!examplesInEditMode.includes(example.id)">
+                                <button class="btn btn-primary" @click="activeEditMode(example.id)" hidden>
                                     <font-awesome-icon icon="pen" />
                                 </button>
+
                                 <a class="btn btn-info"
                                     v-bind:href="$sanitize('/table/' + this.tableName + '/' + example.id)"
                                     :name="example.id">
-                                    <font-awesome-icon icon="pen" />
+                                    <font-awesome-icon icon="search" />
                                 </a>
+
+                                <button class="btn btn-danger" @click="removeExample(example.id)">
+                                    <font-awesome-icon icon="trash-can" />
+                                </button>                              
+                            </div>
+                            <div v-else>
+                                <button class="btn btn-primary" @click="disactiveEditMode(example.id)">
+                                    <font-awesome-icon icon="pen" />
+                                </button>
+                                <button class="btn btn-success" @click="saveExample(example.id)">
+                                    <font-awesome-icon icon="save" />
+                                </button>
                             </div>
                         </td>
 
                         <td v-for="attr in filtered_attributes" :key="attr">
                             <DynamicInput :attribute="attr" :disabled="false" :modelValue="example"
-                                :key="attr.attribute_name" v-if="examplesInEditMode.includes(example.id)" />
+                                v-if="examplesInEditMode.includes(example.id)" />
                             <span v-else>
                                 {{ example[attr.attribute_name] }}
                             </span>
@@ -130,8 +138,7 @@ export default {
             });
         });
 
-        StudentService.getStudents().then(response => {
-            console.log(response.data);
+        StudentService.getStudents().then(response => {            
             this.examples = response.data;
             this.filtered_examples = JSON.parse(JSON.stringify(this.examples));
         });
@@ -154,7 +161,7 @@ export default {
             let html = table.outerHTML;
             let url = 'data:application/vnd.ms-excel,' + escape(html); // Set your html table into url 
             elem.setAttribute("href", url);
-            elem.setAttribute("download", "export.xls"); // Choose the file name
+            elem.setAttribute("download", this.tableName + ".xls"); // Choose the file name
             return false;
         },
         initSorter(event) {
@@ -247,19 +254,26 @@ export default {
             }
         },
 
+        removeExample(exampleId) {
+            if (confirm(this.$t("confirm.remove"))) {
+                TableService.removeTableData(this.thisTable.id, exampleId).then(() => {
+                    this.update();                    
+                });
+            }
+        },
+
         updateFiltererdAttributes() {
             this.filtered_attributes = this.attributes.filter(function (el) {
                 return el.is_shown;
             });
         },
         activeEditMode(id) {
-            this.examplesInEditMode.push(id);
-            console.log(this.examplesInEditMode);
+            this.examplesInEditMode = [];
+            this.examplesInEditMode.push(id);            
         },
         disactiveEditMode(id) {
             const index = this.examplesInEditMode.indexOf(id);
-            this.examplesInEditMode.splice(index, 1);
-            console.log(this.examplesInEditMode);
+            this.examplesInEditMode.splice(index, 1);            
         },
         getTextFromShownValues(example) {
             let represents = [];
@@ -291,6 +305,18 @@ export default {
             }
         },
 
+        saveExample(){
+            let example = {};
+
+            this.filtered_attributes.forEach((attr) => {
+                let element = document.getElementById(attr.attribute_name);      
+                console.log(document.getElementById(attr.attribute_name).value);
+                example[attr.attribute_name] = element.value;                
+            });
+
+            console.log(example);
+        },
+
         applyFilter(submitEvent) {
             this.filtered_examples = JSON.parse(JSON.stringify(this.examples));
 
@@ -318,20 +344,19 @@ export default {
                 }
             }
         },
-        makeSearch() {
-            console.log(this.search_params);
+        makeSearch() {            
             StudentService.getStudents(this.search_params)
-                .then(response => {
-                    console.log(response.data);
+                .then(response => {                    
                     this.examples = response.data
                 });
         },
-        clearFilterForm() {
+        clearFilterForm(submitEvent) {
             let form = document.getElementById("filterForm");
             for (let element of form.elements) {
                 element.value = "";
             }
             this.search_params = {};
+            this.applyFilter(submitEvent);
         }
     }
 }

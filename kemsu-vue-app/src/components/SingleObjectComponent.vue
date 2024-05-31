@@ -109,7 +109,7 @@ export default {
         },
 
         updateExampleObject() {
-            let inputForm = document.getElementById("inputForm");
+            let inputForm = document.getElementById('form-' + this.example.id);
 
             for (let element of inputForm.elements) {
                 if (element.value) {

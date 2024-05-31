@@ -1,7 +1,7 @@
 <template>
     <div class="col" style="margin-top: 10%;">
         <h1>{{ $t("config.user_manage") }}</h1>
-        <table class="table">
+        <table class="table table-striped">
             <thead>
                 <tr>
                     <th scope="col">{{ $t("config.username") }}</th>
@@ -11,23 +11,66 @@
             </thead>
             <tbody>
                 <tr v-for="user in users" :key="user.id">
-                    <td>{{ user.username }}</td>
-                    <td>{{ user.password }}</td>
-                    <td class="column">
-                        <button class="btn btn-danger">
-                            {{ $t("config.delete") }}
+                    <td v-if="!editList.includes(user.id)">
+                        {{ user.username }}
+                    </td>
+                    <td v-else>
+                        <DynamicInput :attribute="user_attr" :disabled="false" :key="user_attr.attribute_name"
+                            :modelValue="user" />
+                    </td>
+
+
+                    <td v-if="!editList.includes(user.id)">
+                        {{ user.password }}
+                    </td>
+                    <td v-else>
+                        <DynamicInput :attribute="password_attr" :disabled="false" :modelValue="user" />
+                    </td>
+
+                    <td class="column" v-if="!editList.includes(user.id) && !isNewUser">
+                        <button class="btn btn-danger" @click="removeUser(user.id)">
+                            <font-awesome-icon icon="trash-can" />
                         </button>
 
-                        <button class="btn btn-info">
-                            {{ $t("config.edit") }}
+                        <button class="btn btn-info" @click="activeEditMode(user.id)">
+                            <font-awesome-icon icon="pen" />
                         </button>
                     </td>
+
+                    <td v-else-if="!isNewUser">
+                        <button class="btn btn-success" @click="saveUser(user.id)">
+                            <font-awesome-icon icon="save" />
+                        </button>
+
+                        <button class="btn btn-info" @click="disactiveEditMode(user.id)">
+                            <font-awesome-icon icon="pen" />
+                        </button>
+                    </td>
+
+                    <td v-else>
+
+                    </td>
                 </tr>
-                <td colspan="3">
-                    <button class="btn btn-light w-100">
+                <td colspan="3" v-if="isNewUser == false">
+                    <button class="btn btn-light w-100" @click="isNewUser = true">
                         +
                     </button>
                 </td>
+                <tr v-else>
+                    <td>
+                        <DynamicInput :attribute="user_attr" :disabled="false" :modelValue="newUser" />
+                    </td>
+
+                    <td>
+                        <DynamicInput :attribute="password_attr" :disabled="false" :modelValue="newUser" />
+                    </td>
+
+                    <td>
+                        <button class="btn btn-success" @click="addUser">
+                            <font-awesome-icon icon="save" />
+                        </button>
+                    </td>
+                </tr>
             </tbody>
         </table>
 
@@ -46,11 +89,16 @@
 import UserService from '@/services/UserService.js';
 import { LOCAL_URL } from '@/urls';
 import axios from 'axios';
+import DynamicInput from './dynamic-components/DynamicInput.vue';
 
 export default {
+    components: {
+        DynamicInput
+    },
     data() {
         let users = []
         let dbPath = LOCAL_URL;
+        let editList = [];
 
         UserService.getUsers(1).then(response => {
             this.users = response.data;
@@ -58,12 +106,64 @@ export default {
 
         return {
             users,
-            dbPath
+            editList,
+            dbPath,
+            isNewUser: false,
+            newUser: {},
+            user_attr: {
+                attribute_type: "string",
+                attribute_name: "username"
+            },
+            password_attr: {
+                attribute_type: "password",
+                attribute_name: "password"
+            }
         }
     },
     methods: {
+        update() {
+            UserService.getUsers(1).then(response => {
+                this.users = response.data;
+            });
+            this.isNewUser = false;
+            this.newUser = {};
+        },
+        activeEditMode(id) {
+            this.editList = [];
+            this.editList.push(id);
+            console.log(this.editList);
+        },
+        disactiveEditMode(id) {
+            const index = this.editList.indexOf(id);
+            this.editList.splice(index, 1);
+            console.log(this.editList);
+        },
+        removeUser(userId) {
+            if (confirm(this.$t("confirm.remove"))) {
+                UserService.removeUser(userId).then(() => {
+                    this.update();                    
+                });
+            }
+        },
+        addUser() {
+            let username = document.getElementById("username").value;
+            let password = document.getElementById("password").value;
+
+            UserService.createUser(username, password, 1).then(() => {
+                this.update();                
+            })
+        },
+        saveUser(userId) {
+            let username = document.getElementById("username").value;
+            let password = document.getElementById("password").value;
+
+            UserService.editUser(userId, { username, password }).then(() => {
+                this.update();                
+            })
+            this.editList = [];
+        },
         saveDbPath() {
-            axios.defaults.baseURL = this.dbPath;         
+            axios.defaults.baseURL = this.dbPath;
         }
     }
 }
