@@ -48,10 +48,10 @@ class AuthenticationService(
     )
     fun blockUser4Restore(emailOrPhone: BlockRequest): SignResponse {
         val user = when {
-            emailOrPhone.email.isNotEmpty() && migUtils.isEmail(emailOrPhone.email) ->
+            emailOrPhone.email.isNotEmpty() && migUtils.validateEmail(emailOrPhone.email) ->
                 userService.findUserByEmail(emailOrPhone.email)
 
-            emailOrPhone.phone.isNotEmpty() && migUtils.isPhone(emailOrPhone.phone) ->
+            emailOrPhone.phone.isNotEmpty() && migUtils.validatePhone(emailOrPhone.phone) ->
                 userService.findUserByPhone(emailOrPhone.phone)
 
             else -> throw BadCredentialsException("Email or phone are incorrect")
