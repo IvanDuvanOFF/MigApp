@@ -60,14 +60,14 @@ class UserServiceImpl(
         .orElseThrow { UserNotFoundException("User with email $email doesn't exists") }
 
     override fun findUserByUsernameOrEmail(usernameOrEmail: String): User = when {
-        migUtils.isEmail(usernameOrEmail) -> findUserByEmail(usernameOrEmail)
+        migUtils.validateEmail(usernameOrEmail) -> findUserByEmail(usernameOrEmail)
 
         else -> findUserByUsername(usernameOrEmail)
     }
 
     override fun findUserByEmailOrPhone(emailOrPhone: String): User = when {
-        migUtils.isEmail(emailOrPhone) -> findUserByEmail(emailOrPhone)
-        migUtils.isPhone(emailOrPhone) -> findUserByPhone(emailOrPhone)
+        migUtils.validateEmail(emailOrPhone) -> findUserByEmail(emailOrPhone)
+        migUtils.validatePhone(emailOrPhone) -> findUserByPhone(emailOrPhone)
 
         else -> throw BadCredentialsException("Email or phone are incorrect")
     }

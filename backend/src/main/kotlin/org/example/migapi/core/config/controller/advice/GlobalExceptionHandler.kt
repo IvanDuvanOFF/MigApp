@@ -10,6 +10,7 @@ import org.example.migapi.core.config.exception.MigApplicationException
 import org.example.migapi.core.domain.dto.Error
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.DisabledException
 import org.springframework.security.authentication.LockedException
@@ -42,6 +43,7 @@ class GlobalExceptionHandler {
             DateTimeException::class,
             InvalidPathException::class,
             AccessDeniedException::class,
+            HttpMessageNotReadableException::class,
             Exception::class
         ]
     )
@@ -62,6 +64,7 @@ class GlobalExceptionHandler {
 
             is MaxUploadSizeExceededException,
             is BadCredentialsException,
+            is HttpMessageNotReadableException,
             is JwtException -> HttpStatus.BAD_REQUEST
 
             is AccessDeniedException -> HttpStatus.FORBIDDEN
