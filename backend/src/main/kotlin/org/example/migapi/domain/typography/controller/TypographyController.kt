@@ -26,7 +26,7 @@ class TypographyController(
     private val documentService: DocumentService
 ) {
 
-    @GetMapping("/all/{filter_date}")
+    @GetMapping(value = ["/all", "/all/{filter_date}"])
     @Operation(
         summary = "Список всех оформлений кратко",
         description = "Пользователь получает список всех оформлений кратко",
@@ -159,7 +159,7 @@ class TypographyController(
     )
     @SecurityRequirement(name = "JWT")
     fun addDocument(@PathVariable(name = "application_id") applicationId: String, @RequestBody document: DocumentDto) =
-        documentService.saveDocument(applicationId, document)
+        typographyService.addDocument(applicationId, document)
 
     @GetMapping("/{application_id}/{document_id}")
     @Operation(

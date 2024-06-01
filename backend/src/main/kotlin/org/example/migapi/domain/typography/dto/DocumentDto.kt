@@ -1,8 +1,10 @@
 package org.example.migapi.domain.typography.dto
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.util.Date
 
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 data class DocumentDto(
     val id: String? = null,
     val title: String,

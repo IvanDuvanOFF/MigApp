@@ -76,13 +76,10 @@ class NotificationService(
 
     @Transactional
     @Throws(exceptionClasses = [BadRequestException::class, NotificationNotFoundException::class, PersistenceException::class])
-    fun deleteNotification(id: String) = notificationRepository.deleteById(
-        try {
-            UUID.fromString(id)
-        } catch (e: InvalidArgumentException) {
-            throw BadRequestException("Invalid id")
-        }
-    )
+    fun deleteNotification(id: String) {
+        val notification = findNotificationById(id)
+        notificationRepository.delete(notification)
+    }
 
     fun Notification.toDto() = NotificationDto(
         id = this.id.toString(),
