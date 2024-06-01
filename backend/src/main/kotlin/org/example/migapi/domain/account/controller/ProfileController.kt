@@ -135,8 +135,70 @@ class ProfileController(
     }
 
     @PatchMapping("phone")
+    @Operation(
+        summary = "Студент меняет номер телефона",
+        description = "Пользователь отправляет новый номер телефона",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Пользователь сменил телефон",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Номер некорректного формата",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Пользователь не найден",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Доступ запрещен",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Internal server error",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            )
+        ]
+    )
+    @SecurityRequirement(name = "JWT")
     fun changePhone(@RequestBody phoneDto: PhoneDto) = studentService.changePhone(getUsernameFromContext(), phoneDto)
 
     @PatchMapping("email")
+    @Operation(
+        summary = "Студент меняет email",
+        description = "Пользователь отправляет новый email",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Пользователь сменил email",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Некорректный формат email",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Пользователь не найден",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Доступ запрещен",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Internal server error",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            )
+        ]
+    )
+    @SecurityRequirement(name = "JWT")
     fun changeEmail(@RequestBody email: EmailDto) = studentService.changeEmail(getUsernameFromContext(), email)
 }
