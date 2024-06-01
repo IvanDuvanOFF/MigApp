@@ -12,13 +12,12 @@ interface FirebaseTokenRepository : JpaRepository<FirebaseToken, String> {
     @Cacheable("firebase-token-id", key = "#id", unless = "#result == null")
     override fun findById(id: String): Optional<FirebaseToken>
 
-    @Cacheable("firebase-token-user-name", key = "#user.username", unless = "#result == null")
+    @Cacheable("firebase-token-user-name", key = "#user.username", unless = "#result.isEmpty()")
     fun findAllByUser(user: User): List<FirebaseToken>
 
     @Caching(
-        put = [
-            CachePut("firebase-token-id", key = "#entity.token")
-        ]
+        put = [CachePut("firebase-token-id", key = "#entity.token")],
+        evict = [CacheEvict("firebase-token-user-name", key = "#entity.user.username")]
     )
     override fun <S : FirebaseToken> save(entity: S): S
 

@@ -11,20 +11,36 @@ import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
-@CacheConfig(cacheNames = ["notification-id", "notification-username"])
+@CacheConfig(cacheNames = ["notification-id", "notification-username", "notifications"])
 interface NotificationRepository : JpaRepository<Notification, UUID> {
 
-    @Cacheable("notification-username", key = "#username", unless = "#result == null")
+    @Cacheable("notification-username", key = "#username", unless = "#result.isEmpty()")
     fun findAllByUserUsername(username: String): List<Notification>
 
     @Cacheable("notification-id", key = "#id", unless = "#result == null")
     override fun findById(id: UUID): Optional<Notification>
 
-    @CachePut("notification-id", key = "#entity.id")
+    @Caching(
+        put = [CachePut("notification-id", key = "#entity.id")],
+        evict = [CacheEvict("notification-username", key = "#entity.user.username")]
+    )
     override fun <S : Notification> save(entity: S): S
 
-    @CacheEvict("notification-username", key = "#username")
+    @Caching(
+        evict = [
+            CacheEvict("notification-id", allEntries = true),
+            CacheEvict("notification-username", key = "#username")
+        ]
+    )
     fun deleteAllByUserUsername(username: String)
+
+    @Caching(
+        evict = [
+            CacheEvict("notification-id", key = "#entity.id"),
+            CacheEvict("notification-username", key = "#entity.user.username")
+        ]
+    )
+    override fun delete(entity: Notification)
 
     @Caching(
         evict = [
@@ -32,11 +48,13 @@ interface NotificationRepository : JpaRepository<Notification, UUID> {
             CacheEvict("notification-username", allEntries = true)
         ]
     )
-    override fun delete(entity: Notification)
-
-    @CacheEvict("notification-id", key = "#id")
     override fun deleteById(id: UUID)
 
-    @CacheEvict("notification-id", allEntries = true)
+    @Caching(
+        evict = [
+            CacheEvict("notification-id", allEntries = true),
+            CacheEvict("notification-username", allEntries = true)
+        ]
+    )
     override fun deleteAll()
 }

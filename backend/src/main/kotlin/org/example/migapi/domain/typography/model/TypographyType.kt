@@ -9,9 +9,9 @@ data class TypographyType(
     @Id
     val name: String,
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "typography_documents",
         joinColumns = [JoinColumn(name = "typography_type", referencedColumnName = "name")],
         inverseJoinColumns = [JoinColumn(name = "document_type", referencedColumnName = "name")])
-    val documentList: MutableList<DocumentType>
+    val documentList: MutableSet<DocumentType>
 ) : Model

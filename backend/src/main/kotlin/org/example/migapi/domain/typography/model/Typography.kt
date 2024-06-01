@@ -30,7 +30,7 @@ data class Typography(
     @JoinColumn(name = "status")
     var status: TypographyStatus,
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "typography_id")
-    val documents: MutableSet<Document>
+    var documents: MutableSet<Document>?
 ) : Model
