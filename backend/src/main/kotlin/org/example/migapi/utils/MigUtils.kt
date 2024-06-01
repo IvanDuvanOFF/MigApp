@@ -17,59 +17,52 @@ import java.time.format.DateTimeParseException
 @Scope("prototype")
 class MigUtils {
 
+    companion object {
+        const val EMAIL_PATTERN =
+            "^[a-zA-Z0-9.!#\$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\$"
+
+        const val PHONE_PATTERN =
+            "^[+]?[(]?[0-9]{3}[)]?[-\\s.]?[0-9]{3}[-\\s.]?[0-9]{4,6}$"
+
+        const val PASSWORD_PATTERN = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}\$"
+
+        private const val DATE_CONVERSION_ERROR = "Date has incorrect format"
+    }
+
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     private val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")
 
     fun localDateToString(localDate: LocalDate): String = try {
         localDate.format(dateFormatter)
     } catch (e: DateTimeException) {
-        throw InternalServerException("date has incorrect format")
+        throw InternalServerException(DATE_CONVERSION_ERROR)
     }
 
     fun stringToLocalDate(string: String): LocalDate = try {
         LocalDate.parse(string, dateFormatter)
     } catch (e: DateTimeParseException) {
-        throw BadRequestException("date has incorrect format")
+        throw BadRequestException(DATE_CONVERSION_ERROR)
     }
 
     fun localDateTimeToString(localDateTime: LocalDateTime): String = try {
         localDateTime.format(dateTimeFormatter)
     } catch (e: DateTimeException) {
-        throw InternalServerException("date has incorrect format")
+        throw InternalServerException(DATE_CONVERSION_ERROR)
     }
 
     fun stringToLocalDateTime(string: String): LocalDateTime = try {
         LocalDateTime.parse(string, dateTimeFormatter)
     } catch (e: DateTimeParseException) {
-        throw BadRequestException("date has incorrect format")
-    }
-
-    fun getHostUrl(request: HttpServletRequest): String {
-        val replace = request
-            .requestURL
-            .toString()
-            .replace(request.servletPath, "")
-        return replace
-    }
-
-    fun getRemoteAddress(request: HttpServletRequest): String {
-        return request
-            .getHeader("X-Forwarded-For")?.let { it.split(',')[0].trim() } ?: request.remoteAddr
+        throw BadRequestException(DATE_CONVERSION_ERROR)
     }
 
     @Cacheable(key = "#string", cacheNames = ["is_email"], condition = "#string.length() > 0")
-    fun isEmail(string: String): Boolean {
-        return "^[a-zA-Z0-9.!#\$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\$"
-            .toRegex(RegexOption.IGNORE_CASE)
-            .matches(string)
-    }
+    fun validateEmail(string: String): Boolean = EMAIL_PATTERN.toRegex(RegexOption.IGNORE_CASE).matches(string)
 
     @Cacheable(key = "#string", cacheNames = ["is_phone"], condition = "#string.length() > 0")
-    fun isPhone(string: String): Boolean {
-        return "^(?:\\+?[0-9]{1,3})?[-.\\s]?\\(?([0-9]{3})\\)?[-.\\s]?([0-9]{3})[-.\\s]?[0-9]{4}\$"
-            .toRegex()
-            .matches(string)
-    }
+    fun validatePhone(string: String): Boolean = PHONE_PATTERN.toRegex().matches(string)
+
+    fun validatePassword(password: String): Boolean = PASSWORD_PATTERN.toRegex().matches(password)
 
     @Throws(exceptionClasses = [UnauthorizedException::class])
     fun extractJwt(request: HttpServletRequest): String =

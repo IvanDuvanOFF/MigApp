@@ -18,10 +18,12 @@ class FileSystemConfiguration(
     private val logger = KotlinLogging.logger {  }
 
     lateinit var path: Path
+    lateinit var publicPath: Path
 
     @PostConstruct
     fun initPath() {
         path = Paths.get(storagePath)
+        publicPath = Paths.get("$storagePath/public")
 
         try {
             Files.createDirectories(path)

@@ -9,3 +9,4 @@ build/
 /backend/src/main/resources/firebase-key.json
 /jmeter/res/
 /jmeter/logs/
+/test/

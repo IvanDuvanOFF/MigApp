@@ -15,7 +15,7 @@ import java.util.*
 @CacheConfig(cacheNames = ["tfa_user_id"])
 interface TotpCodeRepository : JpaRepository<TotpCode, TotpCode.TotpCodeId> {
 
-    @Cacheable("tfa_user_id", key = "#userId")
+    @Cacheable("tfa_user_id", key = "#userId", unless = "#result == null")
     @Query("select t from TotpCode t where t.tfaId.user.id = ?1 order by t.expirationDate desc limit 1")
     fun findByTfaIdUser(userId: UUID): Optional<TotpCode>
 

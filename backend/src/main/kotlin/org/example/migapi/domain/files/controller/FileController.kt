@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
-@PreAuthorize("hasRole('ROLE_USER') || hasRole('ROLE_ADMIN')")
 @RequestMapping("/api/files")
 class FileController(
     @Autowired
@@ -32,6 +31,7 @@ class FileController(
 ) {
 
     @PostMapping("upload")
+    @PreAuthorize("hasRole('ROLE_USER') || hasRole('ROLE_ADMIN')")
     @Operation(
         summary = "Пользователь загружает файл",
         responses = [
@@ -58,10 +58,11 @@ class FileController(
         ]
     )
     @SecurityRequirement(name = "JWT")
-    fun uploadFile(@RequestParam("file") file: MultipartFile): File =
-        fileService.storeFile(file, getUsernameFromContext())
+    fun uploadUserFile(@RequestParam("file") file: MultipartFile): File =
+        fileService.storePrivateFile(file, getUsernameFromContext())
 
     @GetMapping("/{filename}")
+    @PreAuthorize("hasRole('ROLE_USER') || hasRole('ROLE_ADMIN')")
     @Operation(
         summary = "Пользователь скачивает файл по его имени",
         responses = [
@@ -87,8 +88,8 @@ class FileController(
         ]
     )
     @SecurityRequirement(name = "JWT")
-    fun getFile(@PathVariable filename: String): ResponseEntity<Resource> {
-        val file = fileService.load(filename, getUsernameFromContext())
+    fun getUserFile(@PathVariable filename: String): ResponseEntity<Resource> {
+        val file = fileService.loadPrivateFile(filename, getUsernameFromContext())
 
         return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${file.filename}\"")
@@ -96,6 +97,7 @@ class FileController(
     }
 
     @DeleteMapping("/{filename}")
+    @PreAuthorize("hasRole('ROLE_USER') || hasRole('ROLE_ADMIN')")
     @Operation(
         summary = "Пользователь удаляет файл по его имени",
         responses = [
@@ -121,7 +123,35 @@ class FileController(
         ]
     )
     @SecurityRequirement(name = "JWT")
-    fun removeFile(@PathVariable filename: String) {
-        fileService.delete(filename, getUsernameFromContext())
+    fun removeUserFile(@PathVariable filename: String) {
+        fileService.deletePrivateFile(filename, getUsernameFromContext())
+    }
+
+    @GetMapping("public/{filename}")
+    @Operation(
+        summary = "Пользователь скачивает публичный файл по его имени",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Пользователь скачал файл"
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Файл не найден",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Internal server error",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            )
+        ]
+    )
+    fun getPublicFile(@PathVariable filename: String): ResponseEntity<Resource> {
+        val file = fileService.loadPublicFile(filename)
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${file.filename}\"")
+            .body(file)
     }
 }

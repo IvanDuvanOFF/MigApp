@@ -4,15 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions
 import org.example.migapi.auth.dto.*
 import org.example.migapi.auth.exception.BadCredentialsException
+import org.example.migapi.auth.model.TotpCode
 import org.example.migapi.auth.service.EmailService
 import org.example.migapi.auth.service.TotpService
 import org.example.migapi.config.TestRedisConfiguration
-import org.example.migapi.domain.account.dto.UserDto
-import org.example.migapi.auth.model.TotpCode
 import org.example.migapi.core.domain.model.enums.ERole
+import org.example.migapi.domain.account.dto.UserDto
 import org.example.migapi.domain.account.service.UserService
 import org.hamcrest.Matchers
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.mockito.kotlin.any
@@ -59,7 +59,7 @@ class AuthenticationControllerTests(
     @MockBean
     private lateinit var emailService: EmailService
 
-    @BeforeEach
+    @AfterEach
     fun clearDb() = userService.dropTable()
 
     companion object {

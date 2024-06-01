@@ -1,6 +1,24 @@
 version: '3.8'
 
 services:
+  api-backup:
+    image: api-backup
+    container_name: api-backup
+    build:
+      context: ./backend/backup
+      dockerfile: ./Dockerfile
+    volumes:
+      - type: bind
+        source: /tmp/mig-app/data
+        target: /tmp/source
+      - type: volume
+        source: api-volume
+        target: /tmp/dist
+      - type: bind
+        source: /tmp/mig-app/backup
+        target: /tmp/back
+    command: [ '-a', 'check' ]
+
   app:
     image: mig-api:latest
     container_name: app
@@ -19,8 +37,9 @@ services:
     volumes:
       - type: volume
         source: api-volume
-        target: /tmp/mig-app/api
+        target: /tmp/app/mig-api
     depends_on:
+      - api-backup
       - db
       - redis
     restart: on-failure

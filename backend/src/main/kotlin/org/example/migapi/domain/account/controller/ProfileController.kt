@@ -6,32 +6,24 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.servlet.http.HttpServletRequest
-import org.example.migapi.auth.dto.Passwords
-import org.example.migapi.auth.exception.BadCredentialsException
-import org.example.migapi.auth.service.JwtService
+import jakarta.validation.Valid
 import org.example.migapi.core.domain.dto.Error
-import org.example.migapi.domain.account.dto.StudentDto
-import org.example.migapi.domain.account.dto.TfaTurnDto
+import org.example.migapi.domain.account.dto.*
 import org.example.migapi.domain.account.service.StudentService
 import org.example.migapi.getUsernameFromContext
-import org.example.migapi.utils.MigUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@PreAuthorize("hasRole('ROLE_USER')")
+@PreAuthorize("hasRole('ROLE_USER') || hasRole('ROLE_ADMIN')")
 @RequestMapping("/api/profile")
 class ProfileController(
     @Autowired
-    private val jwtService: JwtService,
-    @Autowired
-    private val studentService: StudentService,
-    @Autowired
-    private val migUtils: MigUtils
+    private val studentService: StudentService
 ) {
 
-    @PatchMapping
+    @PatchMapping("password")
     @Operation(
         summary = "Студент меняет пароль",
         description = "Пользователь отправляет старый и новый пароль",
@@ -63,15 +55,10 @@ class ProfileController(
         ]
     )
     @SecurityRequirement(name = "JWT")
-    fun changePassword(@RequestBody passwords: Passwords, request: HttpServletRequest) {
-        val jwt = migUtils.extractJwt(request)
+    fun changePassword(@RequestBody @Valid passwordDto: PasswordDto, request: HttpServletRequest) {
+        val username = getUsernameFromContext()
 
-        if (passwords.password != passwords.confirmation)
-            throw BadCredentialsException("Passwords are not the same")
-
-        val username = jwtService.extractUsername(jwt)
-
-        studentService.updatePassword(username, passwords.password)
+        studentService.updatePassword(username, passwordDto)
     }
 
     @PatchMapping("/tfa")
@@ -146,4 +133,72 @@ class ProfileController(
 
         return studentService.getByUsername(username)
     }
+
+    @PatchMapping("phone")
+    @Operation(
+        summary = "Студент меняет номер телефона",
+        description = "Пользователь отправляет новый номер телефона",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Пользователь сменил телефон",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Номер некорректного формата",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Пользователь не найден",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Доступ запрещен",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Internal server error",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            )
+        ]
+    )
+    @SecurityRequirement(name = "JWT")
+    fun changePhone(@RequestBody phoneDto: PhoneDto) = studentService.changePhone(getUsernameFromContext(), phoneDto)
+
+    @PatchMapping("email")
+    @Operation(
+        summary = "Студент меняет email",
+        description = "Пользователь отправляет новый email",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Пользователь сменил email",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Некорректный формат email",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Пользователь не найден",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Доступ запрещен",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Internal server error",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            )
+        ]
+    )
+    @SecurityRequirement(name = "JWT")
+    fun changeEmail(@RequestBody email: EmailDto) = studentService.changeEmail(getUsernameFromContext(), email)
 }

@@ -4,11 +4,10 @@ import jakarta.persistence.PersistenceException
 import org.example.migapi.auth.exception.RoleNotFoundException
 import org.example.migapi.auth.exception.UserAlreadyExistsException
 import org.example.migapi.core.config.exception.BadRequestException
-import org.example.migapi.domain.account.dto.StudentDto
-import org.example.migapi.domain.account.dto.TfaTurnDto
+import org.example.migapi.domain.account.dto.*
 import org.example.migapi.domain.account.exception.CountryNotFoundException
-import org.example.migapi.domain.account.exception.UserNotFoundException
 import org.example.migapi.domain.account.exception.StatusNotFoundException
+import org.example.migapi.domain.account.exception.UserNotFoundException
 import org.example.migapi.domain.files.exception.NoAccessException
 import java.time.DateTimeException
 import java.time.format.DateTimeParseException
@@ -54,7 +53,13 @@ interface StudentService {
     fun getByUsernameAndId(username: String, id: String): StudentDto
 
     @Throws(exceptionClasses = [UserNotFoundException::class, PersistenceException::class])
-    fun updatePassword(username: String, password: String)
+    fun updatePassword(username: String, passwordDto: PasswordDto)
+
+    @Throws(exceptionClasses = [UserNotFoundException::class, PersistenceException::class])
+    fun changePhone(username: String, phoneDto: PhoneDto)
+
+    @Throws(exceptionClasses = [UserNotFoundException::class, PersistenceException::class])
+    fun changeEmail(username: String, emailDto: EmailDto)
 
     @Throws(exceptionClasses = [UserNotFoundException::class, PersistenceException::class])
     fun turnTfa(username: String, tfaTurnDto: TfaTurnDto): TfaTurnDto
