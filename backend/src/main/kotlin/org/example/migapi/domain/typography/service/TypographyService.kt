@@ -121,19 +121,10 @@ class TypographyService(
     fun getById(typographyId: String): Typography =
         typographyRepository.findById(typographyId.toUUID()).orElseThrow { NotFoundException() }
 
-    fun test(): List<*> {
-        val typographies = typographyAndRestRepository.findAllByRestBetween(end = 20)
-        println(typographies)
-
-        return typographies
-    }
-
     @Scheduled(cron = "0 0 12 * * *")
     fun checkExpiration() {
         val typographies = typographyAndRestRepository.findAllByRestBetween()
 
-        typographies.forEach {
-            applicationEventPublisher.publishEvent(ExpiredTypographyEvent(this, it))
-        }
+        typographies.forEach { applicationEventPublisher.publishEvent(ExpiredTypographyEvent(this, it)) }
     }
 }

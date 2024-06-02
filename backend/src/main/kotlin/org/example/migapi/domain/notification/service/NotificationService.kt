@@ -6,7 +6,6 @@ import jakarta.transaction.Transactional
 import org.example.migapi.core.config.exception.BadRequestException
 import org.example.migapi.core.config.exception.NotFoundException
 import org.example.migapi.core.domain.model.enums.ENotificationStatus
-import org.example.migapi.domain.account.model.User
 import org.example.migapi.domain.account.service.UserService
 import org.example.migapi.domain.notification.dto.FirebaseTokenDto
 import org.example.migapi.domain.notification.dto.NotificationDto
@@ -39,7 +38,18 @@ class NotificationService(
 
     fun pushNotification(notificationDto: NotificationDto): Notification {
         val user = userService.findUserByUsername(getUsernameFromContext())
-        val notification = createNewNotification(user, notificationDto)
+
+        val notification = Notification(
+            id = UUID.randomUUID(),
+            user = user,
+            title = notificationDto.title ?: throw BadRequestException(),
+            description = notificationDto.description ?: throw BadRequestException(),
+            date = LocalDateTime.now(),
+            isViewed = false,
+            status = ENotificationStatus.INFO
+        )
+
+        notificationRepository.save(notification)
         notificationSendService.sendNotification(notification)
 
         return notification
@@ -56,22 +66,6 @@ class NotificationService(
         val notifications = notificationRepository.findAllByUserUsername(username)
 
         return notifications.map { it.toDto() }
-    }
-
-    fun createNewNotification(user: User, notificationDto: NotificationDto): Notification {
-        val notification = Notification(
-            id = UUID.randomUUID(),
-            user = user,
-            title = notificationDto.title ?: throw BadRequestException(),
-            description = notificationDto.description ?: throw BadRequestException(),
-            date = LocalDateTime.now(),
-            isViewed = false,
-            status = ENotificationStatus.INFO
-        )
-
-        notificationRepository.save(notification)
-
-        return notification
     }
 
     @Throws(exceptionClasses = [BadRequestException::class, NotificationNotFoundException::class, PersistenceException::class])
