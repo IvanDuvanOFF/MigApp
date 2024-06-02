@@ -30,7 +30,7 @@ data class Typography(
     @JoinColumn(name = "status")
     var status: TypographyStatus,
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(targetEntity = Document::class, fetch = FetchType.EAGER)
     @JoinColumn(name = "typography_id")
     var documents: MutableSet<Document>?
 ) : Model

@@ -9,12 +9,14 @@ import org.example.migapi.domain.typography.model.Document
 import org.example.migapi.domain.typography.model.DocumentStatus
 import org.example.migapi.domain.typography.model.DocumentType
 import org.example.migapi.domain.typography.model.Typography
+import org.example.migapi.domain.typography.repository.TypographyAndRestRepository
 import org.example.migapi.domain.typography.repository.TypographyRepository
 import org.example.migapi.getUsernameFromContext
 import org.example.migapi.toDate
 import org.example.migapi.toUUID
 import org.example.migapi.utils.MigUtils
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.util.*
@@ -23,6 +25,8 @@ import java.util.*
 class TypographyService(
     @Autowired
     private val typographyRepository: TypographyRepository,
+    @Autowired
+    private val typographyAndRestRepository: TypographyAndRestRepository,
     @Autowired
     private val documentService: DocumentService,
     @Autowired
@@ -105,11 +109,29 @@ class TypographyService(
 
     fun Typography.toTitleDto(): TypographyTitleDto = TypographyTitleDto(
         id = this.id.toString(),
-        title = this.typographyType.name.lowercase(),
+        title = this.typographyType.name,
         status = this.status.name,
         date = migUtils.localDateToString(this.creationDate)
     )
 
     fun getById(typographyId: String): Typography =
         typographyRepository.findById(typographyId.toUUID()).orElseThrow { NotFoundException() }
+
+    fun test(): List<*> {
+        val typographies = typographyAndRestRepository.findAll()
+        println(typographies)
+
+        return typographies
+    }
+
+    @Scheduled(cron = "0 0 8 * * *")
+    fun checkExpiration() {
+        val typographies = typographyRepository.findAll()
+
+//        typographies.forEach { typography ->
+//            typography.user.apply {
+//                val deadline = typography.typographyType.deadlines.first { it.deadlineId.country == this.country }
+//            }
+//        }
+    }
 }
