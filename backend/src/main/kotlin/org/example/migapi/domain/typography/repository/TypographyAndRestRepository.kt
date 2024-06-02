@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository
 import java.util.UUID
 
 @Repository
-interface TypographyAndRestRepository : JpaRepository<TypographyAndRest, UUID>
+interface TypographyAndRestRepository : JpaRepository<TypographyAndRest, UUID> {
+    fun findAllByRestBetween(start: Int = 0, end: Int = 7): List<TypographyAndRest>
+}

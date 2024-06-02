@@ -5,6 +5,7 @@ import org.example.migapi.core.config.exception.NotFoundException
 import org.example.migapi.domain.typography.dto.DocumentDto
 import org.example.migapi.domain.typography.dto.TypographyDto
 import org.example.migapi.domain.typography.dto.TypographyTitleDto
+import org.example.migapi.domain.typography.event.ExpiredTypographyEvent
 import org.example.migapi.domain.typography.model.Document
 import org.example.migapi.domain.typography.model.DocumentStatus
 import org.example.migapi.domain.typography.model.DocumentType
@@ -16,6 +17,7 @@ import org.example.migapi.toDate
 import org.example.migapi.toUUID
 import org.example.migapi.utils.MigUtils
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -30,7 +32,9 @@ class TypographyService(
     @Autowired
     private val documentService: DocumentService,
     @Autowired
-    private val migUtils: MigUtils
+    private val migUtils: MigUtils,
+    @Autowired
+    private val applicationEventPublisher: ApplicationEventPublisher
 ) {
 
     fun findAllTitlesByUsername(username: String, filterDate: String?): List<TypographyTitleDto> {
@@ -118,20 +122,18 @@ class TypographyService(
         typographyRepository.findById(typographyId.toUUID()).orElseThrow { NotFoundException() }
 
     fun test(): List<*> {
-        val typographies = typographyAndRestRepository.findAll()
+        val typographies = typographyAndRestRepository.findAllByRestBetween(end = 20)
         println(typographies)
 
         return typographies
     }
 
-    @Scheduled(cron = "0 0 8 * * *")
+    @Scheduled(cron = "0 0 12 * * *")
     fun checkExpiration() {
-        val typographies = typographyRepository.findAll()
+        val typographies = typographyAndRestRepository.findAllByRestBetween()
 
-//        typographies.forEach { typography ->
-//            typography.user.apply {
-//                val deadline = typography.typographyType.deadlines.first { it.deadlineId.country == this.country }
-//            }
-//        }
+        typographies.forEach {
+            applicationEventPublisher.publishEvent(ExpiredTypographyEvent(this, it))
+        }
     }
 }

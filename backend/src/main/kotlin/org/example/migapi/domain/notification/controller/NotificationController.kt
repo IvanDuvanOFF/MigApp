@@ -7,12 +7,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.example.migapi.core.config.exception.BadRequestException
 import org.example.migapi.core.domain.dto.Error
-import org.example.migapi.domain.account.service.UserService
 import org.example.migapi.domain.notification.dto.FirebaseTokenDto
 import org.example.migapi.domain.notification.dto.NotificationDto
 import org.example.migapi.domain.notification.model.Notification
-import org.example.migapi.domain.notification.service.FirebaseTokenService
-import org.example.migapi.domain.notification.service.NotificationSendService
 import org.example.migapi.domain.notification.service.NotificationService
 import org.example.migapi.getUsernameFromContext
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,13 +21,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/notifications")
 class NotificationController(
     @Autowired
-    private val firebaseTokenService: FirebaseTokenService,
-    @Autowired
-    private val notificationService: NotificationService,
-    @Autowired
-    private val notificationSendService: NotificationSendService,
-    @Autowired
-    private val userService: UserService
+    private val notificationService: NotificationService
 ) {
 
     @PutMapping
@@ -59,7 +50,8 @@ class NotificationController(
         ]
     )
     @SecurityRequirement(name = "JWT")
-    fun addToken(@RequestBody firebaseTokenDto: FirebaseTokenDto) = firebaseTokenService.save(firebaseTokenDto)
+    fun addToken(@RequestBody firebaseTokenDto: FirebaseTokenDto) =
+        notificationService.addFirebaseToken(firebaseTokenDto)
 
     @PatchMapping
     @Operation(
@@ -93,7 +85,10 @@ class NotificationController(
     )
     @SecurityRequirement(name = "JWT")
     fun viewNotification(@RequestBody notificationViewedDto: NotificationDto) {
-        notificationService.changeNotificationViewed(notificationViewedDto.id ?: throw BadRequestException(), notificationViewedDto.isViewed ?: true)
+        notificationService.changeNotificationViewed(
+            notificationViewedDto.id ?: throw BadRequestException(),
+            notificationViewedDto.isViewed ?: true
+        )
     }
 
     @GetMapping
@@ -161,15 +156,8 @@ class NotificationController(
         ]
     )
     @SecurityRequirement(name = "JWT")
-    fun pushNotification(@RequestBody notificationDto: NotificationDto): Notification {
-        val user = userService.findUserByUsername(getUsernameFromContext())
-        val notification = notificationService.createNewNotification(user, notificationDto)
-        val firebaseTokens = firebaseTokenService.findAllFirebaseTokensByUsername(user)
-
-        firebaseTokens.forEach { notificationSendService.sendNotification(notification, it) }
-
-        return notification
-    }
+    fun pushNotification(@RequestBody notificationDto: NotificationDto): Notification =
+        notificationService.pushNotification(notificationDto)
 
     @DeleteMapping
     @Operation(
