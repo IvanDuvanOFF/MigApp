@@ -106,11 +106,11 @@ class DtoServiceImpl(
         institute = user.institute,
         group = user.group,
         photo = user.photo,
-        sex = (user.sex?.name ?: throw IllegalArgumentException()),
+        sex = (user.sex?.name?.lowercase() ?: throw IllegalArgumentException()),
         email = user.email,
         phone = user.phone,
         country = user.country.name,
         birthday = migUtils.localDateToString(user.birthday),
-        status = user.status.name.name
+        status = user.status.name.name.lowercase()
     )
 }

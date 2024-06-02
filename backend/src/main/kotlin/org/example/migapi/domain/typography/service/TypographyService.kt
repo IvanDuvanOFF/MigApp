@@ -56,7 +56,7 @@ class TypographyService(
             DocumentDto(
                 id = doc?.id?.toString(),
                 title = type.name,
-                status = doc?.status?.toString(),
+                status = doc?.status?.toString()?.lowercase(),
                 fileName = doc?.fileName,
                 creationDate = doc?.creationDate?.toDate(),
                 expirationDate = doc?.expirationDate?.toDate()
