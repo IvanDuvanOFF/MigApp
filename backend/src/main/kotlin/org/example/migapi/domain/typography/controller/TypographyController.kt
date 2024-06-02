@@ -26,9 +26,6 @@ class TypographyController(
     private val documentService: DocumentService
 ) {
 
-    @GetMapping("test")
-    fun test(): List<*> = typographyService.test()
-
     @GetMapping(value = ["/all", "/all/{filter_date}"])
     @Operation(
         summary = "Список всех оформлений кратко",
