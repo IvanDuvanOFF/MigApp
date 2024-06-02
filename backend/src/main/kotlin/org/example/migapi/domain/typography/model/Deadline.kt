@@ -15,9 +15,8 @@ data class Deadline(
 ) : Model {
     @Embeddable
     class DeadlineId(
-        @ManyToOne(targetEntity = TypographyType::class, fetch = FetchType.EAGER)
-        @JoinColumn(name = "typography_type")
-        val typographyType: TypographyType,
+        @Column(name = "typography_type")
+        val typographyType: String,
 
         @ManyToOne(targetEntity = Country::class, fetch = FetchType.EAGER)
         @JoinColumn(name = "country")

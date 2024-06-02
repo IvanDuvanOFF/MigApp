@@ -1,11 +1,7 @@
 package org.example.migapi.domain.typography.repository
 
 import org.example.migapi.domain.typography.model.Typography
-import org.springframework.cache.annotation.CacheConfig
-import org.springframework.cache.annotation.CacheEvict
-import org.springframework.cache.annotation.CachePut
-import org.springframework.cache.annotation.Cacheable
-import org.springframework.cache.annotation.Caching
+import org.springframework.cache.annotation.*
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.*

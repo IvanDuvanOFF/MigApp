@@ -5,16 +5,20 @@ import org.example.migapi.core.config.exception.NotFoundException
 import org.example.migapi.domain.typography.dto.DocumentDto
 import org.example.migapi.domain.typography.dto.TypographyDto
 import org.example.migapi.domain.typography.dto.TypographyTitleDto
+import org.example.migapi.domain.typography.event.ExpiredTypographyEvent
 import org.example.migapi.domain.typography.model.Document
 import org.example.migapi.domain.typography.model.DocumentStatus
 import org.example.migapi.domain.typography.model.DocumentType
 import org.example.migapi.domain.typography.model.Typography
+import org.example.migapi.domain.typography.repository.TypographyAndRestRepository
 import org.example.migapi.domain.typography.repository.TypographyRepository
 import org.example.migapi.getUsernameFromContext
 import org.example.migapi.toDate
 import org.example.migapi.toUUID
 import org.example.migapi.utils.MigUtils
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.ApplicationEventPublisher
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.util.*
@@ -24,9 +28,13 @@ class TypographyService(
     @Autowired
     private val typographyRepository: TypographyRepository,
     @Autowired
+    private val typographyAndRestRepository: TypographyAndRestRepository,
+    @Autowired
     private val documentService: DocumentService,
     @Autowired
-    private val migUtils: MigUtils
+    private val migUtils: MigUtils,
+    @Autowired
+    private val applicationEventPublisher: ApplicationEventPublisher
 ) {
 
     fun findAllTitlesByUsername(username: String, filterDate: String?): List<TypographyTitleDto> {
@@ -56,7 +64,7 @@ class TypographyService(
             DocumentDto(
                 id = doc?.id?.toString(),
                 title = type.name,
-                status = doc?.status?.toString(),
+                status = doc?.status?.toString()?.lowercase(),
                 fileName = doc?.fileName,
                 creationDate = doc?.creationDate?.toDate(),
                 expirationDate = doc?.expirationDate?.toDate()
@@ -105,11 +113,18 @@ class TypographyService(
 
     fun Typography.toTitleDto(): TypographyTitleDto = TypographyTitleDto(
         id = this.id.toString(),
-        title = this.typographyType.name.lowercase(),
+        title = this.typographyType.name,
         status = this.status.name,
         date = migUtils.localDateToString(this.creationDate)
     )
 
     fun getById(typographyId: String): Typography =
         typographyRepository.findById(typographyId.toUUID()).orElseThrow { NotFoundException() }
+
+    @Scheduled(cron = "0 0 12 * * *")
+    fun checkExpiration() {
+        val typographies = typographyAndRestRepository.findAllByRestBetween()
+
+        typographies.forEach { applicationEventPublisher.publishEvent(ExpiredTypographyEvent(this, it)) }
+    }
 }
