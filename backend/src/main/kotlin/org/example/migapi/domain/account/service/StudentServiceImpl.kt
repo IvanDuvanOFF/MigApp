@@ -8,6 +8,7 @@ import org.example.migapi.core.config.exception.BadRequestException
 import org.example.migapi.core.domain.model.enums.ERole
 import org.example.migapi.core.domain.service.DtoService
 import org.example.migapi.domain.account.dto.*
+import org.example.migapi.domain.files.model.File
 import org.example.migapi.utils.MigUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -37,6 +38,19 @@ class StudentServiceImpl(
         val user = userService.findUserByUsername(username)
 
         return dtoService.userToStudentDto(user)
+    }
+
+    @Transactional
+    override fun changePhoto(username: String, photo: File): StudentDto {
+        val user = userService.findUserByUsername(username)
+        val file = File(
+            name = photo.name,
+            link = photo.link,
+            user = user
+        )
+        user.photo = file
+
+        return dtoService.userToStudentDto(userService.saveUser(user))
     }
 
     override fun getByUsernameAndId(username: String, id: String): StudentDto =

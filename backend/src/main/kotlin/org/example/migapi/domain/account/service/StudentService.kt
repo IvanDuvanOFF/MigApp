@@ -9,6 +9,7 @@ import org.example.migapi.domain.account.exception.CountryNotFoundException
 import org.example.migapi.domain.account.exception.StatusNotFoundException
 import org.example.migapi.domain.account.exception.UserNotFoundException
 import org.example.migapi.domain.files.exception.NoAccessException
+import org.example.migapi.domain.files.model.File
 import java.time.DateTimeException
 import java.time.format.DateTimeParseException
 
@@ -40,6 +41,17 @@ interface StudentService {
         ]
     )
     fun getByUsername(username: String): StudentDto
+
+    @Throws(
+        exceptionClasses = [
+            NoAccessException::class,
+            BadRequestException::class,
+            DateTimeParseException::class,
+            UserNotFoundException::class,
+            PersistenceException::class,
+        ]
+    )
+    fun changePhoto(username: String, photo: File): StudentDto
 
     @Throws(
         exceptionClasses = [

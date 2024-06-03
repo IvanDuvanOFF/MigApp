@@ -10,6 +10,7 @@ import jakarta.validation.Valid
 import org.example.migapi.core.domain.dto.Error
 import org.example.migapi.domain.account.dto.*
 import org.example.migapi.domain.account.service.StudentService
+import org.example.migapi.domain.files.model.File
 import org.example.migapi.getUsernameFromContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.prepost.PreAuthorize
@@ -201,4 +202,38 @@ class ProfileController(
     )
     @SecurityRequirement(name = "JWT")
     fun changeEmail(@RequestBody email: EmailDto) = studentService.changeEmail(getUsernameFromContext(), email)
+
+    @PatchMapping("photo")
+    @Operation(
+        summary = "Студент меняет фото",
+        description = "Пользователь отправляет сведения о недавно загруженном файле фото",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Пользователь сменил email",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Некорректный формат email",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Пользователь не найден",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Доступ запрещен",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Internal server error",
+                content = [Content(schema = Schema(implementation = Error::class))]
+            )
+        ]
+    )
+    @SecurityRequirement(name = "JWT")
+    fun changePhoto(@RequestBody photo: File): StudentDto = studentService.changePhoto(getUsernameFromContext(), photo)
 }

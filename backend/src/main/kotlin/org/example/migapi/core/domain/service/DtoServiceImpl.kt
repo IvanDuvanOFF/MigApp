@@ -2,6 +2,7 @@ package org.example.migapi.core.domain.service
 
 import org.example.migapi.auth.exception.RoleNotFoundException
 import org.example.migapi.auth.model.Role
+import org.example.migapi.core.config.exception.NotFoundException
 import org.example.migapi.core.domain.model.enums.ERole
 import org.example.migapi.core.domain.model.enums.ESex
 import org.example.migapi.core.domain.model.enums.EStudentStatus
@@ -14,6 +15,7 @@ import org.example.migapi.domain.account.model.Country
 import org.example.migapi.domain.account.model.StudentStatus
 import org.example.migapi.domain.account.model.User
 import org.example.migapi.domain.account.repository.CountryRepository
+import org.example.migapi.domain.files.repository.FileRepository
 import org.example.migapi.utils.MigUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
@@ -29,7 +31,9 @@ class DtoServiceImpl(
     @Autowired
     private val encoder: BCryptPasswordEncoder,
     @Autowired
-    private val countryRepository: CountryRepository
+    private val countryRepository: CountryRepository,
+    @Autowired
+    private val fileRepository: FileRepository,
 ) : DtoService {
 
     override fun toUser(userDto: UserDto): User = when (userDto) {
@@ -44,7 +48,7 @@ class DtoServiceImpl(
         patronymic = studentDto.patronymic
         institute = studentDto.institute
         group = studentDto.group
-        photo = studentDto.photo
+        photo = studentDto.photo?.let { fileRepository.findById(it).orElseThrow { NotFoundException() } }
         sex = ESex.valueOf(studentDto.sex)
         email = studentDto.email
         phone = studentDto.phone
@@ -105,7 +109,7 @@ class DtoServiceImpl(
         patronymic = user.patronymic,
         institute = user.institute,
         group = user.group,
-        photo = user.photo,
+        photo = user.photo?.name,
         sex = (user.sex?.name?.lowercase() ?: throw IllegalArgumentException()),
         email = user.email,
         phone = user.phone,
