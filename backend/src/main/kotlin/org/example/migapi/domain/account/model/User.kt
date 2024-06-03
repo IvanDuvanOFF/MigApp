@@ -5,6 +5,7 @@ import org.example.migapi.auth.model.Role
 import org.example.migapi.core.domain.model.Model
 import org.example.migapi.core.domain.model.SpringUser
 import org.example.migapi.core.domain.model.enums.ESex
+import org.example.migapi.domain.files.model.File
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import java.time.LocalDate
@@ -42,7 +43,9 @@ data class User(
     @Column(name = "group_name")
     var group: String? = null,
 
-    var photo: String? = null,
+    @OneToOne(targetEntity = File::class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "photo")
+    var photo: File? = null,
 
     @Enumerated(EnumType.STRING)
     var sex: ESex? = null,
@@ -55,7 +58,7 @@ data class User(
     var phone: String = "None",
 
     @NotEmpty
-    @ManyToOne(targetEntity = Country::class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = Country::class, fetch = FetchType.EAGER)
     @JoinColumn(name = "country")
     var country: Country = Country(),
 
@@ -63,7 +66,7 @@ data class User(
     var birthday: LocalDate = LocalDate.EPOCH,
 
     @NotEmpty
-    @ManyToOne(targetEntity = StudentStatus::class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = StudentStatus::class, fetch = FetchType.EAGER)
     @JoinColumn(name = "status")
     var status: StudentStatus = StudentStatus(),
 
