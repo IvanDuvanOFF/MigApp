@@ -5,6 +5,13 @@ import org.example.migapi.core.domain.model.Model
 import org.example.migapi.domain.account.model.User
 import java.time.LocalDateTime
 
+/**
+ * Сущность отозванного токена
+ *
+ * @property token отозванный jwt-токен [String]
+ * @property user пользователь, который отозвал токен [User]
+ * @property expirationDate срок годности токена, по его истечение токен удаляется из бд
+ */
 @Entity
 @Table(name = "revoked_tokens")
 data class RevokedToken(

@@ -5,6 +5,17 @@ import org.example.migapi.core.domain.model.Model
 import java.time.LocalDate
 import java.util.*
 
+/**
+ * Сущность документа
+ *
+ * @property id id документа формата [UUID]
+ * @property documentType тип документа [DocumentType]
+ * @property typographyId id типа оформления [UUID]
+ * @property status статус документа в системе [DocumentStatus]
+ * @property creationDate дата создания документа [LocalDate]
+ * @property expirationDate дата истечения срока действия документа [LocalDate]
+ * @property fileName имя файла документа [String]
+ */
 @Entity
 @Table(name = "documents")
 data class Document(

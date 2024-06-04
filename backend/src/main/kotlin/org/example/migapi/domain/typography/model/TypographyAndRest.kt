@@ -11,6 +11,15 @@ import org.example.migapi.domain.account.model.User
 import java.time.LocalDate
 import java.util.UUID
 
+/**
+ * Сущность представления оформления и оставшихся дней до дедлайна
+ *
+ * @property id id оформления в системе [UUID]
+ * @property typographyType тип оформления в системе [TypographyType]
+ * @property user пользователь, к которому привязано это оформление в системе [User]
+ * @property creationDate дата создания оформления в системе [LocalDate]
+ * @property rest число дней до дедлайна
+ */
 @Entity
 @Table(name = "typographies_and_rest")
 data class TypographyAndRest(

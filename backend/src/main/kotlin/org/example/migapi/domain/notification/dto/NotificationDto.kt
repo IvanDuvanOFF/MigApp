@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 import org.example.migapi.core.domain.dto.Dto
-import java.util.*
 
+/**
+ * Уведомление
+ */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 data class NotificationDto(
 

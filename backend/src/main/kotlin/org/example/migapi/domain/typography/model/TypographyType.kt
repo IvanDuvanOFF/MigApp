@@ -3,6 +3,9 @@ package org.example.migapi.domain.typography.model
 import jakarta.persistence.*
 import org.example.migapi.core.domain.model.Model
 
+/**
+ * Тип
+ */
 @Entity
 @Table(name = "typography_types")
 data class TypographyType(

@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 import org.example.migapi.core.domain.dto.Dto
 
+/**
+ * Токен для Firebase для отправки уведомлений на устройсва пользователя
+ */
 data class FirebaseTokenDto(
     @Schema(required = true, example = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpdmFuY2hpY2siLCJpYXQiOjE3MTYwMjk1MjMsImV4cCI6MTcxNjYzNDMyM30.3zjwY2AJvrqpE_ej3GVoORq7m0rsDgriwF70S6usZ8M")
     val token: String,

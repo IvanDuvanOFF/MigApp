@@ -3,5 +3,8 @@ package org.example.migapi.auth.exception
 import org.example.migapi.core.config.exception.MigApplicationException
 import org.springframework.http.HttpStatus
 
+/**
+ * @property httpStatus 410
+ */
 class RefreshTokenExpiredException(message: String = "Refresh token is expired") :
     MigApplicationException(HttpStatus.GONE, message)

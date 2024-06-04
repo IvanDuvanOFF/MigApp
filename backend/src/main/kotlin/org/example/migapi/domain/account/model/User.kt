@@ -13,6 +13,27 @@ import java.util.*
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotEmpty
 
+/**
+ * Сущность пользователя
+ *
+ * @property id id пользователя [UUID]
+ * @property username username пользователя [String]
+ * @property email адрес электронной почты пользователя [String]
+ * @property password пароль пользователя [String]
+ * @property isActive статус активности пользователя [Boolean]
+ * @property name имя пользователя [String]
+ * @property surname фамилия пользователя [String]
+ * @property patronymic отчество пользователя [String]
+ * @property photo имя файла аватарки пользователя [File]
+ * @property institute институт пользователя [String]
+ * @property group группа пользователя [String]
+ * @property sex пол пользователя [ESex]
+ * @property phone номер телефона пользователя [String]
+ * @property country страна пользователя [Country]
+ * @property birthday день рождения пользователя [LocalDate]
+ * @property status статус пользователя [StudentStatus]
+ * @property tfaEnabled статус активности 2х факторной аутентификации для пользователя [Boolean]
+ */
 @Entity
 @Table(name = "users")
 data class User(

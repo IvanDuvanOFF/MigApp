@@ -184,7 +184,8 @@ class AuthenticationService(
         ]
     )
     fun logout(request: HttpServletRequest) {
-        val jwt = migUtils.extractJwt(request)
+        val jwt = request.getHeader("Authorization")?.takeIf { it.startsWith("Bearer ") }?.substring(7)
+            ?: throw UnauthorizedException()
         val username = (SecurityContextHolder.getContext().authentication.principal as SpringUser).username
 
         val user = userService.findUserByUsername(username)

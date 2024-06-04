@@ -1,5 +1,6 @@
 package org.example.migapi.core.domain.service
 
+import jakarta.persistence.PersistenceException
 import org.example.migapi.auth.exception.RoleNotFoundException
 import org.example.migapi.auth.model.Role
 import org.example.migapi.core.config.exception.NotFoundException
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
+import java.time.format.DateTimeParseException
 import java.util.*
 
 @Service
@@ -36,12 +38,30 @@ class DtoServiceImpl(
     private val fileRepository: FileRepository,
 ) : DtoService {
 
+    /**
+     * Переводит объект [userDto] в [User]
+     *
+     * @throws CountryNotFoundException
+     * @throws RoleNotFoundException
+     * @throws DateTimeParseException
+     * @throws StatusNotFoundException
+     * @throws PersistenceException
+     */
     override fun toUser(userDto: UserDto): User = when (userDto) {
         is AdminDto -> adminDtoToUser(userDto)
         is StudentDto -> studentDtoToUser(userDto)
         else -> userDtoToUser(userDto)
     }
 
+    /**
+     * Переводит объект студента [studentDto] в [User]
+     *
+     * @throws CountryNotFoundException
+     * @throws RoleNotFoundException
+     * @throws DateTimeParseException
+     * @throws StatusNotFoundException
+     * @throws PersistenceException
+     */
     override fun studentDtoToUser(studentDto: StudentDto): User = userDtoToUser(studentDto).apply {
         name = studentDto.name
         surname = studentDto.surname
@@ -62,11 +82,21 @@ class DtoServiceImpl(
         }
     }
 
+    /**
+     * Переводит объект админа [adminDto] в [User]
+     *
+     * @throws RoleNotFoundException
+     */
     override fun adminDtoToUser(adminDto: AdminDto): User = userDtoToUser(adminDto).apply {
         name = adminDto.name
         surname = adminDto.surname
     }
 
+    /**
+     * Переводит объект пользователя [userDto] в [User]
+     *
+     * @throws RoleNotFoundException
+     */
     override fun userDtoToUser(userDto: UserDto): User = User(
         id = userDto.id?.let { UUID.fromString(it) } ?: UUID.randomUUID(),
         username = userDto.username,
@@ -81,6 +111,9 @@ class DtoServiceImpl(
         tfaEnabled = userDto.tfaEnabled
     )
 
+    /**
+     * Переводит объект [user] в [UserDto]
+     */
     override fun userToUserDto(user: User): UserDto = UserDto(
         id = user.id.toString(),
         username = user.username,
@@ -90,6 +123,9 @@ class DtoServiceImpl(
         role = user.role.name.name
     )
 
+    /**
+     * Переводит объект [user] в [AdminDto]
+     */
     override fun userToAdminDto(user: User): AdminDto = AdminDto(
         id = user.id.toString(),
         username = user.username,
@@ -100,6 +136,11 @@ class DtoServiceImpl(
         surname = user.surname
     )
 
+    /**
+     * Переводит объект [user] в [StudentDto]
+     *
+     * @throws IllegalArgumentException
+     */
     override fun userToStudentDto(user: User): StudentDto = StudentDto(
         id = user.id.toString(),
         username = user.username,

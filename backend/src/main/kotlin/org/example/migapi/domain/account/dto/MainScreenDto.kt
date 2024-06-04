@@ -4,6 +4,18 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 
+/**
+ * Данные, необходимые для главного экрана приложения
+ *
+ * @property userId id пользователя [String]
+ * @property logo ссылка на логотип приложения [String]
+ * @property name имя пользователя [String]
+ * @property surname фамилия пользователя [String]
+ * @property patronymic отчество пользователя [String]
+ * @property photo имя файла аватарки пользователя [String]
+ * @property institute институт пользователя [String]
+ * @property group группа пользователя [String]
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class MainScreenDto(
 

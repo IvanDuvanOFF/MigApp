@@ -3,6 +3,26 @@ package org.example.migapi.domain.account.dto
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 
+/**
+ * Дтошка студента
+ *
+ * @property id id пользователя [String]
+ * @property username username пользователя [String]
+ * @property email адрес электронной почты пользователя [String]
+ * @property password пароль пользователя [String]
+ * @property isActive статус активности пользователя [Boolean]
+ * @property name имя пользователя [String]
+ * @property surname фамилия пользователя [String]
+ * @property patronymic отчество пользователя [String]
+ * @property photo имя файла аватарки пользователя [String]
+ * @property institute институт пользователя [String]
+ * @property group группа пользователя [String]
+ * @property sex пол пользователя [String]
+ * @property phone номер телефона пользователя [String]
+ * @property country страна пользователя [String]
+ * @property birthday день рождения пользователя [String]
+ * @property status статус пользователя [String]
+ */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 class StudentDto(
     id: String? = null,

@@ -4,6 +4,11 @@ import jakarta.persistence.*
 import org.example.migapi.core.domain.model.Model
 import org.example.migapi.core.domain.model.enums.ERole
 
+/**
+ * Сущность роли
+ *
+ * @property name имя роли
+ */
 @Entity
 @Table(name = "roles")
 class Role(

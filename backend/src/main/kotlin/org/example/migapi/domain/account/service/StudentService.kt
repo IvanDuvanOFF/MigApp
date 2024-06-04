@@ -53,17 +53,6 @@ interface StudentService {
     )
     fun changePhoto(username: String, photo: File): StudentDto
 
-    @Throws(
-        exceptionClasses = [
-            NoAccessException::class,
-            BadRequestException::class,
-            DateTimeParseException::class,
-            UserNotFoundException::class,
-            PersistenceException::class,
-        ]
-    )
-    fun getByUsernameAndId(username: String, id: String): StudentDto
-
     @Throws(exceptionClasses = [UserNotFoundException::class, PersistenceException::class])
     fun updatePassword(username: String, passwordDto: PasswordDto)
 

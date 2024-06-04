@@ -10,6 +10,12 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
+/**
+ * Конфиг для файловой системы
+ *
+ * @property path путь до файлового хранилища
+ * @property publicPath путь до общего хранилища
+ */
 @Configuration
 class FileSystemConfiguration(
     @Value("\${storage}")
@@ -20,6 +26,11 @@ class FileSystemConfiguration(
     lateinit var path: Path
     lateinit var publicPath: Path
 
+    /**
+     * Инициализирует свойства [path] и [publicPath]
+     *
+     * @throws FileNotFoundException некорректный путь до хранилища
+     */
     @PostConstruct
     fun initPath() {
         path = Paths.get(storagePath)

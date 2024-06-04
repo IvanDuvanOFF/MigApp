@@ -1,5 +1,6 @@
 package org.example.migapi.domain.account.service
 
+import com.google.api.gax.rpc.InvalidArgumentException
 import jakarta.persistence.PersistenceException
 import org.example.migapi.auth.exception.BadCredentialsException
 import org.example.migapi.auth.exception.RoleNotFoundException
@@ -25,7 +26,7 @@ interface UserService {
     @Throws(
         exceptionClasses = [
             PersistenceException::class,
-            IllegalArgumentException::class,
+            InvalidArgumentException::class,
             UserNotFoundException::class
         ]
     )

@@ -5,6 +5,13 @@ import org.example.migapi.core.domain.model.Model
 import org.example.migapi.domain.account.model.Country
 import java.io.Serializable
 
+/**
+ * Сущность дедлайна
+ *
+ * @property deadlineId комплексный id, состоящий из типа оформления [DeadlineId.typographyType]
+ *  и страны, для которой этот дедлайн актуален [DeadlineId.country]
+ * @property days  количество дней, в течение которых необходимо завершить оформление типа [DeadlineId.typographyType]
+ */
 @Entity
 @Table(name = "deadlines")
 data class Deadline(

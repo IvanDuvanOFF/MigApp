@@ -6,6 +6,17 @@ import org.example.migapi.domain.account.model.User
 import java.time.LocalDate
 import java.util.*
 
+/**
+ * Сущность заявки на оформления.
+ *
+ * @property id id оформления в системе [UUID]
+ * @property typographyType тип оформления [TypographyType]
+ * @property user пользователь, к которому относится данное оформление
+ * @property creationDate дата создания оформления в системе [LocalDate]
+ * @property fileName имя файла готового оформления в системе [String]
+ * @property status статус оформления в системе [TypographyStatus]
+ * @property documents множество документов, приложенных к данному оформлению [MutableSet]<[Document]>
+ */
 @Entity
 @Table(name = "typographies")
 data class Typography(
