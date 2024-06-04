@@ -1,14 +1,17 @@
 import axios from 'axios';
 
-class AttributeService {    
+class AttributeService {
     async getAttributes(table_id) {
-        return axios.get('/attributes', {            
-            table_id: table_id
+        return axios.get('/attributes', {
+            params: {
+                table_id: table_id
+            }
+
         });
     }
 
-    async updateAttributes(attr){
-        return axios.put('/attributes/' + attr.id, 
+    async updateAttributes(attr) {
+        return axios.put('/attributes/' + attr.id,
             attr
         );
     }

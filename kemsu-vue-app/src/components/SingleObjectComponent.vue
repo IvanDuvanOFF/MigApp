@@ -1,5 +1,5 @@
 <template>
-    <Form @invalid-submit="onInvalidSubmit" @submit="onStudentSubmit" name="studentForm" :id="'form-' + example.id"
+    <Form @invalid-submit="onInvalidSubmit" @submit="onExampleSubmit" name="studentForm" :id="'form-' + example.id"
         :validation-schema="schema" style="border: 1px solid darkgrey;"
         class="col d-flex flex-column justify-content-xl-center p-3 gap-3">
 
@@ -17,7 +17,6 @@
 import { Form } from 'vee-validate';
 import * as yup from 'yup';
 import AttributeService from '@/services/AttributeService.js';
-import StudentService from '@/services/StudentService.js';
 import TableService from '@/services/TableService.js';
 import DynamicInput from '@/components/dynamic-components/DynamicInput.vue';
 
@@ -32,13 +31,12 @@ export default {
         let example = {};
         let disabled = true;
         let thisTable = {};
-        let attributes = {};
+        let attributes = {};        
 
-        TableService.getTableByName(tableName).then(response => {
-            this.thisTable = response.data;
+        TableService.getTableByName(tableName).then(response => {            
+            this.thisTable = response.data[0];
 
-            AttributeService.getAttributes(this.thisTable.id).then(response => {
-                console.log(response.data);
+            AttributeService.getAttributes(this.thisTable.id).then(response => {                
                 this.attributes = response.data;
                 this.makeSchema();
             });
@@ -46,9 +44,8 @@ export default {
 
         if (this.$route.params.id) {
             let id = this.$route.params.id
-            StudentService.getStudent(id).then(response => {
-                this.example = response.data
-                console.log(this.example);
+            TableService.getTableData(tableName, id).then(response => {
+                this.example = response.data[0];               
             });
 
         }
@@ -94,9 +91,7 @@ export default {
                         yup_schema[attr.attribute_name] = yup.date().required(requiredErrorMsg);
                         break;
                 }
-            })
-
-            console.log(yup_schema);
+            })            
             this.schema = yup.object(yup_schema);
         },
         allowEdit() {
@@ -118,13 +113,12 @@ export default {
             }
         },
 
-        onStudentSubmit() {
+        onExampleSubmit() {
             console.log(this.example);
-            this.updateExampleObject();
-            console.log(this.example);
+            this.updateExampleObject();            
 
             if (this.example.id) {
-                StudentService.updateStudent(this.example.id, this.example)
+                TableService.updateTableData(this.tableName, this.example)
                     .then(alert("Запрос отправлен"))
                     .catch(err => {
                         alert("Ошибка на стороне сервера " + err)
@@ -132,7 +126,7 @@ export default {
                 this.$router.go();
             }
             else {
-                StudentService.createStudent(this.example)
+                TableService.createTableData(this.tableName, this.example)
                     .then(response => {
                         alert("Запрос отправлен");
                         window.location.replace("/table/" + this.tableName + "/" + response.data.id);

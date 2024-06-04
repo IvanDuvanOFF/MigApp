@@ -2,7 +2,7 @@ import axios from 'axios'
 
 class AuthService {
     signing(user) {
-        return axios.post("auth/signing", {
+        return axios.post("signing", {
             login: user.username, password: user.password
         }).then(response => {                        
             if (response.data) {

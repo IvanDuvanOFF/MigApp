@@ -44,7 +44,7 @@
                 </button>
             </div>
 
-            
+
         </form>
 
         <div class="table-responsive card mt-5">
@@ -75,7 +75,7 @@
 
                                 <button class="btn btn-danger" @click="removeExample(example.id)">
                                     <font-awesome-icon icon="trash-can" />
-                                </button>                              
+                                </button>
                             </div>
                             <div v-else>
                                 <button class="btn btn-primary" @click="disactiveEditMode(example.id)">
@@ -105,7 +105,6 @@
 </template>
 
 <script>
-import StudentService from '@/services/StudentService.js';
 import AttributeService from '@/services/AttributeService.js';
 import TableService from '@/services/TableService';
 import DynamicFilter from '@/components/dynamic-components/DynamicFilter.vue';
@@ -127,7 +126,8 @@ export default {
         let thisTable = {};
 
         TableService.getTableByName(tableName).then(response => {
-            this.thisTable = response.data;
+            this.thisTable = response.data[0];
+            console.log(response.data[0]);            
 
             AttributeService.getAttributes(this.thisTable.id).then(response => {
                 console.log(response.data);
@@ -138,7 +138,7 @@ export default {
             });
         });
 
-        StudentService.getStudents().then(response => {            
+        TableService.getTableData(tableName).then(response => {
             this.examples = response.data;
             this.filtered_examples = JSON.parse(JSON.stringify(this.examples));
         });
@@ -256,9 +256,10 @@ export default {
 
         removeExample(exampleId) {
             if (confirm(this.$t("confirm.remove"))) {
-                TableService.removeTableData(this.thisTable.id, exampleId).then(() => {
-                    this.update();                    
-                });
+                TableService.removeTableData(this.tableName, exampleId);
+                // TableService.removeTableData(this.tableName, exampleId).then(() => {
+                //     this.update();                    
+                // });
             }
         },
 
@@ -269,11 +270,11 @@ export default {
         },
         activeEditMode(id) {
             this.examplesInEditMode = [];
-            this.examplesInEditMode.push(id);            
+            this.examplesInEditMode.push(id);
         },
         disactiveEditMode(id) {
             const index = this.examplesInEditMode.indexOf(id);
-            this.examplesInEditMode.splice(index, 1);            
+            this.examplesInEditMode.splice(index, 1);
         },
         getTextFromShownValues(example) {
             let represents = [];
@@ -305,13 +306,13 @@ export default {
             }
         },
 
-        saveExample(){
+        saveExample() {
             let example = {};
 
             this.filtered_attributes.forEach((attr) => {
-                let element = document.getElementById(attr.attribute_name);      
+                let element = document.getElementById(attr.attribute_name);
                 console.log(document.getElementById(attr.attribute_name).value);
-                example[attr.attribute_name] = element.value;                
+                example[attr.attribute_name] = element.value;
             });
 
             console.log(example);
@@ -343,12 +344,6 @@ export default {
                     this.search_params[element.id] = element.value;
                 }
             }
-        },
-        makeSearch() {            
-            StudentService.getStudents(this.search_params)
-                .then(response => {                    
-                    this.examples = response.data
-                });
         },
         clearFilterForm(submitEvent) {
             let form = document.getElementById("filterForm");

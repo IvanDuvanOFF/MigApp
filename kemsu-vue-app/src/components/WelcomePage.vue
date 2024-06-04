@@ -77,9 +77,12 @@ export default {
     },
     methods: {
         handleRegister() {
+            // todo temporary
+            this.$router.push('/login');
+
             UserService.createRootUser(this.user.username, this.user.password, this.bd_path).then(
                 () => {
-                    this.$router.go('/login');
+                    this.$router.push('/login');
                 }
             )
         }

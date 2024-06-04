@@ -8,8 +8,8 @@
       <a href="/" class="logo" v-if="isAdmin">
         <div class="align-content-center d-flex hide-logo justify-content-center position-absolute">
           <a class="btn btn-info mt-1 mx-1">
-            <font-awesome-icon icon="image" />            
-          </a>          
+            <font-awesome-icon icon="image" />
+          </a>
         </div>
         <img alt="Kemsu logo" class="img-fluid logo" src="./assets/logo.jpeg">
       </a>
@@ -21,10 +21,11 @@
       <a class="btn rounded-0 navbar-link" data-bs-toggle="collapse" href="#collapse">{{ $t("navbar.record") }}</a>
       <div class="collapse" id="collapse">
         <div class="card rounded-0 border-0">
-          <div class="d-grid" v-for="table in recordedTables" :key="table.id">
-            <a class="btn rounded-0 navbar-link sub-item" v-bind:href="$sanitize('/table/' + table.table_name)">{{
+          <div class="d-flex" v-for="table in recordedTables" :key="table.id">
+            <a class="btn rounded-0 w-100 navbar-link sub-item" v-bind:href="$sanitize('/table/' + table.table_name)">{{
     table.table_name }}</a>
-            <button v-if="isAdmin == true" class="btn btn-danger position-absolute rounded-0 h-50" style="right: 0">
+            <button v-if="isAdmin == true" @click="disactivateTable(table.id)"
+              class="btn btn-danger position-absolute mt-1 mx-1" >
               <font-awesome-icon icon="trash-can" />
             </button>
           </div>
@@ -33,9 +34,9 @@
             data-bs-toggle="dropdown" aria-bs-haspopup="true" aria-bs-expanded="false">
           </a>
           <div v-if="isAdmin" class="dropdown-menu" aria-bs-labelledby="dropdownMenuLink">
-            <a v-for="table in remainingTables" @click="addRemainingTableToRecorded" :key="table" class="dropdown-item"
+            <a v-for="table in remainingTables" @click="addRemainingTableToRecorded(table.id)" :key="table" class="dropdown-item"
               href="#">
-              {{ table }}
+              {{ table.table_name }}
             </a>
           </div>
         </div>
@@ -62,13 +63,16 @@ export default {
     let remainingTables = [];
 
     remainingTables = TableService.getTables(1);
-    TableService.getRecordedTables(1).then(response => {
-      this.recordedTables = response.data;
+    TableService.getTables(1).then(response => {
+      let allTables = response.data;
+      this.remainingTables = allTables.filter(function (el) {
+        return !el.active;
+      });
+      this.recordedTables = allTables.filter(function (el) {
+        return el.active;
+      });      
     });
 
-    remainingTables = remainingTables.filter(function (el) {
-      return !recordedTables.includes(el);
-    });
     return {
       recordedTables,
       remainingTables
@@ -106,8 +110,15 @@ export default {
       this.$router.go();
       this.$router.push('/login');
     },
-    addRemainingTableToRecorded() {
-      alert("Таблица должна добавиться в список учтенных");
+    addRemainingTableToRecorded(table_id) {
+      console.log(table_id);
+      TableService.activateTable(table_id);
+      this.$router.go();
+    },
+    disactivateTable(table_id) {
+      console.log(table_id);
+      TableService.disactivateTable(table_id);
+      this.$router.go();
     }
   }
 }
