@@ -76,7 +76,7 @@ services:
       start_period: 90s
 
   pgadmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:8.7
     container_name: pgadmin
     environment:
       - PGADMIN_DEFAULT_EMAIL=ivan.duvanov.3@gmail.com
@@ -103,7 +103,7 @@ services:
           memory: 256M
 
   redis:
-    image: redis
+    image: redis:7.0-alpine
     container_name: redis
     networks:
       app-network:
@@ -111,21 +111,21 @@ services:
     ports:
       - '6379:6379'
 
-  front:
-    image: front
-    container_name: front
-    build:
-      context: ./kemsu-vue-app
-      dockerfile: ./docker/prod/Dockerfile
-    volumes:
-      - type: volume
-        source: vue-dist
-        target: /front/dist
-    depends_on:
-      - app
+#  front:
+#    image: front
+#    container_name: front
+#    build:
+#      context: ./kemsu-vue-app
+#      dockerfile: ./docker/prod/Dockerfile
+#    volumes:
+#      - type: volume
+#        source: vue-dist
+#        target: /front/dist
+#    depends_on:
+#      - app
 
   nginx:
-    image: nginx:latest
+    image: nginx:1.27.0
     container_name: nginx
     networks:
       app-network:
@@ -143,7 +143,7 @@ services:
       - front
 
   loki:
-    image: grafana/loki
+    image: grafana/loki:1.4.1
     container_name: loki
     networks:
       app-network:
@@ -157,7 +157,7 @@ services:
     command: -config.file=/etc/loki/loki-config.yml
 
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:v2.52.0
     container_name: prometheus
     command:
       - --enable-feature=exemplar-storage
@@ -175,7 +175,7 @@ services:
       - app
 
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:11.0.0
     container_name: grafana
     environment:
       - GF_SECURITY_ADMIN_USER=ivan

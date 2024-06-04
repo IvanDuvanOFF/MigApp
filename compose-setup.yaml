@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   nginx:
-    image: nginx:latest
+    image: nginx:1.27.0
     container_name: nginx
     ports:
       - '80:80'
@@ -21,7 +21,7 @@ services:
         target: /var/lib/letsencrypt
 
   certbot:
-    image: certbot/certbot
+    image: certbot/certbot:v2.10.0
     container_name: certbot
     volumes:
       - type: volume
