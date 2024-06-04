@@ -14,6 +14,9 @@ import java.time.DateTimeException
 import java.time.Instant
 import java.time.ZoneId
 
+/**
+ * Сервис для работы с одноразовыми паролями [TotpCode]
+ */
 @Component
 class TotpService(
     @Autowired
@@ -26,11 +29,17 @@ class TotpService(
     private val random = SecureRandom()
 
     companion object {
-        private const val SOURCE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+        private const val SOURCE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         private const val CAPACITY = 6
     }
 
-    @Throws(exceptionClasses = [DateTimeException::class, PersistenceException::class])
+    /**
+     * Метод генерирует одноразовый пароль [TotpCode] из символов в [SOURCE]
+     * для пользователя [user]
+     *
+     * @throws DateTimeException
+     * @throws PersistenceException
+     */
     fun generateCode(user: User): String {
         val code =
             StringBuilder(CAPACITY).apply { repeat(CAPACITY) { this.append(SOURCE[random.nextInt(SOURCE.length)]) } }
@@ -48,7 +57,11 @@ class TotpService(
         return code
     }
 
-    @Throws(exceptionClasses = [BadCredentialsException::class])
+    /**
+     * Метод находит одноразовый пароль [TotpCode] для пользователя [user]
+     *
+     * @throws BadCredentialsException код не найден
+     */
     fun findTfaByUser(user: User, code: String): TotpCode {
         val codes =
             totpCodeRepository.findByTfaIdUser(user.id).orElseThrow { BadCredentialsException("Code is incorrrrect") }
@@ -57,5 +70,10 @@ class TotpService(
             ?: throw BadCredentialsException("aboba")
     }
 
+    /**
+     * Удаляет одноразовый пароль [totpCode]
+     *
+     * @throws PersistenceException
+     */
     fun removeCode(totpCode: TotpCode) = totpCodeRepository.delete(totpCode)
 }

@@ -6,6 +6,12 @@ import org.example.migapi.domain.account.model.User
 import java.io.Serializable
 import java.time.LocalDateTime
 
+/**
+ * Сущность одноразового пароля
+ *
+ * @property tfaId id пароля [TotpCodeId]
+ * @property expirationDate срок годности одноразового пароля [LocalDateTime]
+ */
 @Entity
 @Table(name = "tfa_codes")
 data class TotpCode(
@@ -15,6 +21,13 @@ data class TotpCode(
     @Column(name = "expiration_date", nullable = false)
     val expirationDate: LocalDateTime
 ) : Model {
+
+    /**
+     * Класс id одноразового пароля
+     *
+     * @property code значение кода [String]
+     * @property user пользователь, для которого сгенерирован пароль [User]
+     */
     @Embeddable
     class TotpCodeId(
         val code: String,

@@ -13,6 +13,9 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
+/**
+ * Компонент, фильтрующий запросы
+ */
 @Component
 class JwtAuthenticationFilter(
     @Autowired
@@ -22,6 +25,11 @@ class JwtAuthenticationFilter(
     @Autowired
     private val revokedTokenService: RevokedTokenService
 ) : OncePerRequestFilter() {
+
+    /**
+     * Фильтрует запросы, валидирует jwt-токен,
+     * если контекст пустой, авторизует пользователя
+     */
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,

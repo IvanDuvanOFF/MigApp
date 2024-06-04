@@ -4,6 +4,11 @@ import jakarta.persistence.*
 import org.example.migapi.core.domain.model.Model
 import org.example.migapi.core.domain.model.enums.EStudentStatus
 
+/**
+ * Сущность статуса студента
+ *
+ * @property name имя статуса [String]
+ */
 @Entity
 @Table(name = "student_statuses")
 data class StudentStatus(

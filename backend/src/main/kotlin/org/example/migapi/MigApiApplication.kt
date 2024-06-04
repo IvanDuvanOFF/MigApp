@@ -1,6 +1,5 @@
 package org.example.migapi
 
-import com.google.gson.Gson
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
 import io.swagger.v3.oas.annotations.servers.Server
 import org.example.migapi.core.config.exception.BadRequestException
@@ -14,8 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
-import java.time.LocalDate
-import java.time.ZoneId
 import java.util.*
 
 @OpenAPIDefinition(
@@ -28,12 +25,16 @@ import java.util.*
 @EnableCaching
 @EnableScheduling
 class MigApiApplication {
-    @Bean
-    fun gson(): Gson = Gson()
 
+    /**
+     * Бин для хэширования строки алгоритмом BCrypt
+     */
     @Bean
     fun passwordEncoder() = BCryptPasswordEncoder()
 
+    /**
+     * Бин конфигурирует CORS
+     */
     @Bean
     fun corsGlobalConfig(): WebMvcConfigurer {
         return object : WebMvcConfigurer {
@@ -44,21 +45,25 @@ class MigApiApplication {
     }
 }
 
+/**
+ * Расширяющий метод для [Boolean]. Выбрасывает исключение [throwable], если значение false
+ */
 fun Boolean.orThrow(throwable: () -> Throwable) {
     if (!this) throw throwable()
 }
 
+/**
+ * Расширающий метод для [String]. Переводит строку в [UUID]
+ */
 fun String.toUUID(): UUID = try {
     UUID.fromString(this)
 } catch (e: IllegalArgumentException) {
     throw BadRequestException()
 }
 
-fun LocalDate.toDate(): Date = Date.from(
-    this.atStartOfDay().atZone(ZoneId.systemDefault())
-        .toInstant()
-)
-
+/**
+ * Метод получает имя пользователя из контекста
+ */
 fun getUsernameFromContext(): String =
     (SecurityContextHolder.getContext().authentication.principal as SpringUser).username
 

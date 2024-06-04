@@ -6,6 +6,14 @@ import com.google.gson.annotations.SerializedName
 import io.swagger.v3.oas.annotations.media.Schema
 import java.io.Serializable
 
+/**
+ * Ответ на запрос на вход в систему
+ *
+ * @property token jwt-токен для доступа в систему [String]
+ * @property refreshToken токен для обновления [token] [String]
+ * @property username имя пользователя [String]
+ * @property tfaEnabled флаг включена ли 2х факторная аутентификация [Boolean]
+ */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 data class SignResponse(
     @JsonProperty("access_token")

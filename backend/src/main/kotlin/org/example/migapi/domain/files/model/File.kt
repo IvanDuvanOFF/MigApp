@@ -10,6 +10,13 @@ import jakarta.persistence.Table
 import org.example.migapi.core.domain.model.Model
 import org.example.migapi.domain.account.model.User
 
+/**
+ * Сущность файла в системе.
+ *
+ * @property name имя файла в системе. Задается в формате <uuid>_<original_file_name>.
+ * @property link ссылка на файл
+ * @property user пользователь, которому принадлежит файл
+ */
 @Entity
 @Table(name = "files")
 data class File(

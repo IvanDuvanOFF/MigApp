@@ -6,6 +6,16 @@ import com.google.gson.annotations.Expose
 import org.example.migapi.core.domain.dto.Dto
 import org.example.migapi.core.domain.model.enums.ERole
 
+/**
+ * Дтошка пользователя
+ *
+ * @property id id пользователя [String]
+ * @property username username пользователя [String]
+ * @property email адрес электронной почты пользователя [String]
+ * @property password пароль пользователя [String]
+ * @property role роль пользователя [String]
+ * @property tfaEnabled статус активности 2х факторной аутентификации для пользователя [Boolean]
+ */
 open class UserDto(
     val id: String? = null,
     val username: String,

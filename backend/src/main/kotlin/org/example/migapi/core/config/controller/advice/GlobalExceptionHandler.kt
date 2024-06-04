@@ -23,6 +23,9 @@ import java.net.SocketException
 import java.nio.file.InvalidPathException
 import java.time.DateTimeException
 
+/**
+ * Конфиг для глобального обработчика исключений
+ */
 @RestControllerAdvice
 class GlobalExceptionHandler {
     private val logger: KLogger = KotlinLogging.logger { }

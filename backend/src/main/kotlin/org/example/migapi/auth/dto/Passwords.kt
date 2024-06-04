@@ -4,6 +4,9 @@ import io.swagger.v3.oas.annotations.media.Schema
 import org.example.migapi.domain.account.validation.ValidPassword
 import java.io.Serializable
 
+/**
+ * Пароли для смены
+ */
 data class Passwords(
     @Schema(example = "password", required = true)
     @ValidPassword

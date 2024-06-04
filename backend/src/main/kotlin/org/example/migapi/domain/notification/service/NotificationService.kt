@@ -12,15 +12,16 @@ import org.example.migapi.domain.notification.dto.NotificationDto
 import org.example.migapi.domain.notification.exception.NotificationNotFoundException
 import org.example.migapi.domain.notification.model.Notification
 import org.example.migapi.domain.notification.repository.NotificationRepository
-import org.example.migapi.domain.typography.event.ExpiredTypographyEvent
 import org.example.migapi.getUsernameFromContext
 import org.example.migapi.utils.MigUtils
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
 
+/**
+ * Сервис для работы с уведомлениями пользователей
+ */
 @Service
 class NotificationService(
     @Autowired
@@ -33,6 +34,9 @@ class NotificationService(
     private val migUtils: MigUtils
 ) {
 
+    /**
+     * Метод для добавления токена Firebase [FirebaseTokenDto] в систему и привязки его к пользователю по его id
+     */
     fun addFirebaseToken(firebaseTokenDto: FirebaseTokenDto) =
         notificationSendService.addFirebaseToken(firebaseTokenDto)
 
@@ -46,13 +50,22 @@ class NotificationService(
             description = notificationDto.description ?: throw BadRequestException(),
             date = LocalDateTime.now(),
             isViewed = false,
-            status = ENotificationStatus.INFO
+            status = try {
+                notificationDto.status?.uppercase()?.let { ENotificationStatus.valueOf(it) } ?: ENotificationStatus.INFO
+            } catch (e: Exception) {
+                throw BadRequestException()
+            }
         )
 
         notificationRepository.save(notification)
         notificationSendService.sendNotification(notification)
 
         return notification
+    }
+
+    fun pushNotification(notification: Notification) {
+        notificationRepository.save(notification)
+        notificationSendService.sendNotification(notification)
     }
 
     @Throws(
@@ -103,44 +116,4 @@ class NotificationService(
         isViewed = this.isViewed,
         status = this.status.name
     )
-
-    @EventListener
-    fun handleExpiredTypography(expiredTypographyEvent: ExpiredTypographyEvent) {
-        val typography = expiredTypographyEvent.typographyAndRest
-
-        val title: String
-        val description: String
-        val status: ENotificationStatus
-
-        when (typography.rest) {
-            0 -> {
-                title = "Your application is expired!"
-                description =
-                    "Your application from ${migUtils.localDateToString(typography.creationDate)} " +
-                            "has been expired. Get a call to ICD"
-                status = ENotificationStatus.BAD
-            }
-
-            else -> {
-                title = "Your application is ${typography.rest} day${if (typography.rest > 1) "s" else ""} left!"
-                description =
-                    "Your application from ${migUtils.localDateToString(typography.creationDate)} " +
-                            "has ${typography.rest} day before expiration"
-                status = ENotificationStatus.INFO
-            }
-        }
-
-        val notification = Notification(
-            id = UUID.randomUUID(),
-            user = typography.user,
-            title = title,
-            description = description,
-            date = LocalDateTime.now(),
-            isViewed = false,
-            status = status
-        )
-
-        notificationSendService.sendNotification(notification)
-        notificationRepository.save(notification)
-    }
 }
