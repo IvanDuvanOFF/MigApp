@@ -1,26 +1,34 @@
 import axios from 'axios'
+import UserService from './UserService';
 
 class AuthService {
+    login(user, response) {
+        if (response.data) {
+            let isAdmin = user.username == "admin";
+
+            user["is_admin"] = isAdmin;
+            user["password"] = "";
+            localStorage.setItem('user', JSON.stringify(user));
+        }
+        return response.data;
+    }
+
     signing(user) {
+        UserService.getByName(user.username).then(response => {            
+            user = response.data[0];
+        })
+
+
         return axios.post("signing", {
             login: user.username, password: user.password
-        }).then(response => {                        
-            if (response.data) {
-                let userData = {
-                    username: user.username,
-                    access_token: response.data.access_token,
-                    tfa_enabled: response.data.tfa_enabled,
-                    is_admin: true                    
-                }
-                localStorage.setItem('user', JSON.stringify(userData));
-            }            
-            return response.data;
+        }).then(response => {
+            return this.login(user, response);
         });
     }
 
     signingTfa(user, code) {
         return axios.post("auth/signing/tfa", {
-            username: user.username, 
+            username: user.username,
             code: code
         }).then(response => {
             let userData = {

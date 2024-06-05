@@ -2,8 +2,16 @@ import axios from "axios";
 
 class UserService {
     getUsers(workspaceId) {
-        return axios.get('users', {            
+        return axios.get('users', {
             workspace_id: workspaceId
+        });
+    }
+
+    getByName(name) {
+        return axios.get('users', {
+            params: {
+                username: name
+            }
         });
     }
 
@@ -19,7 +27,7 @@ class UserService {
         return axios.put('users/' + id, params);
     }
 
-    createUser(username, password, workspace_id){
+    createUser(username, password, workspace_id) {
         // username: string
         // password: string
         // workspace_id: int        
@@ -30,7 +38,7 @@ class UserService {
         })
     }
 
-    createRootUser(username, password, bd_path){
+    createRootUser(username, password, bd_path) {
         // username: string
         // password: string
         // bd_path: string 

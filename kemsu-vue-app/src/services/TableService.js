@@ -1,12 +1,13 @@
 import axios from 'axios';
+import SettingsController from '@/store/settings-controller';
 
 class TableService {
-    getTables(config_id) {
-        return axios.get('/tables', config_id);
+    getTables(config_id) {        
+        return axios.get(SettingsController.getBdPath() + 'tables', config_id);
     }
 
     activateTable(table_id) {
-        this.getTable(table_id).then(response => {
+        return this.getTable(table_id).then(response => {
             let table = response.data[0];
             table.active = true;
             return axios.put('/tables/' + table_id, table);
@@ -14,7 +15,7 @@ class TableService {
     }
 
     disactivateTable(table_id) {
-        this.getTable(table_id).then(response => {
+        return this.getTable(table_id).then(response => {
             let table = response.data[0];
             table.active = false;
             return axios.put('/tables/' + table_id, table);
@@ -38,12 +39,12 @@ class TableService {
     }
 
     createTableData(table_name, params) {
-        let tableAddress = '/' + table_name;
+        let tableAddress = SettingsController.getBdPath() + table_name;
         return axios.post(tableAddress, params);
     }
 
     getTableData(table_name, id = null) {
-        let tableAddress = '/' + table_name;
+        let tableAddress = SettingsController.getBdPath() + table_name;        
         return axios.get(tableAddress,
             {
                 params: {
@@ -54,12 +55,12 @@ class TableService {
     }
 
     updateTableData(table_name, params) {
-        let tableAddress = '/' + table_name + '/' + params.id;
+        let tableAddress = SettingsController.getBdPath() + table_name + '/' + params.id;
         return axios.put(tableAddress, params);
     }
 
     removeTableData(table_name, id) {
-        let tableAddress = '/' + table_name;
+        let tableAddress = SettingsController.getBdPath() + table_name;
         return axios.delete(tableAddress, id);
     }
 }

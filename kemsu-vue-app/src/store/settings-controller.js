@@ -16,6 +16,10 @@ const SettingsController = {
         return editMode == "true";
     },
 
+    getStringMode(item){
+        return localStorage.getItem(item);
+    },
+
     setMode(item, isOn) {
         console.log(item, isOn);
         localStorage.setItem(item, String(isOn));
@@ -53,6 +57,14 @@ const SettingsController = {
         else{
             app.classList.add("small-font");
         }
+    },
+
+    setBdPath(bd_path){
+        this.setMode("bd_path", bd_path);
+    },
+
+    getBdPath(){
+        return this.getStringMode("bd_path");
     },
 
     switchTheme() {

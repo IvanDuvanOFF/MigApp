@@ -40,16 +40,43 @@
                 </option>
             </select>
         </div>
+
+        <div class="d-flex w-75">
+            <label for="bd_path" class="w-50 text-start">{{ $t("settings.config") }}</label>
+            <select name="bd_path" class="form-select" @change="switchConfig" :value="selecetedConfig.bd_path">
+                <option v-for="config in configures" v-bind:key="{id: config.id, bd_path: config.bd_path}" :value="config.bd_path">
+                    {{ config.bd_path }}
+                </option>
+            </select>
+        </div>
     </div>
 </template>
 
 <script>
 import Trans from '@/i18n/translate.js';
 import SettingsController from '@/store/settings-controller';
+import ConfigService from '@/services/ConfigService.js';
 import { useI18n } from 'vue-i18n';
 
 
 export default {
+    data(){
+        ConfigService.getConfigureByName(SettingsController.getBdPath()).then(response => {
+            this.selecetedConfig = response.data[0];         
+            console.log(SettingsController.getBdPath());
+            console.log(this.selecetedConfig);
+        })
+
+        let user = JSON.parse(localStorage.getItem("user"));
+        ConfigService.getConfigures(user.workspace_id).then(response => {
+            this.configures = response.data;
+        })
+
+        return {
+            configures: [],
+            selecetedConfig: {}
+        }
+    },
     setup() {
         const { t, locale } = useI18n();
 
@@ -66,7 +93,7 @@ export default {
             supportedLocales,
             switchLanguage,
             theme: SettingsController.getDarkTheme(),
-            fontSize: SettingsController.getFontSize()
+            fontSize: SettingsController.getFontSize()            
         };
     },
     methods: {
@@ -78,6 +105,11 @@ export default {
         switchFont(event){
             let value = event.target.value == "true";
             SettingsController.setFontSize(value);
+            this.$router.go();
+        },
+        switchConfig(event){
+            console.log(event.target.value);
+            SettingsController.setBdPath(event.target.value);
             this.$router.go();
         }
     },

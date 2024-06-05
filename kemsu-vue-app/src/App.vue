@@ -6,10 +6,11 @@
   <div class="row h-100 m-0" v-if="currentUser">
     <div class="col d-flex flex-column col-md-3 p-0 shadow h-100" style="background-color: #595959; width: 240px">
       <a href="/" class="logo" v-if="isAdmin">
-        <div class="align-content-center d-flex hide-logo justify-content-center position-absolute">
-          <a class="btn btn-info mt-1 mx-1">
+        <div class="position-absolute dropend">
+          <a class="btn btn-info mt-1 mx-1 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             <font-awesome-icon icon="image" />
           </a>
+          <input type="file" class="form-control dropdown-menu" @change="logoLoaded" />
         </div>
         <img alt="Kemsu logo" class="img-fluid logo" src="./assets/logo.jpeg">
       </a>
@@ -25,7 +26,7 @@
             <a class="btn rounded-0 w-100 navbar-link sub-item" v-bind:href="$sanitize('/table/' + table.table_name)">{{
     table.table_name }}</a>
             <button v-if="isAdmin == true" @click="disactivateTable(table.id)"
-              class="btn btn-danger position-absolute mt-1 mx-1" >
+              class="btn btn-danger position-absolute mt-1 mx-1">
               <font-awesome-icon icon="trash-can" />
             </button>
           </div>
@@ -34,8 +35,8 @@
             data-bs-toggle="dropdown" aria-bs-haspopup="true" aria-bs-expanded="false">
           </a>
           <div v-if="isAdmin" class="dropdown-menu" aria-bs-labelledby="dropdownMenuLink">
-            <a v-for="table in remainingTables" @click="addRemainingTableToRecorded(table.id)" :key="table" class="dropdown-item"
-              href="#">
+            <a v-for="table in remainingTables" @click="addRemainingTableToRecorded(table.id)" :key="table"
+              class="dropdown-item" href="#">
               {{ table.table_name }}
             </a>
           </div>
@@ -64,13 +65,14 @@ export default {
 
     remainingTables = TableService.getTables(1);
     TableService.getTables(1).then(response => {
+      console.log(response.data);
       let allTables = response.data;
       this.remainingTables = allTables.filter(function (el) {
         return !el.active;
       });
       this.recordedTables = allTables.filter(function (el) {
         return el.active;
-      });      
+      });
     });
 
     return {
@@ -112,13 +114,17 @@ export default {
     },
     addRemainingTableToRecorded(table_id) {
       console.log(table_id);
-      TableService.activateTable(table_id);
-      this.$router.go();
+      TableService.activateTable(table_id).then(() => {
+        this.$router.go();
+      });
+
     },
     disactivateTable(table_id) {
       console.log(table_id);
-      TableService.disactivateTable(table_id);
-      this.$router.go();
+      TableService.disactivateTable(table_id).then(() => {
+        this.$router.go();
+      });
+
     }
   }
 }

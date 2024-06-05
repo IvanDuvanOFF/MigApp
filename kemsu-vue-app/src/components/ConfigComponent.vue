@@ -76,8 +76,8 @@
 
         <div class="rounded-2 row gap-2 justify-content-center mx-1 p-2 mt-5 border-danger border border-2 ">
             <h1>{{ $t("config.bd_path") }}</h1>
-            <input class="form-control" name="dbPath" v-model="dbPath" />
-            <button class="w-25 btn btn-dark" @click="saveDbPath">
+            <input class="form-control" name="dbPath" v-model="config.bd_path" />
+            <button class="w-25 btn btn-dark" @click="saveBdPath()">
                 {{ $t("config.save") }}
             </button>
         </div>
@@ -87,9 +87,9 @@
 
 <script>
 import UserService from '@/services/UserService.js';
-import { LOCAL_URL } from '@/urls';
-import axios from 'axios';
 import DynamicInput from './dynamic-components/DynamicInput.vue';
+import SettingsController from '@/store/settings-controller';
+import ConfigService from '@/services/ConfigService';
 
 export default {
     components: {
@@ -97,8 +97,13 @@ export default {
     },
     data() {
         let users = []
-        let dbPath = LOCAL_URL;
+        let config = {};
         let editList = [];
+
+        ConfigService.getConfigureByName(SettingsController.getBdPath()).then(response => {            
+            this.config = response.data[0];
+            console.log(this.config);
+        });
 
         UserService.getUsers(1).then(response => {
             this.users = response.data;
@@ -106,10 +111,10 @@ export default {
 
         return {
             users,
-            editList,
-            dbPath,
+            editList,            
             isNewUser: false,
             newUser: {},
+            config,
             user_attr: {
                 attribute_type: "string",
                 attribute_name: "username"
@@ -162,8 +167,11 @@ export default {
             })
             this.editList = [];
         },
-        saveDbPath() {
-            axios.defaults.baseURL = this.dbPath;
+        saveBdPath() {
+            ConfigService.changeConfigure(this.config).then(() => {
+                SettingsController.setBdPath(this.config.bd_path);
+                this.$router.go();
+            });           
         }
     }
 }

@@ -16,7 +16,8 @@
         "large_font": "Large font",
         "small_font": "Small font",
         "dark_theme": "High Contrast",
-        "light_theme": "Light theme"
+        "light_theme": "Light theme",
+        "config": "Chosen configuration"
     },
     "edit-mode": {
         "title": "Edit mode"
