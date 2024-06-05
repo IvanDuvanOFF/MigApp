@@ -113,7 +113,7 @@ services:
     ports:
       - '6379:6379'
 
- front:
+  front:
    image: front
    container_name: front
    build:
