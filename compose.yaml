@@ -113,18 +113,18 @@ services:
     ports:
       - '6379:6379'
 
-#  front:
-#    image: front
-#    container_name: front
-#    build:
-#      context: ./kemsu-vue-app
-#      dockerfile: ./docker/prod/Dockerfile
-#    volumes:
-#      - type: volume
-#        source: vue-dist
-#        target: /front/dist
-#    depends_on:
-#      - app
+ front:
+   image: front
+   container_name: front
+   build:
+     context: ./kemsu-vue-app
+     dockerfile: ./docker/prod/Dockerfile
+   volumes:
+     - type: volume
+       source: vue-dist
+       target: /front/dist
+   depends_on:
+     - app
 
   nginx:
     image: nginx:1.27.0
