@@ -100,12 +100,14 @@ export default {
         let config = {};
         let editList = [];
 
+        let user = JSON.parse(localStorage.getItem('user'));
+
         ConfigService.getConfigureByName(SettingsController.getBdPath()).then(response => {            
             this.config = response.data[0];
             console.log(this.config);
         });
 
-        UserService.getUsers(1).then(response => {
+        UserService.getUsers(user.workspace_id).then(response => {
             this.users = response.data;
         });
 

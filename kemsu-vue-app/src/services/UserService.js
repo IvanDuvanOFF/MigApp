@@ -3,7 +3,9 @@ import axios from "axios";
 class UserService {
     getUsers(workspaceId) {
         return axios.get('users', {
-            workspace_id: workspaceId
+            params: {
+                workspace_id: workspaceId
+            }            
         });
     }
 

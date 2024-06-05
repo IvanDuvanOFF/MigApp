@@ -3,7 +3,11 @@ import SettingsController from '@/store/settings-controller';
 
 class TableService {
     getTables(config_id) {        
-        return axios.get(SettingsController.getBdPath() + 'tables', config_id);
+        return axios.get(SettingsController.getBdPath() + 'tables', {
+            params:{
+                config_id: config_id
+            }
+        });
     }
 
     activateTable(table_id) {
