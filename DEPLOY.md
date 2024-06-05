@@ -20,7 +20,7 @@ docker build -f ./backend/docker/prod/Dockerfile -t mig-api .
 
 Для начала установим плагин для Loki, чтобы можно было собирать логи:
 ```bash
-docker plugin install grafana/loki-docker-driver --alias loki --grant-all-permissions
+docker plugin install grafana/loki-docker-driver:2.9.8 --alias loki --grant-all-permissions
 ```
 
 В терминале запускаем команду:
