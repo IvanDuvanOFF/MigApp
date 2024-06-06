@@ -31,7 +31,6 @@
 
 <script>
 import { Field, Form, ErrorMessage } from 'vee-validate';
-import User from '../models/user';
 import * as yup from 'yup';
 
 export default {
@@ -43,7 +42,7 @@ export default {
     },
     data() {
         return {
-            user: new User('', ''),
+            user: {},
             loading: false,
             message: '',
             schema: yup.object({
@@ -53,17 +52,20 @@ export default {
         }
     },
     computed: {
+        // динамическое состояние авторизации пользователя
         loggedIn() {
             return this.$store.state.auth.status.loggedIn;
         }
     },
     created() {
+        // перевод на главную при авторизованном доступе
         if (this.loggedIn) {
             this.$router.push('/');
         }
     },
 
     methods: {
+        // действие при авторизации
         handleLogin() {
             this.loading = true;
             if (this.user.username && this.user.password) {

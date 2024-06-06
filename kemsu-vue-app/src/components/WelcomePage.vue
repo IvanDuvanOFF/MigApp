@@ -65,6 +65,7 @@ export default {
         return {
             bd_path: "",
             user: {},
+            // Схема для валидации полей
             schema: yup.object({
                 "username": yup.string().required(this.$t("errors.required")),
                 "password": yup.string().required(this.$t("errors.required")),
@@ -76,8 +77,8 @@ export default {
         };
     },
     methods: {
-        handleRegister() {
-            // todo temporary
+        // Регистрация пользователя
+        handleRegister() {            
             this.$router.push('/login');
 
             UserService.createRootUser(this.user.username, this.user.password, this.bd_path).then(

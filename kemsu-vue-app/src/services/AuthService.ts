@@ -2,6 +2,7 @@ import axios from 'axios'
 import UserService from './UserService';
 
 class AuthService {
+    // Общий метод авторизаци 
     login(user, response) {
         if (response.data) {
             let isAdmin = user.username == "admin";
@@ -13,6 +14,7 @@ class AuthService {
         return response.data;
     }
 
+    // Первичная авторизация пользователя
     signing(user) {
         UserService.getByName(user.username).then(response => {            
             user = response.data[0];
@@ -26,6 +28,7 @@ class AuthService {
         });
     }
 
+    // Вторичная авторизация пользователя по коду 2F
     signingTfa(user, code) {
         return axios.post("auth/signing/tfa", {
             username: user.username,
@@ -42,24 +45,28 @@ class AuthService {
         });
     }
 
+    // Восстановить аккаунт
     restore(email) {
         return axios.post("auth/restore", {
             email: email
         });
     }
 
+    // Восстановить по ключу
     restoreByToken(token, email) {
         return axios.post(`auth/restore/${token}`, {
             params: { email: email }
         });
     }
 
+    // Восстановить ключ доступа к Универсальной Консоли
     refreshToken(refresh_token) {
         return axios.post(`auth/refresh`, {
             params: { refresh_token: refresh_token }
         });
     }
 
+    // Осуществить выход из аккаунта пользователя
     logout() {
         localStorage.removeItem('user');
     }

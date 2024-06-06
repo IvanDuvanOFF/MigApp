@@ -1,6 +1,7 @@
 import axios from "axios";
 
 class UserService {
+    // Получить всех пользователей из рабочего пространства
     getUsers(workspaceId) {
         return axios.get('users', {
             params: {
@@ -9,6 +10,7 @@ class UserService {
         });
     }
 
+    // Получить пользователя по имени
     getByName(name) {
         return axios.get('users', {
             params: {
@@ -17,11 +19,13 @@ class UserService {
         });
     }
 
+    // Удалить пользователя
     removeUser(id) {
         return axios.delete('users/' + id);
     }
 
-    editUser(id, params) {
+    // Редактировать пользователя
+    editUser(id, params) {        
         // id: int
         // username: string
         // password: string
@@ -29,10 +33,8 @@ class UserService {
         return axios.put('users/' + id, params);
     }
 
-    createUser(username, password, workspace_id) {
-        // username: string
-        // password: string
-        // workspace_id: int        
+    // Создать нового пользователя для рабочего пространства
+    createUser(username, password, workspace_id) {        
         return axios.post('users', {
             username,
             password,
@@ -48,7 +50,7 @@ class UserService {
         // Сначала создает новый config с bd_path
         // Потом workspace с конфигом
         // Потом user с workspace
-        // В конце у workspace.root_user_id = user.id которого мы сделали только что
+        // В конце у workspace.root_user_id = user.id, который только что был создан
         return axios.post('users/root', {
             username: username,
             password: password,

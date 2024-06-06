@@ -127,7 +127,7 @@ export default {
 
         TableService.getTableByName(tableName).then(response => {
             this.thisTable = response.data[0];
-            console.log(response.data[0]);            
+            console.log(response.data[0]);
 
             AttributeService.getAttributes(this.thisTable.id).then(response => {
                 console.log(response.data);
@@ -155,32 +155,32 @@ export default {
         };
     },
     methods: {
+        // экспортировать таблицу в Excel
         exportTable() {
             let elem = document.getElementById('exportButton');
             let table = document.getElementById("table");
             let html = table.outerHTML;
-            let url = 'data:application/vnd.ms-excel,' + escape(html); // Set your html table into url 
+            let url = 'data:application/vnd.ms-excel,' + escape(html); // Поставить HTML код в ссылку
             elem.setAttribute("href", url);
-            elem.setAttribute("download", this.tableName + ".xls"); // Choose the file name
+            elem.setAttribute("download", this.tableName + ".xls"); // Выбрать имя файла
             return false;
         },
+
+        // иницализировать сортировщик
         initSorter(event) {
             let table = document.getElementById("table");
-            // get cell values, parsing dates in d/m/yyyy format
+            // Получить значения клеток, парсить даты в d/m/yyyy формате
             let rxDate = /^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/;
             let getCellValue = (tr, idx) => {
                 let value = tr.children[idx].innerText;
                 let match = rxDate && value.match(rxDate);
                 if (match) {
-                    //try {
-                    // parse dates (correct ones only)
                     value = new Date(match[3] + "-" + match[2] + "-" + match[1]);
-                    //} catch {}
                 }
                 return value;
             }
 
-            // compare two cells in the same column
+            // сравнить две клетки в одной колонке
             let comparer = (idx, asc) => (a, b) =>
                 ((v1, v2) =>
                     v1 !== "" && v2 !== "" && !isNaN(v1) && !isNaN(v2)
@@ -199,51 +199,50 @@ export default {
             let hdr = event.target;
             let index = headers.indexOf(hdr);
 
-            // keep order per column
+            // сортировка колонки
             let asc = hdr.classList.contains("sort-asc");
             let desc = hdr.classList.contains("sort-desc");
 
-            // remove old sort symbols
+            // удалить старые значки сортировки
             headers.forEach(h => {
                 h.classList.toggle("sort-asc", false);
                 h.classList.toggle("sort-desc", false);
             });
 
-            // remove sort from this column if already in descending order (three-way cycle)
+            // удалить сортировку из колонки если она в нисходящей сортировке (цикл в три раза)            
             if (desc) {
                 originalRows.forEach(row => tbody.appendChild(row));
                 return;
             }
 
-            // sort the rows
+            // сортировать ряды
             let rows = Array.from(tbody.querySelectorAll("tr"));
             rows.sort(comparer(index, asc = !asc));
             rows.forEach(row => tbody.appendChild(row));
 
-            // add new sort symbols
+            // добавить значки новой сортировки
             hdr.classList.toggle("sort-asc", asc);
             hdr.classList.toggle("sort-desc", !asc);
-
-
         },
 
+        // инициализировать поиск
         initFilter(event) {
             let table = document.getElementById(event.target.getAttribute("data-filter-for"));
             let rows = table.tBodies[0].rows;
 
             let search = event.target.value;
 
-            // get terms to filter on
+            // получить условия для фильтрации
             let terms = search
                 .split(/\s+/)
-                .filter((x) => x.length > 0) // skip empty terms
-                .map((x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")); // escape regex
+                .filter((x) => x.length > 0) // пропустить пустые условия
+                .map((x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")); // применить regex
 
-            // build pattern/regex
+            // построить regex
             let pattern = "(" + terms.join("|") + ")";
             let regEx = new RegExp(pattern, "gi");
 
-            // apply to all rows
+            // применить ко всем рядам
             for (const element of rows) {
                 let row = element;
                 let match = row.textContent.match(regEx);
@@ -254,42 +253,35 @@ export default {
             }
         },
 
+        // удалить запись из таблицы
         removeExample(exampleId) {
             if (confirm(this.$t("confirm.remove"))) {
-                TableService.removeTableData(this.tableName, exampleId);
-                // TableService.removeTableData(this.tableName, exampleId).then(() => {
-                //     this.update();                    
-                // });
+                TableService.removeTableData(this.tableName, exampleId).then(() => {
+                    this.update();
+                });
             }
         },
 
+        // обновить отфильтрованные атрибуты
         updateFiltererdAttributes() {
             this.filtered_attributes = this.attributes.filter(function (el) {
                 return el.is_shown;
             });
         },
+
+        // активировать режим редактирования для таблицы
         activeEditMode(id) {
             this.examplesInEditMode = [];
             this.examplesInEditMode.push(id);
         },
+
+        // активировать режим редактирования для таблицы
         disactiveEditMode(id) {
             const index = this.examplesInEditMode.indexOf(id);
             this.examplesInEditMode.splice(index, 1);
-        },
-        getTextFromShownValues(example) {
-            let represents = [];
-
-            this.attributes.forEach((attr) => {
-                if (attr.is_shown) {
-                    represents.push(example[attr.attribute_name]);
-                }
-            });
-
-            return represents.join(" ");
-        },
-        makeDynamicLink(id) {
-            return '/students/' + id;
-        },
+        },        
+        
+        // отфильтровать по диапазону
         filterByDiapason(attr_name) {
             let maxValue = document.getElementById(attr_name + "_max").value;
             if (maxValue) {
@@ -306,6 +298,7 @@ export default {
             }
         },
 
+        // сохранить запись
         saveExample() {
             let example = {};
 
@@ -318,6 +311,7 @@ export default {
             console.log(example);
         },
 
+        // применить фильтр
         applyFilter(submitEvent) {
             this.filtered_examples = JSON.parse(JSON.stringify(this.examples));
 
@@ -345,6 +339,8 @@ export default {
                 }
             }
         },
+
+        // очистить фильтр формы
         clearFilterForm(submitEvent) {
             let form = document.getElementById("filterForm");
             for (let element of form.elements) {

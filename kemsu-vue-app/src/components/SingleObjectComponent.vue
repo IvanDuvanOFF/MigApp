@@ -61,11 +61,9 @@ export default {
             attributes,
             schema: yup.object()
         };
-    },
-    computed: {
-
-    },
+    },    
     methods: {
+        // создать схему для валидации полей
         makeSchema() {
             let requiredErrorMsg = this.$t("errors.required");
 
@@ -94,15 +92,20 @@ export default {
             })            
             this.schema = yup.object(yup_schema);
         },
+
+        // разрешить редактирование
         allowEdit() {
             this.disabled = false;
         },
+
+        // вывод ошибок при провалившейся отправке формы
         onInvalidSubmit({ values, errors, results }) {
             console.log(values);
             console.log(errors);
             console.log(results);
         },
 
+        // обновить запись
         updateExampleObject() {
             let inputForm = document.getElementById('form-' + this.example.id);
 
@@ -113,10 +116,12 @@ export default {
             }
         },
 
+        // действие при отправке формы
         onExampleSubmit() {
             console.log(this.example);
             this.updateExampleObject();            
 
+            // действие при редактировании записи
             if (this.example.id) {
                 TableService.updateTableData(this.tableName, this.example)
                     .then(alert("Запрос отправлен"))
@@ -125,6 +130,7 @@ export default {
                     });
                 this.$router.go();
             }
+            // действие при создании новой записи
             else {
                 TableService.createTableData(this.tableName, this.example)
                     .then(response => {

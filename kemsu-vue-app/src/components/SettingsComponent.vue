@@ -61,16 +61,18 @@ import { useI18n } from 'vue-i18n';
 
 export default {
     data(){
-        ConfigService.getConfigureByName(SettingsController.getBdPath()).then(response => {
+        let user = JSON.parse(localStorage.getItem("user"));
+        ConfigService.getConfigures(user.workspace_id).then(response => {
+            this.configures = response.data;
+        })
+
+        ConfigService.getConfigureByName(SettingsController.getBdPath(), user.workspace_id).then(response => {
             this.selecetedConfig = response.data[0];         
             console.log(SettingsController.getBdPath());
             console.log(this.selecetedConfig);
         })
 
-        let user = JSON.parse(localStorage.getItem("user"));
-        ConfigService.getConfigures(user.workspace_id).then(response => {
-            this.configures = response.data;
-        })
+        
 
         return {
             configures: [],

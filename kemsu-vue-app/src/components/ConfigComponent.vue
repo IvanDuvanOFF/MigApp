@@ -102,7 +102,7 @@ export default {
 
         let user = JSON.parse(localStorage.getItem('user'));
 
-        ConfigService.getConfigureByName(SettingsController.getBdPath()).then(response => {            
+        ConfigService.getConfigureByName(SettingsController.getBdPath(), user.workspace_id).then(response => {            
             this.config = response.data[0];
             console.log(this.config);
         });
@@ -128,8 +128,10 @@ export default {
         }
     },
     methods: {
+        // обновить список пользователей после действий
         update() {
-            UserService.getUsers(1).then(response => {
+            let user = JSON.parse(localStorage.getItem("user"));
+            UserService.getUsers(user.workspace_id).then(response => {
                 this.users = response.data;
             });
             this.isNewUser = false;
