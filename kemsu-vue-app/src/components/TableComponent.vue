@@ -255,7 +255,7 @@ export default {
 
         // удалить запись из таблицы
         removeExample(exampleId) {
-            if (confirm(this.$t("confirm.remove"))) {
+            if (confirm(this.$t("confirm.delete_example"))) {
                 TableService.removeTableData(this.tableName, exampleId).then(() => {
                     this.update();
                 });

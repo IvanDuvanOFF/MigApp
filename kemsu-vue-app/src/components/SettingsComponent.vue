@@ -60,7 +60,8 @@ import { useI18n } from 'vue-i18n';
 
 
 export default {
-    data(){
+    // Инициализация уже выбранной конфигурации
+    data(){        
         let user = JSON.parse(localStorage.getItem("user"));
         ConfigService.getConfigures(user.workspace_id).then(response => {
             this.configures = response.data;
@@ -70,16 +71,15 @@ export default {
             this.selecetedConfig = response.data[0];         
             console.log(SettingsController.getBdPath());
             console.log(this.selecetedConfig);
-        })
-
-        
+        })        
 
         return {
             configures: [],
             selecetedConfig: {}
         }
     },
-    setup() {
+    // Инициализация языкового плагина
+    setup() {        
         const { t, locale } = useI18n();
 
         const supportedLocales = Trans.supportedLocales;
@@ -99,16 +99,19 @@ export default {
         };
     },
     methods: {
+        // Смена темы при выборе опции
         switchTheme(event) {
             let value = event.target.value == "true";            
             SettingsController.setDarkTheme(value);
             this.$router.go();
         },
+        // Смена шрифта при выборе опции
         switchFont(event){
             let value = event.target.value == "true";
             SettingsController.setFontSize(value);
             this.$router.go();
         },
+        // Смена конфигурации при выборе опции
         switchConfig(event){
             console.log(event.target.value);
             SettingsController.setBdPath(event.target.value);

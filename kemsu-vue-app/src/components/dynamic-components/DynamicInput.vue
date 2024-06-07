@@ -91,6 +91,7 @@ export default {
         MailModal
     },
     methods: {
+        // Валидация для строковых полей
         isLetter(e) {
             let char = String.fromCharCode(e.keyCode);
             if (/^[A-Za-zА-Яа-я]+$/.test(char)) return true;

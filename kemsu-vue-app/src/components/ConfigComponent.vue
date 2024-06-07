@@ -102,7 +102,7 @@ export default {
 
         let user = JSON.parse(localStorage.getItem('user'));
 
-        ConfigService.getConfigureByName(SettingsController.getBdPath(), user.workspace_id).then(response => {            
+        ConfigService.getConfigureByName(SettingsController.getBdPath(), user.workspace_id).then(response => {
             this.config = response.data[0];
             console.log(this.config);
         });
@@ -113,7 +113,7 @@ export default {
 
         return {
             users,
-            editList,            
+            editList,
             isNewUser: false,
             newUser: {},
             config,
@@ -137,45 +137,53 @@ export default {
             this.isNewUser = false;
             this.newUser = {};
         },
+        // Активировать режим редактирования для пользователя
         activeEditMode(id) {
             this.editList = [];
             this.editList.push(id);
             console.log(this.editList);
         },
+        // Выключить режим редактирования для пользователя
         disactiveEditMode(id) {
             const index = this.editList.indexOf(id);
             this.editList.splice(index, 1);
             console.log(this.editList);
         },
+        // Удалить пользователя
         removeUser(userId) {
-            if (confirm(this.$t("confirm.remove"))) {
+            if (confirm(this.$t("confirm.delete_user"))) {
                 UserService.removeUser(userId).then(() => {
-                    this.update();                    
+                    this.update();
                 });
             }
         },
+        // Добавить нового пользователя
         addUser() {
             let username = document.getElementById("username").value;
             let password = document.getElementById("password").value;
 
             UserService.createUser(username, password, 1).then(() => {
-                this.update();                
+                this.update();
             })
         },
+        // Сохранить данные пользователя
         saveUser(userId) {
             let username = document.getElementById("username").value;
             let password = document.getElementById("password").value;
 
             UserService.editUser(userId, { username, password }).then(() => {
-                this.update();                
+                this.update();
             })
             this.editList = [];
         },
+        // Сохранить путь в конфигурацию
         saveBdPath() {
-            ConfigService.changeConfigure(this.config).then(() => {
-                SettingsController.setBdPath(this.config.bd_path);
-                this.$router.go();
-            });           
+            if (confirm(this.$t("confirm.sure_bd"))) {
+                ConfigService.changeConfigure(this.config).then(() => {
+                    SettingsController.setBdPath(this.config.bd_path);
+                    this.$router.go();
+                });
+            }
         }
     }
 }

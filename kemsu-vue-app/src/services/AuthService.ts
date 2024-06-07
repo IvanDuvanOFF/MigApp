@@ -1,8 +1,11 @@
 import axios from 'axios'
 import UserService from './UserService';
+import ConfigService from './ConfigService';
+import SettingsController from '@/store/settings-controller';
+import { reject } from 'core-js/fn/promise';
 
 class AuthService {
-    // Общий метод авторизаци 
+    // Общий метод авторизации
     login(user, response) {
         if (response.data) {
             let isAdmin = user.username == "admin";
@@ -10,6 +13,12 @@ class AuthService {
             user["is_admin"] = isAdmin;
             user["password"] = "";
             localStorage.setItem('user', JSON.stringify(user));
+
+            // Поставить первую конфигурацию по умолчанию
+            ConfigService.getConfigures(user.workspace_id).then(response => {
+                let firstConfigPath = response.data[0].bd_path;
+                SettingsController.setBdPath(firstConfigPath);
+            })
         }
         return response.data;
     }
@@ -20,6 +29,10 @@ class AuthService {
             user = response.data[0];
         })
 
+        if(user == null){
+            reject("User not found");
+        }
+        
 
         return axios.post("signing", {
             login: user.username, password: user.password

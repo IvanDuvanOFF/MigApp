@@ -16,9 +16,6 @@ import CodeComponent from './components/CodeComponent.vue';
 import SettingsComponent from './components/SettingsComponent.vue';
 import ConfigComponent from './components/ConfigComponent.vue';
 
-import EditMainPage from './components/edit-versions/EditMainPage.vue';
-import EditTableComponent from './components/edit-versions/EditTableComponent.vue';
-
 import { auth } from './store/auth.module';
 
 
@@ -27,7 +24,6 @@ import Trans from '@/i18n/translate';
 
 import { LOCAL_URL } from './urls';
 import MainPage from './components/MainPage.vue';
-import EditController from './store/settings-controller';
 import WelcomePage from './components/WelcomePage.vue';
 
 const app = createApp(App);
@@ -38,7 +34,6 @@ const routes = [
     component: MainPage,
     meta: {
       requiresAuth: true,
-      requiresEdit: false,
       title: "Главная страница"
     },
   },
@@ -46,17 +41,7 @@ const routes = [
     path: '/welcome',
     name: 'Welcome',
     component: WelcomePage
-  },
-  {
-    path: '/edit',
-    name: 'EditIndex',
-    component: EditMainPage,
-    meta: {
-      requiresAuth: true,
-      requiresEdit: true,
-      title: "Редактировать главную страницу"
-    }
-  },
+  },  
   {
     path: '/table/:tableName/:id',
     name: 'SingleObject',
@@ -82,19 +67,8 @@ const routes = [
     meta: {
       title: "Таблица \"tableName\"",
       requiresAuth: true,
-      requiresEdit: false
     }
-  },
-  {
-    path: '/table/edit/:tableName',
-    name: 'EditTable',
-    component: EditTableComponent,
-    meta: {
-      requiresAuth: true,
-      requiresEdit: true,
-      title: "Редактировать таблицу"
-    }
-  },
+  },  
   {
     path: '/config',
     name: 'Config',
@@ -152,23 +126,7 @@ router.beforeEach((to, from, next) => {
 
   if (!to.meta.requiresAuth && loggedIn) {
     next({ name: 'Index' });
-  }
-
-  if (to.meta.requiresEdit != null) {
-    if (to.meta.requiresEdit != EditController.getEditMode()) {
-      if (to.meta.requiresEdit) {
-        console.log("Returning to normal version of this page...");
-        let nameWithoutEdit = to.name.replace("Edit", "");
-        next({ name: nameWithoutEdit, params: { tableName: to.params.tableName } });
-      }
-      else {
-        console.log(to, from);
-        console.log("Going to edit version of this page...");
-        next({ name: "Edit" + to.name, params: { tableName: to.params.tableName } });
-
-      }
-    }
-  }
+  }  
 
   next();
 });

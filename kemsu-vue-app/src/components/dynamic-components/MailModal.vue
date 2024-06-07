@@ -41,10 +41,12 @@ export default {
         }
     },    
     methods: {
+        // Медленно показать адрес получателя
         showRecipient(){
             this.showed = true;
             this.recipient = this.email
         },
+        // Отправить письмо
         sendMail() {
             console.log(this.email);
             console.log(this.message);
