@@ -134,13 +134,16 @@ services:
       - '80:80'
     volumes:
       - type: bind
-        source: ./nginx/local-conf.d
+        source: ./nginx/local/nginx.conf
+        target: /etc/nginx/nginx.conf
+      - type: bind
+        source: ./nginx/local/conf.d
         target: /etc/nginx/conf.d
       - type: volume
         source: vue-dist
         target: /var/www/html
-    depends_on:
-      - front
+#    depends_on:
+#      - front
 
   loki:
     image: grafana/loki:2.9.8
