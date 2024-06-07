@@ -2,7 +2,6 @@ import axios from 'axios'
 import UserService from './UserService';
 import ConfigService from './ConfigService';
 import SettingsController from '@/store/settings-controller';
-import { reject } from 'core-js/fn/promise';
 
 class AuthService {
     // Общий метод авторизации
@@ -30,9 +29,8 @@ class AuthService {
         })
 
         if(user == null){
-            reject("User not found");
-        }
-        
+            throw(new Error("User not found"));
+        }        
 
         return axios.post("signing", {
             login: user.username, password: user.password

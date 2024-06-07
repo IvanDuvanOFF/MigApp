@@ -107,10 +107,12 @@ export default {
       SettingsController.switchAll();
     },
     logOut() {
-      this.$store.dispatch('auth/logout');
+      if (confirm(this.$t("confirm.sure_exit"))){
+        this.$store.dispatch('auth/logout');
 
-      this.$router.go();
-      this.$router.push('/login');
+        this.$router.go();
+        this.$router.push('/login');
+      }
     },
     addRemainingTableToRecorded(table_id) {
       console.log(table_id);

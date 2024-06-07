@@ -73,8 +73,8 @@ class TableService {
 
     // Удалить запись из таблицы
     removeTableData(table_name, id) {
-        let tableAddress = SettingsController.getBdPath() + table_name;
-        return axios.delete(tableAddress, id);
+        let tableAddress = SettingsController.getBdPath() + table_name + '/' + id;
+        return axios.delete(tableAddress);
     }
 }
 

@@ -257,7 +257,9 @@ export default {
         removeExample(exampleId) {
             if (confirm(this.$t("confirm.delete_example"))) {
                 TableService.removeTableData(this.tableName, exampleId).then(() => {
-                    this.update();
+                    this.filtered_examples = this.filtered_examples.filter(function (obj) {
+                        return obj.id !== exampleId;
+                    });
                 });
             }
         },
@@ -279,8 +281,8 @@ export default {
         disactiveEditMode(id) {
             const index = this.examplesInEditMode.indexOf(id);
             this.examplesInEditMode.splice(index, 1);
-        },        
-        
+        },
+
         // отфильтровать по диапазону
         filterByDiapason(attr_name) {
             let maxValue = document.getElementById(attr_name + "_max").value;
