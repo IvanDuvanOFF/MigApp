@@ -137,7 +137,10 @@ services:
       - '443:443'
     volumes:
       - type: bind
-        source: ./nginx/conf.d
+        source: ./nginx/prod/nginx.conf
+        target: /etc/nginx/nginx.conf
+      - type: bind
+        source: ./nginx/prod/conf.d
         target: /etc/nginx/conf.d
       - type: volume
         source: web-root
