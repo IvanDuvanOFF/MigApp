@@ -31,7 +31,7 @@
                     autocomplete="off" />
                 <ErrorMessage name="password" class="alert alert-danger"></ErrorMessage>
 
-                <label for="repeat_password">{{ $t("auth.password") }}</label>
+                <label for="repeat_password">{{ $t("auth.repeat_password") }}</label>
                 <Field id="repeat_password" v-model="user.password" type="password" class="form-control mt-3 mb-3"
                     name="repeat_password" autocomplete="off" />
                 <ErrorMessage name="repeat_password" class="alert alert-danger"></ErrorMessage>

@@ -7,7 +7,7 @@ class AuthService {
     // Общий метод авторизации
     login(user, response) {
         if (response.data) {
-            let isAdmin = user.username == "admin";
+            let isAdmin = user.username.includes("admin");
 
             user["is_admin"] = isAdmin;
             user["password"] = "";

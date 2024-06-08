@@ -5,6 +5,7 @@
     "auth": {
         "username": "Login",
         "password": "Password",
+        "repeat_password": "Repeat the password",
         "back": "To welcome page",
         "button": "Sign in"
     },

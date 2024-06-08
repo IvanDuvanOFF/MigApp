@@ -10,7 +10,7 @@
           <a class="btn btn-info mt-1 mx-1 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             <font-awesome-icon icon="image" />
           </a>
-          <input type="file" class="form-control dropdown-menu" @change="logoLoaded" />
+          <input type="file" class="form-control dropdown-menu" @change="logoLoaded" accept="image/png, image/jpeg, image/jpg, image/bmp"/>
         </div>
         <img alt="Kemsu logo" class="img-fluid logo" src="./assets/logo.jpeg">
       </a>

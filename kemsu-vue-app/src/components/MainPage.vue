@@ -9,7 +9,7 @@
 
             <h4>Загрузите свой HTML файл:</h4>
 
-            <input name="htmlFile" type="file" ref="file" class="m-auto form-control w-50" />
+            <input name="htmlFile" type="file" ref="file" accept=".html" class="m-auto form-control w-50" />
         </form>
     </div>
 

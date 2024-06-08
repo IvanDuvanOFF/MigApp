@@ -5,6 +5,7 @@
     "auth": {
         "username": "Логин",
         "password": "Пароль",
+        "repeat_password": "Повторите пароль",
         "back": "На стартовую страницу",
         "button": "Войти"
     },
