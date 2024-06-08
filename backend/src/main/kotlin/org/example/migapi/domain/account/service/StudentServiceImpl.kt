@@ -91,7 +91,7 @@ class StudentServiceImpl(
      * @throws UserNotFoundException студент не найден
      * @throws PersistenceException
      */
-    @Transactional
+//    @Transactional
     override fun changePhoto(username: String, photoFileName: String): StudentDto {
         val file = fileService.auth(photoFileName, username)
         val user = file.user
