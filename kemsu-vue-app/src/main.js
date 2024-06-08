@@ -138,13 +138,12 @@ axios.defaults.baseURL = LOCAL_URL;
 axios.interceptors.response.use(response => {
   return response;
 });
-
+axios.defaults.withCredentials = true;
 axios.defaults.headers.get['Access-Control-Allow-Origin'] = '*';
 axios.defaults.headers.get['Access-Control-Allow-Methods'] = 'GET, PUT, POST, DELETE, OPTIONS, post, get';
 axios.defaults.headers.get['Access-Control-Max-Age'] = '3600';
 axios.defaults.headers.get['Access-Control-Allow-Headers'] = 'Origin, Content-Type, X-Auth-Token';
 axios.defaults.headers.get['Access-Control-Allow-Credentials'] = 'true';
-
 
 app.config.productionTip = false;
 app.use(thisstore);

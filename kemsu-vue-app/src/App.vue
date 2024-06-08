@@ -10,7 +10,8 @@
           <a class="btn btn-info mt-1 mx-1 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             <font-awesome-icon icon="image" />
           </a>
-          <input type="file" class="form-control dropdown-menu" @change="logoLoaded" accept="image/png, image/jpeg, image/jpg, image/bmp"/>
+          <input type="file" class="form-control dropdown-menu" @change="logoLoaded"
+            accept="image/png, image/jpeg, image/jpg, image/bmp" />
         </div>
         <img alt="Kemsu logo" class="img-fluid logo" src="./assets/logo.jpeg">
       </a>
@@ -63,17 +64,19 @@ export default {
     let recordedTables = [];
     let remainingTables = [];
 
-    remainingTables = TableService.getTables(1);
-    TableService.getTables(1).then(response => {
-      console.log(response.data);
-      let allTables = response.data;
-      this.remainingTables = allTables.filter(function (el) {
-        return !el.active;
+    if (this.$store.state.auth.status.loggedIn) {
+      remainingTables = TableService.getTables(1);
+      TableService.getTables(1).then(response => {        
+        let allTables = response.data;
+        this.remainingTables = allTables.filter(function (el) {
+          return !el.active;
+        });
+        this.recordedTables = allTables.filter(function (el) {
+          return el.active;
+        });
       });
-      this.recordedTables = allTables.filter(function (el) {
-        return el.active;
-      });
-    });
+    }
+
 
     return {
       recordedTables,
@@ -107,22 +110,20 @@ export default {
       SettingsController.switchAll();
     },
     logOut() {
-      if (confirm(this.$t("confirm.sure_exit"))){
+      if (confirm(this.$t("confirm.sure_exit"))) {
         this.$store.dispatch('auth/logout');
 
         this.$router.go();
         this.$router.push('/login');
       }
     },
-    addRemainingTableToRecorded(table_id) {
-      console.log(table_id);
+    addRemainingTableToRecorded(table_id) {      
       TableService.activateTable(table_id).then(() => {
         this.$router.go();
       });
 
     },
-    disactivateTable(table_id) {
-      console.log(table_id);
+    disactivateTable(table_id) {      
       TableService.disactivateTable(table_id).then(() => {
         this.$router.go();
       });
