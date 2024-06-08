@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.example.migapi.core.domain.dto.Error
 import org.example.migapi.domain.account.dto.MainScreenDto
 import org.example.migapi.domain.account.service.StudentService
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @PreAuthorize("hasRole('ROLE_USER')")
 @RequestMapping("/api/main_screen")
+@Tag(name = "Main Screen", description = "Controller displays main info on users first screen")
 class MainScreenController(
     @Autowired
     private val studentService: StudentService,

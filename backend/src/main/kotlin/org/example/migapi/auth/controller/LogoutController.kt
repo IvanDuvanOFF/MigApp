@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import org.example.migapi.auth.service.AuthenticationService
 import org.example.migapi.core.domain.dto.Error
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/logout")
+@Tag(name = "Logout", description = "Controller logs out user from the system")
 class LogoutController(
     @Autowired
     private val authenticationService: AuthenticationService
