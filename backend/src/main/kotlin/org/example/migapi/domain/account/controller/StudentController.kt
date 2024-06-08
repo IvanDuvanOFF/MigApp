@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 @RequestMapping("/api/students")
-@Tag(name = "Student API", description = "Student API controller")
+@Tag(name = "Student", description = "Student API controller")
 class StudentController(
     @Autowired
     private val studentService: StudentService

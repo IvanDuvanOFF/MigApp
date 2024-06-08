@@ -26,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/api/files")
-@Tag(name = "File API", description = "Controller allows upload and download both private and public files")
+@Tag(name = "File", description = "Controller allows upload and download both private and public files")
 class FileController(
     @Autowired
     private val fileService: FileService

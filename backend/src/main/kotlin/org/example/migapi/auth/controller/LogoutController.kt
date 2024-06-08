@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/logout")
-@Tag(name = "Logout API", description = "Controller logs out user from the system")
+@Tag(name = "Logout", description = "Controller logs out user from the system")
 class LogoutController(
     @Autowired
     private val authenticationService: AuthenticationService
