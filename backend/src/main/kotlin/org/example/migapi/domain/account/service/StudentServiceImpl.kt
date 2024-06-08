@@ -83,7 +83,7 @@ class StudentServiceImpl(
     }
 
     /**
-     * Меняет фото [photo] пользователя [username]
+     * Меняет фото фото пользователя [username] на [photoFileName]
      *
      * @throws NoAccessException нет доступа
      * @throws BadRequestException id пользователя некорректного формата
