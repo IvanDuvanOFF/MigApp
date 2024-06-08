@@ -236,6 +236,6 @@ class ProfileController(
         ]
     )
     @SecurityRequirement(name = "JWT")
-    fun changePhoto(@RequestBody photoFileName: String): StudentDto =
-        studentService.changePhoto(getUsernameFromContext(), photoFileName)
+    fun changePhoto(@RequestBody photoDto: PhotoDto): StudentDto =
+        studentService.changePhoto(getUsernameFromContext(), photoDto.fileName)
 }
