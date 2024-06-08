@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.example.migapi.core.config.exception.BadRequestException
 import org.example.migapi.core.domain.dto.Error
 import org.example.migapi.domain.notification.dto.FirebaseTokenDto
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @PreAuthorize("hasRole('ROLE_USER')")
 @RequestMapping("/api/notifications")
+@Tag(name = "Notification API", description = "Controller displays, delete, and mark as read user's notifications")
 class NotificationController(
     @Autowired
     private val notificationService: NotificationService

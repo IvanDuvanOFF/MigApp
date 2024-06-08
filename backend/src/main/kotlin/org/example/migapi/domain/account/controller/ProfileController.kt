@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.example.migapi.core.domain.dto.Error
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @PreAuthorize("hasRole('ROLE_USER') || hasRole('ROLE_ADMIN')")
 @RequestMapping("/api/profile")
+@Tag(name = "Profile", description = "Endpoints for working with user's account data")
 class ProfileController(
     @Autowired
     private val studentService: StudentService

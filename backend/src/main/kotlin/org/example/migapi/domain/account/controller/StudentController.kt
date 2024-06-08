@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.example.migapi.core.config.open.api.CommonApiErrors
 import org.example.migapi.core.domain.dto.Error
 import org.example.migapi.domain.account.dto.StudentDto
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 @RequestMapping("/api/students")
+@Tag(name = "Student API", description = "Student API controller")
 class StudentController(
     @Autowired
     private val studentService: StudentService

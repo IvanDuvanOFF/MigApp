@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.example.migapi.core.domain.dto.Error
 import org.example.migapi.domain.typography.dto.DocumentDto
 import org.example.migapi.domain.typography.dto.TypographyDto
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @PreAuthorize("hasRole('ROLE_USER')")
 @RequestMapping("/api/applications")
+@Tag(name = "Typography API", description = "Controller for working with users' typographies")
 class TypographyController(
     @Autowired
     private val typographyService: TypographyService,

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.example.migapi.domain.files.model.File
 import org.example.migapi.domain.files.service.FileService
 import org.example.migapi.core.domain.dto.Error
@@ -25,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/api/files")
+@Tag(name = "File API", description = "Controller allows upload and download both private and public files")
 class FileController(
     @Autowired
     private val fileService: FileService
