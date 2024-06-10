@@ -6,7 +6,7 @@ class UserService {
         return axios.get('users', {
             params: {
                 workspace_id: workspaceId
-            }            
+            }
         });
     }
 
@@ -19,13 +19,32 @@ class UserService {
         });
     }
 
+    // Получить пользователя по имени
+    getByNameAndPassword(name, password) {
+        return axios.get('users', {
+            params: {
+                username: name,
+                password: password
+            }
+        });
+    }
+
+    // Получить пользователя по имени
+    getById(id) {
+        return axios.get('users', {
+            params: {
+                id: id
+            }
+        });
+    }
+
     // Удалить пользователя
     removeUser(id) {
         return axios.delete('users/' + id);
     }
 
     // Редактировать пользователя
-    editUser(id, params) {        
+    editUser(id, params) {
         // id: int
         // username: string
         // password: string
@@ -34,7 +53,7 @@ class UserService {
     }
 
     // Создать нового пользователя для рабочего пространства
-    createUser(username, password, workspace_id) {        
+    createUser(username, password, workspace_id) {
         return axios.post('users', {
             username,
             password,

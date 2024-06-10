@@ -24,19 +24,15 @@ class AuthService {
 
     // Первичная авторизация пользователя
     signing(user) {
-        UserService.getByName(user.username).then(response => {            
+        return UserService.getByNameAndPassword(user.username, user.password).then(response => {            
             user = response.data[0];
+
+            return axios.post("signing", {
+                login: user.username, password: user.password
+            }).then(response => {
+                return this.login(user, response);
+            });
         })
-
-        if(user == null){
-            throw(new Error("User not found"));
-        }        
-
-        return axios.post("signing", {
-            login: user.username, password: user.password
-        }).then(response => {
-            return this.login(user, response);
-        });
     }
 
     // Вторичная авторизация пользователя по коду 2F

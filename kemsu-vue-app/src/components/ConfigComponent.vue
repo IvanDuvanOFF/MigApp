@@ -171,10 +171,17 @@ export default {
             let username = document.getElementById("username").value;
             let password = document.getElementById("password").value;
 
-            UserService.editUser(userId, { username, password }).then(() => {
-                this.update();
+            UserService.getById(userId).then(responce => {
+                let user = responce.data[0];
+                user.username = username;
+                user.password = password;
+
+
+                UserService.editUser(userId, user).then(() => {
+                    this.update();
+                })
+                this.editList = [];
             })
-            this.editList = [];
         },
         // Сохранить путь в конфигурацию
         saveBdPath() {
