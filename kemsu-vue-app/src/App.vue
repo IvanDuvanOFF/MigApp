@@ -134,10 +134,7 @@ export default {
 </script>
 
 <style>
-@font-face {
-  font-family: "Jura";
-  src: url("/fonts/jura.ttf");
-}
+@import url('https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap');
 
 .font-weight-bold {
   font-weight: bold;
