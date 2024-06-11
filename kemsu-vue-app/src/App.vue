@@ -136,7 +136,7 @@ export default {
 <style>
 @font-face {
   font-family: "Jura";
-  src: url("\fonts\jura.ttf");
+  src: url("/fonts/jura.ttf");
 }
 
 .font-weight-bold {
