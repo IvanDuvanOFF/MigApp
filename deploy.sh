@@ -36,6 +36,9 @@ fi
 # Disable firewall to be able to download all dependencies
 ufw disable
 
+# Install loki plugin for docker
+docker plugin install grafana/loki-docker-driver:2.9.8 --alias loki --grant-all-permissions
+
 # Run nginx for certificates initializing
 docker compose -f compose-setup.yaml up -d nginx
 docker compose -f compose-setup.yaml run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email "$EMAIL" --agree-tos --no-eff-email -d "$DB_DOMAIN" -d "www.$DB_DOMAIN" --preferred-challenges http
