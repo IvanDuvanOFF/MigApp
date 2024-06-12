@@ -192,7 +192,7 @@ jobs:
           port: 22
           envs: DOCKERHUB_USER,DOCKER_IMAGE
           script: |
-            bash /home/admin/app/deploy.sh
+            bash /home/admin/app/deploy.sh /home/admin/app/.env
 
       - name: Successful tests
         if: steps.deploy.outcome != 'success'

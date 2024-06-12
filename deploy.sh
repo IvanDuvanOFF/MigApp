@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./.env
+source $1
 
 if [[ $? -ne 0 ]]; then
   echo "No env file"
