@@ -1,6 +1,11 @@
 #!/bin/bash
 
-source .env
+source ./.env
+
+if [[ $? -ne 0 ]]; then
+  echo "No env file"
+  exit 1
+fi
 
 # Check if project has been deployed earlier
 if [ -d "$PROJECT_FOLDER/mig-app" ]; then

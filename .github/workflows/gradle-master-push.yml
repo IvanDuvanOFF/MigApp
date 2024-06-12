@@ -193,7 +193,6 @@ jobs:
           envs: DOCKERHUB_USER,DOCKER_IMAGE
           script: |
             bash /home/admin/app/deploy.sh
-            rm /home/admin/app/deploy.sh
 
       - name: Successful tests
         if: steps.deploy.outcome != 'success'
