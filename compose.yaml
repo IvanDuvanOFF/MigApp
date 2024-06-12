@@ -9,13 +9,13 @@ services:
       dockerfile: ./Dockerfile
     volumes:
       - type: bind
-        source: /tmp/mig-app/data
+        source: $PROJECT_TEMP/data
         target: /tmp/source
       - type: volume
         source: api-volume
         target: /tmp/dist
       - type: bind
-        source: /tmp/mig-app/backup
+        source: $PROJECT_TEMP/backup
         target: /tmp/back
     command: [ '-a', 'check' ]
 
@@ -26,9 +26,9 @@ services:
       context: ./backend
       dockerfile: ./docker/dev/Dockerfile
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/mig
-      - SPRING_DATASOURCE_USERNAME=ivan
-      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${DATASOURCE_DB}
+      - SPRING_DATASOURCE_USERNAME=${DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DATASOURCE_PASSWORD}
     networks:
       app-network:
         ipv4_address: 192.168.112.3
@@ -54,9 +54,9 @@ services:
       - '-c'
       - 'idle_in_transaction_session_timeout=10s'
     environment:
-      - POSTGRES_USER=ivan
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=mig
+      - POSTGRES_USER=${DATASOURCE_USERNAME}
+      - POSTGRES_PASSWORD=${DATASOURCE_PASSWORD}
+      - POSTGRES_DB=${DATASOURCE_DB}
       - PGDATA=/var/lib/postgresql/data/pgdata
     networks:
       app-network:
@@ -79,8 +79,8 @@ services:
     image: dpage/pgadmin4:8.7
     container_name: pgadmin
     environment:
-      - PGADMIN_DEFAULT_EMAIL=ivan.duvanov.3@gmail.com
-      - PGADMIN_DEFAULT_PASSWORD=password
+      - PGADMIN_DEFAULT_EMAIL=${EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${DATASOURCE_PASSWORD}
       - PGADMIN_CONFIG_SERVER_MODE=False
     networks:
       pg-network:
@@ -193,8 +193,8 @@ services:
     image: grafana/grafana:11.0.0
     container_name: grafana
     environment:
-      - GF_SECURITY_ADMIN_USER=ivan
-      - GF_SECURITY_ADMIN_PASSWORD=1234
+      - GF_SECURITY_ADMIN_USER=$GRAFANA_USERNAME
+      - GF_SECURITY_ADMIN_PASSWORD=$GRAFANA_PASSWORD
     networks:
       app-network:
         ipv4_address: 192.168.112.8

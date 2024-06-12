@@ -106,7 +106,7 @@ jobs:
           ls -la
         shell: bash
 
-      - name: copy file via ssh password
+      - name: Copy project archive file via ssh password
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -114,6 +114,16 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
           source: "./mig-app.zip"
+          target: "/home/admin/app"
+
+      - name: Copy deploy script via ssh password
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          source: "./deploy.sh"
           target: "/home/admin/app"
 
   docker-build:
@@ -172,37 +182,7 @@ jobs:
           port: 22
           envs: DOCKERHUB_USER,DOCKER_IMAGE
           script: |
-            if [ -d "/home/admin/app/mig-app" ]; then
-              cd /home/admin/app/mig-app
-
-              if [ -f "/home/admin/app/mig-app/compose.yaml" ]; then
-                docker compose -f compose.yaml down
-              fi
-              
-              cd ../
-              rm -rf ./mig-app
-            fi
-
-            cd /home/admin/app
-            mkdir -p ./mig-app
-            unzip ./mig-app.zip -d ./mig-app
-            cd ./mig-app
-
-            ufw disable
-            
-            docker compose -f compose-setup.yaml up -d nginx 
-            docker compose -f compose-setup.yaml run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email ivan.duvanov.3@gmail.com --agree-tos --no-eff-email -d db.cute-example-deeplom.ru -d www.db.cute-example-deeplom.ru --preferred-challenges http
-            docker compose -f compose-setup.yaml run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email ivan.duvanov.3@gmail.com --agree-tos --no-eff-email -d graf.cute-example-deeplom.ru -d www.graf.cute-example-deeplom.ru --preferred-challenges http
-            docker compose -f compose-setup.yaml run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email ivan.duvanov.3@gmail.com --agree-tos --no-eff-email -d cute-example-deeplom.ru -d www.cute-example-deeplom.ru --preferred-challenges http
-            docker compose -f compose-setup.yaml down nginx
-            
-            docker compose -f compose.yaml up -d --build > build-logs.txt
-
-            ufw enable
-            
-            echo "0 9 * * 1 /usr/bin/docker compose -f /home/admin/app/mig-app/compose-setup.yaml run --rm certbot renew >> /var/log/renew-ssl.log && /usr/bin/docker compose -f /home/admin/app/mig-app/compose.yaml kill -s SIGHUP nginx" | crontab -
-            echo "30 7 * * * /usr/bin/docker compose -f /home/admin/app/mig-app/compose.yaml run --rm api-backup -a backup >> /var/log/backup.log" | crontab -
-            echo "30 7 * * * /usr/bin/docker compose -f /home/admin/app/mig-app/compose.yaml exec -i -e PGPASSWORD=pASSword db pg_dump -U ivan mig | gzip -9 > /tmp/mig-app/backup/db-backup.sql.gz" | crontab -
+            bash /home/admin/app/mig-app/deploy.sh
 
       - name: Successful tests
         if: steps.deploy.outcome != 'success'
