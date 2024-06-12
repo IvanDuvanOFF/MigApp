@@ -47,6 +47,7 @@ export default {
     },
 
     methods: {
+        // проверить поле
         validateField(value) {
             if (!value) {
                 return 'Поле должно быть заполнено';
@@ -55,6 +56,7 @@ export default {
             return true;
         },
 
+        // действие при авторизации
         handleLogin() {
             this.loading = true;
             console.log();

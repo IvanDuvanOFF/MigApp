@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: 'postgres:latest'
+    container_name: 'postgres'
+    environment:
+      - POSTGRES_DB=mydatabase
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_USER=myuser
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - type: volume
+        source: admin-db-volume
+        target: /var/lib/postgresql/data/pgdata
+    ports:
+      - '5433:5432'
+    restart: unless-stopped
+
+volumes:
+  admin-db-volume:
+    driver:
+      local
