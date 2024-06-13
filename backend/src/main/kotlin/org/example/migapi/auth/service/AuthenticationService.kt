@@ -104,7 +104,7 @@ class AuthenticationService(
             .activate()
             .apply {
                 if (restoreRequest.passwords.password != restoreRequest.passwords.confirmation
-                    || migUtils.validatePassword(restoreRequest.passwords.password))
+                    || !migUtils.validatePassword(restoreRequest.passwords.password))
                     throw BadCredentialsException("Passwords are not the same")
 
                 password = passwordEncoder.encode(restoreRequest.passwords.password)
