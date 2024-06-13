@@ -12,7 +12,7 @@ class OnInit extends NotificationsEvents {
 class DeleteNotification extends NotificationsEvents {
   DeleteNotification({required this.notificationId});
 
-  final int notificationId;
+  final String notificationId;
   @override
   List<Object> get props => [notificationId];
 }

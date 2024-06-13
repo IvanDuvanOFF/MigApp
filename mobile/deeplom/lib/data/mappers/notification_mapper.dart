@@ -4,7 +4,7 @@ import 'package:deeplom/data/models/notification_model.dart';
 extension NotificationDtoExt on NotificationDto {
   NotificationModel toModel() {
     return NotificationModel(
-      notificationId: int.parse(notificationId ?? ''),
+      notificationId: notificationId ?? '',
       userId: userId ?? '',
       title: title ?? '',
       description: description ?? '',

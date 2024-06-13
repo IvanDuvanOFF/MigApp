@@ -2,6 +2,8 @@ import 'package:deeplom/domain/repositories/auth/abstract_auth_repository.dart';
 import 'package:deeplom/domain/repositories/auth/auth_repository.dart';
 import 'package:deeplom/domain/repositories/main/abstract_main_repository.dart';
 import 'package:deeplom/domain/repositories/main/main_repository.dart';
+import 'package:deeplom/screens/auth/auth_bloc.dart';
+import 'package:deeplom/screens/auth/auth_state.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 
@@ -17,6 +19,13 @@ void diRegister() async {
   GetIt.I.registerLazySingleton<AbstractMainRepository>(
     () => MainRepository(
       dio: dio,
+    ),
+  );
+
+  GetIt.I.registerLazySingleton<AuthBloc>(
+    () => AuthBloc(
+      const AuthState(),
+      authRepository: GetIt.I<AbstractAuthRepository>(),
     ),
   );
 }

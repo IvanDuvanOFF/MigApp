@@ -1,3 +1,4 @@
+import 'package:deeplom/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -5,11 +6,11 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Center(
         child: Text(
-          'Настройки',
-          style: TextStyle(
+          S.of(context).settings,
+          style: const TextStyle(
             fontSize: 18.0,
             fontWeight: FontWeight.bold,
           ),

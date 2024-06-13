@@ -40,6 +40,7 @@ class AddApplicationBloc extends Bloc<AddApplicationEvents, AddApplicationState>
 
   Future<void> _onInitSelectedApplication(OnInitSelectedApplication event, Emitter<AddApplicationState> emit) async {
     String? applicationId = await _secureStorage.read(key: 'applicationId');
+    print('APPLICATION ID:: $applicationId');
     var application = await mainRepository.selectApplication(applicationId: applicationId ?? '');
     // const SelectedApplicationModel application = SelectedApplicationModel(
     //   id: 'application_123',
@@ -78,7 +79,7 @@ class AddApplicationBloc extends Bloc<AddApplicationEvents, AddApplicationState>
 
   Future<void> _onSelectApplication(SelectApplication event, Emitter<AddApplicationState> emit) async {
     await _secureStorage.write(key: 'applicationId', value: event.applicationId);
-    AppRouting.toApplication();
+    AppRouting.toApplication(applicationId: event.applicationId);
   }
 
   Future<void> _onPickFile(PickFileEvent event, Emitter<AddApplicationState> emit) async {
@@ -108,9 +109,11 @@ class AddApplicationBloc extends Bloc<AddApplicationEvents, AddApplicationState>
 
   Future<void> _onUploadFile(UploadFileEvent event, Emitter<AddApplicationState> emit) async {
     try {
-      String fileName = await mainRepository.uploadFile(file: event.file);
+      final fileModel = await mainRepository.uploadFile(file: event.file);
+      String fileName = fileModel?.name ?? '';
       print('FN:: $fileName');
-      await mainRepository.addDocument(applicationId: event.applicationId, fileName: fileName, title: event.applicationTitle);
+      var document = await mainRepository.addDocument(applicationId: event.applicationId, fileName: fileName, title: event.applicationTitle);
+      print('DOCUMENT BLOC TEST:: ${document?.status}');
     } catch (e) {
       print('Error: $e');
     }

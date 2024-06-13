@@ -6,7 +6,11 @@ extension ApplicationsDtoExt on ApplicationsDto {
     return ApplicationsModel(
       id: id.toString(),
       title: title ?? '',
-      status: ApplicationStatus.values.firstWhere((it) => it.name == status),
+      status: ApplicationStatus.values.firstWhere(
+        (it) => it.statusName == status,
+        orElse: () => ApplicationStatus.in_progress, // Используйте значение по умолчанию
+      ),
+      date: date ?? '',
     );
   }
 }
@@ -16,7 +20,11 @@ extension SelectedApplicationDtoExt on SelectedApplicationDto {
     return SelectedApplicationModel(
       id: id.toString(),
       title: title ?? '',
-      status: status ?? '',
+      status: ApplicationStatus.values.firstWhere(
+        (it) => it.statusName == status,
+        orElse: () => ApplicationStatus.in_progress, // Используйте значение по умолчанию
+      ),
+      date: date ?? '',
       documents: documents?.map((doc) => doc.toModel()).toList() ?? [],
     );
   }
@@ -27,8 +35,13 @@ extension DocumentDtoExt on DocumentDto {
     return DocumentModel(
       id: id.toString(),
       title: title ?? '',
-      link: link ?? '',
-      status: status ?? '',
+      status: ApplicationStatus.values.firstWhere(
+        (it) => it.statusName == status,
+        orElse: () => ApplicationStatus.in_progress, // Используйте значение по умолчанию
+      ),
+      creationDate: '',
+      expirationDate: '',
+      fileName: '',
     );
   }
 }

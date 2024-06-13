@@ -1,4 +1,7 @@
+import 'package:deeplom/config/navigation.dart';
 import 'package:deeplom/domain/repositories/main/abstract_main_repository.dart';
+import 'package:deeplom/generated/l10n.dart';
+import 'package:deeplom/screens/add_application/add_application_screen.dart';
 
 import 'package:deeplom/screens/profile/profile_bloc.dart';
 import 'package:deeplom/screens/profile/profile_events.dart';
@@ -58,9 +61,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               color: Colors.grey.withOpacity(.6),
                               borderRadius: BorderRadius.circular(12.0),
                             ),
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                              child: Text('Выйти'),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                              child: Text(S.of(context).exit),
                             ),
                           ),
                         ),
@@ -71,29 +74,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Container(
                             height: 120.0,
                             width: 120.0,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.withOpacity(.6),
-                              borderRadius: BorderRadius.circular(120.0),
-                            ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.person,
-                                size: 32.0,
-                              ),
-                            ),
+                            decoration: state.profile.requiredContent.photo.isNotEmpty
+                                ? BoxDecoration(
+                                    image: DecorationImage(image: MemoryImage(state.avatar!), fit: BoxFit.cover),
+                                    color: Colors.grey.withOpacity(.6),
+                                    borderRadius: BorderRadius.circular(120.0),
+                                  )
+                                : BoxDecoration(
+                                    color: Colors.grey.withOpacity(.6),
+                                    borderRadius: BorderRadius.circular(120.0),
+                                  ),
+                            child: state.profile.requiredContent.photo.isNotEmpty
+                                ? const SizedBox()
+                                : const Center(
+                                    child: Icon(
+                                      Icons.person,
+                                      size: 32.0,
+                                    ),
+                                  ),
                           ),
-                          Container(
-                            height: 24.0,
-                            width: 24.0,
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(.6),
-                              borderRadius: BorderRadius.circular(120.0),
-                            ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.edit,
-                                color: Colors.white,
-                                size: 16.0,
+                          InkWell(
+                            onTap: () => showAvatarDialog(context),
+                            child: Container(
+                              height: 24.0,
+                              width: 24.0,
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(.6),
+                                borderRadius: BorderRadius.circular(120.0),
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.edit,
+                                  color: Colors.white,
+                                  size: 16.0,
+                                ),
                               ),
                             ),
                           ),
@@ -119,18 +133,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                             ),
-                            Container(
-                              height: 18.0,
-                              width: 18.0,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(24.0),
-                                border: Border.all(color: Colors.grey),
-                              ),
-                              child: const Center(
-                                child: Icon(
-                                  Icons.question_mark,
-                                  color: Colors.grey,
-                                  size: 16.0,
+                            InkWell(
+                              onTap: () => showStatusDialog(context),
+                              child: Container(
+                                height: 18.0,
+                                width: 18.0,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(24.0),
+                                  border: Border.all(color: Colors.grey),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.question_mark,
+                                    color: Colors.grey,
+                                    size: 16.0,
+                                  ),
                                 ),
                               ),
                             ),
@@ -157,9 +174,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text(
-                                    'ФИО',
-                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  Text(
+                                    S.of(context).fio,
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   Text(
                                       '${state.profile.requiredContent.surname} ${state.profile.requiredContent.name} ${state.profile.requiredContent.patronymic}'),
@@ -169,9 +186,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text(
-                                    'Возраст',
-                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  Text(
+                                    S.of(context).age,
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   Text(formatAge(DateTime.now().year - state.profile.requiredContent.birthday.year)),
                                 ],
@@ -180,9 +197,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text(
-                                    'Институт, группа',
-                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  Text(
+                                    S.of(context).instituteGroup,
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   // if (state.profile.requiredContent.institute.isNotEmpty || state.profile.requiredContent.group.isNotEmpty)
                                   Text(
@@ -205,14 +222,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Column(
                             mainAxisSize: MainAxisSize.max,
                             children: [
-                              const Text(
-                                'Пароль',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              Text(
+                                S.of(context).password,
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                               ),
                               const SizedBox(height: 12.0),
                               Row(
                                 children: [
-                                  const Text('Старый пароль'),
+                                  Text(S.of(context).oldPasswordText),
                                   const SizedBox(width: 6.0),
                                   Expanded(
                                     child: TextField(
@@ -229,7 +246,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               const SizedBox(height: 12.0),
                               Row(
                                 children: [
-                                  const Text('Новый пароль '),
+                                  Text(S.of(context).nextPassword),
                                   const SizedBox(width: 6.0),
                                   Expanded(
                                     child: TextField(
@@ -244,6 +261,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ],
                               ),
                               const SizedBox(height: 12.0),
+                              Text(
+                                S.of(context).passwordRequired,
+                                style: const TextStyle(fontSize: 12.0),
+                              ),
+                              if (state.passChangeSuccess) ...[
+                                const SizedBox(height: 12.0),
+                                Text(
+                                  S.of(context).passwordChangeSuccess,
+                                  style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 16.0),
+                                ),
+                              ],
+                              const SizedBox(height: 12.0),
+                              if (state.error.isNotEmpty)
+                                Text(
+                                  state.error,
+                                  style: const TextStyle(color: Colors.red),
+                                ),
+                              const SizedBox(height: 12.0),
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 28.0),
                                 child: Row(
@@ -252,13 +287,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ElevatedButton(
                                       style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black),
                                       onPressed: () => _profileBloc.add(ChangePassword(oldPassword: oldPassword.text, newPassword: newPassword.text)),
-                                      child: const Text('Сохранить'),
+                                      child: Text(S.of(context).saveText),
                                     ),
                                     TextButton(
-                                      onPressed: () {},
-                                      child: const Text(
-                                        'Не помню пароль',
-                                        style: TextStyle(
+                                      onPressed: () => AppRouting.toResetPassword(),
+                                      child: Text(
+                                        S.of(context).rememberPassword,
+                                        style: const TextStyle(
                                           color: Colors.black,
                                           decoration: TextDecoration.underline,
                                         ),
@@ -266,7 +301,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   ],
                                 ),
-                              )
+                              ),
                             ],
                           ),
                         ),
@@ -283,17 +318,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              const Text(
-                                'Контактные данные',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              Text(
+                                S.of(context).contactData,
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                               ),
                               const SizedBox(height: 12.0),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text(
-                                    'Email',
-                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  Text(
+                                    S.of(context).email,
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   const SizedBox(width: 6.0),
                                   Text(state.profile.requiredContent.email.isEmpty ? '-' : state.profile.requiredContent.email),
@@ -303,9 +338,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text(
-                                    'Телефон',
-                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  Text(
+                                    S.of(context).phone,
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   const SizedBox(width: 6.0),
                                   Text(state.profile.requiredContent.phoneNumber.isEmpty ? '-' : state.profile.requiredContent.phoneNumber),
@@ -325,14 +360,70 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
-}
 
-String formatAge(int age) {
-  if (age % 10 == 1 && age % 100 != 11) {
-    return '$age год';
-  } else if (age % 10 >= 2 && age % 10 <= 4 && (age % 100 < 10 || age % 100 >= 20)) {
-    return '$age года';
-  } else {
-    return '$age лет';
+  showStatusDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: SizedBox(
+              height: 50,
+              width: 100,
+              child: Center(
+                child: Text(S.of(context).userStatusDescription),
+              ),
+            ),
+          );
+        });
+  }
+
+  void showAvatarDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(S.of(context).selectSourceFile),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: Text(S.of(context).choiceFromGallery),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _profileBloc.add(ChoiceAvatar(FileSourceType.gallery));
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: Text(S.of(context).takePictureText),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _profileBloc.add(ChoiceAvatar(FileSourceType.camera));
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.attach_file),
+                title: Text(S.of(context).choiceFromDeviceText),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _profileBloc.add(ChoiceAvatar(FileSourceType.device));
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  String formatAge(int age) {
+    if (age % 10 == 1 && age % 100 != 11) {
+      return '$age ${S.of(context).year}';
+    } else if (age % 10 >= 2 && age % 10 <= 4 && (age % 100 < 10 || age % 100 >= 20)) {
+      return '$age ${S.of(context).ages}';
+    } else {
+      return '$age ${S.of(context).years}';
+    }
   }
 }

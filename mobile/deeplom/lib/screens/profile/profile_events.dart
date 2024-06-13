@@ -1,3 +1,4 @@
+import 'package:deeplom/screens/add_application/add_application_screen.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class ProfileEvents extends Equatable {}
@@ -45,4 +46,12 @@ class OnNewObscurePass extends ProfileEvents {
 
   @override
   List<Object> get props => [];
+}
+
+class ChoiceAvatar extends ProfileEvents {
+  ChoiceAvatar(this.sourceType);
+  final FileSourceType sourceType;
+
+  @override
+  List<Object> get props => [sourceType];
 }

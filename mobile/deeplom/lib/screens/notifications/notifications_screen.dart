@@ -1,4 +1,5 @@
 import 'package:deeplom/domain/repositories/main/abstract_main_repository.dart';
+import 'package:deeplom/generated/l10n.dart';
 import 'package:deeplom/screens/notifications/notifications_bloc.dart';
 import 'package:deeplom/screens/notifications/notifications_state.dart';
 import 'package:flutter/material.dart';
@@ -30,9 +31,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Уведомления',
-          style: TextStyle(color: Colors.black),
+        title: Text(
+          S.of(context).notifications,
+          style: const TextStyle(color: Colors.black),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -52,15 +53,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 );
               }
               if (state.notifications.requiredContent.isEmpty) {
-                return const Center(
+                return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.notifications_off,
                         size: 64.0,
                       ),
-                      Text('Уведомлений нет'),
+                      Text(S.of(context).noNotificationsText),
                     ],
                   ),
                 );

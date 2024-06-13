@@ -1,5 +1,7 @@
 import 'package:deeplom/config/navigation.dart';
+import 'package:deeplom/data/models/applications_model.dart';
 import 'package:deeplom/domain/repositories/main/abstract_main_repository.dart';
+import 'package:deeplom/generated/l10n.dart';
 import 'package:deeplom/screens/main/main_bloc.dart';
 import 'package:deeplom/screens/main/main_events.dart';
 import 'package:deeplom/screens/main/main_state.dart';
@@ -47,7 +49,7 @@ class _MainScreenState extends State<MainScreen> {
         child: BlocBuilder<MainBloc, MainState>(
             bloc: _mainBloc,
             builder: (context, state) {
-              if (state.mainData.isLoading) {
+              if (state.mainData.isLoading && state.applications.isLoading && state.notifications.isLoading) {
                 return const Center(child: CircularProgressIndicator());
               }
               bool allNotificationViewed =
@@ -111,12 +113,23 @@ class _MainScreenState extends State<MainScreen> {
                             Container(
                               height: 128.0,
                               width: 128.0,
-                              decoration: BoxDecoration(color: Colors.grey.withOpacity(0.5), borderRadius: BorderRadius.circular(64.0)),
-                              child: const Center(
-                                  child: Icon(
-                                Icons.person,
-                                size: 64.0,
-                              )),
+                              decoration: state.mainData.requiredContent.photo.isNotEmpty
+                                  ? BoxDecoration(
+                                      image: DecorationImage(image: MemoryImage(state.avatar!), fit: BoxFit.cover),
+                                      color: Colors.grey.withOpacity(0.5),
+                                      borderRadius: BorderRadius.circular(64.0),
+                                    )
+                                  : BoxDecoration(
+                                      color: Colors.grey.withOpacity(0.5),
+                                      borderRadius: BorderRadius.circular(64.0),
+                                    ),
+                              child: state.mainData.requiredContent.photo.isNotEmpty
+                                  ? const SizedBox()
+                                  : const Center(
+                                      child: Icon(
+                                      Icons.person,
+                                      size: 64.0,
+                                    )),
                             )
                           ],
                         ),
@@ -124,6 +137,8 @@ class _MainScreenState extends State<MainScreen> {
                       const SizedBox(height: 24.0),
                       DateList(
                         dateList: state.currentMonthDates,
+                        mainBloc: _mainBloc,
+                        allApplicationVisible: state.allApplicationShow,
                       ),
                       const SizedBox(height: 24.0),
                       Padding(
@@ -147,15 +162,19 @@ class _MainScreenState extends State<MainScreen> {
                             child: Column(
                               mainAxisSize: MainAxisSize.max,
                               children: [
-                                const Text(
-                                  'Заявки',
-                                  style: TextStyle(fontSize: 16.0),
+                                Text(
+                                  S.of(context).applicationsText,
+                                  style: const TextStyle(fontSize: 16.0),
                                 ),
-                                state.applications.content == null
-                                    ? const Padding(
-                                        padding: EdgeInsets.only(top: 32.0),
+                                TextButton(
+                                  onPressed: () => _mainBloc.add(GetAllApplication()),
+                                  child: Text(S.of(context).showAllApplication),
+                                ),
+                                !state.applications.requiredContent.isNotEmpty
+                                    ? Padding(
+                                        padding: const EdgeInsets.only(top: 32.0),
                                         child: Text(
-                                          'Здесь будут отображаться поданные вами заявки',
+                                          S.of(context).applicationDisplayedHereText,
                                           textAlign: TextAlign.center,
                                         ),
                                       )
@@ -167,10 +186,10 @@ class _MainScreenState extends State<MainScreen> {
                                               onTap: () => AppRouting.toAddApplication(),
                                               child: Row(
                                                 children: [
-                                                  const Icon(Icons.timer),
+                                                  applicationIcon(state.applications.requiredContent[index].status),
                                                   Expanded(
                                                     child: Text(
-                                                      state.applications.content?[index].status.statusName ?? '',
+                                                      state.applications.content?[index].title ?? '',
                                                       overflow: TextOverflow.ellipsis,
                                                     ),
                                                   ),
@@ -200,13 +219,36 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
+Icon applicationIcon(ApplicationStatus status) {
+  switch (status) {
+    case ApplicationStatus.done:
+      return const Icon(Icons.done);
+
+    case ApplicationStatus.loading:
+      return const Icon(Icons.access_time_outlined);
+
+    case ApplicationStatus.failed:
+      return const Icon(Icons.error);
+
+    case ApplicationStatus.in_progress:
+      return const Icon(Icons.update);
+
+    case ApplicationStatus.saved:
+      return const Icon(Icons.save_alt);
+  }
+}
+
 class DateList extends StatefulWidget {
   const DateList({
     super.key,
     required this.dateList,
+    required this.mainBloc,
+    required this.allApplicationVisible,
   });
 
+  final MainBloc mainBloc;
   final List<DateTime> dateList;
+  final bool allApplicationVisible;
 
   @override
   State<DateList> createState() => _DateListState();
@@ -214,6 +256,7 @@ class DateList extends StatefulWidget {
 
 class _DateListState extends State<DateList> {
   final ScrollController _scrollController = ScrollController();
+  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -226,6 +269,9 @@ class _DateListState extends State<DateList> {
           todayIndex * 60.0,
         );
       }
+      setState(() {
+        _selectedDate = widget.dateList[todayIndex];
+      });
     });
   }
 
@@ -241,31 +287,42 @@ class _DateListState extends State<DateList> {
         itemCount: widget.dateList.length,
         itemBuilder: (context, index) {
           DateTime date = widget.dateList[index];
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Container(
-              decoration: BoxDecoration(
-                  color: date.day == DateTime.now().day ? Colors.grey.shade900 : Colors.grey.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(12.0)),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      DateFormat('MMMM').format(DateTime.now()),
-                      style: TextStyle(color: date.day == DateTime.now().day ? Colors.white : Colors.black),
-                    ),
-                    Text(
-                      '${date.day}',
-                      style: TextStyle(color: date.day == DateTime.now().day ? Colors.white : Colors.black),
-                    ),
-                    Text(
-                      getDayOfWeek(date.weekday),
-                      style: TextStyle(color: date.day == DateTime.now().day ? Colors.white : Colors.black),
-                    ),
-                  ],
+          bool isSelected = _selectedDate?.day == date.day;
+
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                _selectedDate = date;
+                widget.mainBloc.add(GetApplicationByDate(date: _selectedDate.toString()));
+              });
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isSelected && !widget.allApplicationVisible ? Colors.grey.shade900 : Colors.grey.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        DateFormat('MMMM').format(date),
+                        style: TextStyle(color: isSelected && !widget.allApplicationVisible ? Colors.white : Colors.black),
+                      ),
+                      Text(
+                        '${date.day}',
+                        style: TextStyle(color: isSelected && !widget.allApplicationVisible ? Colors.white : Colors.black),
+                      ),
+                      Text(
+                        getDayOfWeek(date.weekday, context),
+                        style: TextStyle(color: isSelected && !widget.allApplicationVisible ? Colors.white : Colors.black),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -279,22 +336,22 @@ class _DateListState extends State<DateList> {
   }
 }
 
-String getDayOfWeek(int day) {
+String getDayOfWeek(int day, context) {
   switch (day) {
     case 1:
-      return 'пн';
+      return S.of(context).monday;
     case 2:
-      return 'вт';
+      return S.of(context).tuesday;
     case 3:
-      return 'ср';
+      return S.of(context).wednesday;
     case 4:
-      return 'чт';
+      return S.of(context).thursday;
     case 5:
-      return 'пт';
+      return S.of(context).friday;
     case 6:
-      return 'сб';
+      return S.of(context).saturday;
     case 7:
-      return 'вс';
+      return S.of(context).sunday;
     default:
       throw ArgumentError('Invalid day: $day. Day must be in range 1-7.');
   }

@@ -1,5 +1,5 @@
-import 'package:deeplom/config/navigation.dart';
 import 'package:deeplom/domain/repositories/main/abstract_main_repository.dart';
+import 'package:deeplom/generated/l10n.dart';
 import 'package:deeplom/screens/add_application/add_application_bloc.dart';
 import 'package:deeplom/screens/add_application/add_application_events.dart';
 import 'package:deeplom/screens/add_application/add_application_state.dart';
@@ -53,12 +53,12 @@ class _AddApplicationScreenState extends State<AddApplicationScreen> {
               );
             }
             if (state.applications.content == null) {
-              return const Center(
+              return Center(
                   child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 32.0),
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
                 child: Text(
-                  'На данный момент доступные заявления отсутствуют',
-                  style: TextStyle(fontSize: 16.0),
+                  S.of(context).noAvailableApplicationText,
+                  style: const TextStyle(fontSize: 16.0),
                   textAlign: TextAlign.center,
                 ),
               ));
@@ -85,7 +85,7 @@ class _AddApplicationScreenState extends State<AddApplicationScreen> {
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       const SizedBox(height: 24.0),
-                      const Text('Класс! Скоро здесь будут все документы...'),
+                      Text(S.of(context).documentsWillBeHereSoonText),
                       const SizedBox(height: 24.0),
                       Expanded(
                         child: ListView.separated(
@@ -96,7 +96,7 @@ class _AddApplicationScreenState extends State<AddApplicationScreen> {
                                 children: [
                                   Text(application.title),
                                   GestureDetector(
-                                    onTap: () => AppRouting.toApplication(),
+                                    onTap: () => _addApplicationBloc.add(SelectApplication(application.id)),
                                     // onTap: () => showFileSourceDialog(context, application.id, application.title),
                                     child: Container(
                                       decoration: BoxDecoration(
