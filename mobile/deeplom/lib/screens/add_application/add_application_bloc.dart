@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:deeplom/config/lce.dart';
 import 'package:deeplom/config/navigation.dart';
+import 'package:deeplom/data/models/applications_model.dart';
 import 'package:deeplom/domain/repositories/main/abstract_main_repository.dart';
 import 'package:deeplom/screens/add_application/add_application_events.dart';
 import 'package:deeplom/screens/add_application/add_application_screen.dart';
@@ -27,7 +28,17 @@ class AddApplicationBloc extends Bloc<AddApplicationEvents, AddApplicationState>
   Future<void> _onInit(OnInit event, Emitter<AddApplicationState> emit) async {
     try {
       var applicationData = await mainRepository.getApplications();
-      emit(state.copyWith(applications: applicationData.asContent));
+      // List<ApplicationsModel> newApplications = applicationData.map((e) => e.title).toList();
+      List<ApplicationsModel> newApplications = applicationData
+          .fold<Map<String, ApplicationsModel>>({}, (map, item) {
+            if (!map.containsKey(item.title)) {
+              map[item.title] = item;
+            }
+            return map;
+          })
+          .values
+          .toList();
+      emit(state.copyWith(applications: applicationData.asContent, newApplications: newApplications.asContent));
     } catch (e) {
       emit(state.copyWith(applications: const Lce.idle()));
     }

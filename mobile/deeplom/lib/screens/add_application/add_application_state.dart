@@ -7,6 +7,7 @@ class AddApplicationState extends Equatable {
   final bool isFileUploaded;
   final bool isDocumentAdded;
   final Lce<List<ApplicationsModel>> applications;
+  final Lce<List<ApplicationsModel>> newApplications;
   final Lce<SelectedApplicationModel> selectedApplication;
 
   const AddApplicationState({
@@ -14,6 +15,7 @@ class AddApplicationState extends Equatable {
     this.isFileUploaded = false,
     this.isDocumentAdded = false,
     this.applications = const Lce.loading(),
+    this.newApplications = const Lce.loading(),
     this.selectedApplication = const Lce.loading(),
   });
 
@@ -21,6 +23,7 @@ class AddApplicationState extends Equatable {
     String? fileName,
     bool? isFileUploaded,
     Lce<List<ApplicationsModel>>? applications,
+    Lce<List<ApplicationsModel>>? newApplications,
     bool? isDocumentAdded,
     Lce<SelectedApplicationModel>? selectedApplication,
   }) {
@@ -29,10 +32,11 @@ class AddApplicationState extends Equatable {
       isFileUploaded: isFileUploaded ?? this.isFileUploaded,
       isDocumentAdded: isDocumentAdded ?? this.isDocumentAdded,
       applications: applications ?? this.applications,
+      newApplications: newApplications ?? this.newApplications,
       selectedApplication: selectedApplication ?? this.selectedApplication,
     );
   }
 
   @override
-  List<Object?> get props => [fileName, isFileUploaded, isDocumentAdded, applications, selectedApplication];
+  List<Object?> get props => [fileName, isFileUploaded, isDocumentAdded, applications, selectedApplication, newApplications];
 }

@@ -97,9 +97,9 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
                                           ),
                                         ],
                                       ),
-                                      child: Padding(
+                                      child: const Padding(
                                         padding: EdgeInsets.all(8.0),
-                                        child: applicationIcon(document.status),
+                                        child: Icon(Icons.arrow_forward_ios),
                                       ),
                                     ),
                                   ),

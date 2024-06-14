@@ -90,7 +90,7 @@ class _AddApplicationScreenState extends State<AddApplicationScreen> {
                       Expanded(
                         child: ListView.separated(
                             itemBuilder: (context, index) {
-                              var application = state.applications.requiredContent[index];
+                              var application = state.newApplications.requiredContent[index];
                               return Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
@@ -122,7 +122,7 @@ class _AddApplicationScreenState extends State<AddApplicationScreen> {
                             separatorBuilder: (context, index) {
                               return const SizedBox(height: 24.0);
                             },
-                            itemCount: state.applications.requiredContent.length),
+                            itemCount: state.newApplications.requiredContent.length),
                       ),
                     ],
                   ),
