@@ -47,7 +47,9 @@ final appRouter = GoRouter(
     GoRoute(
       name: 'application',
       path: '/application',
-      builder: (context, state) => const ApplicationScreen(),
+      builder: (context, state) => ApplicationScreen(
+        applicationId: (state.extra as Map<String, dynamic>?)?['applicationId'],
+      ),
     ),
     GoRoute(
       name: 'faq',
@@ -74,6 +76,7 @@ final appRouter = GoRouter(
 
 class AppRouting {
   AppRouting._();
+  static void pop() => appRouter.pop();
   static void toMenu() => appRouter.pushReplacement('/menu');
   static void toAuth() => appRouter.pushReplacement('/auth');
   static void toMain() => appRouter.push('/main');
@@ -83,5 +86,5 @@ class AppRouting {
   static void toSettings() => appRouter.push('/settings');
   static void toResetPassword() => appRouter.push('/resetPass');
   static void toNotifications() => appRouter.push('/notifications');
-  static void toApplication() => appRouter.push('/application');
+  static void toApplication({required String applicationId}) => appRouter.push('/application', extra: {"applicationId": applicationId});
 }

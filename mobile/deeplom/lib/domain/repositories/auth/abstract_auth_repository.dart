@@ -10,5 +10,9 @@ abstract class AbstractAuthRepository {
 
   ValueListenable<Lce<ErrorModel>> get errorData;
 
-  Future<void> restorePass({String? phone, String? email});
+  Future<String> restorePass({String? phone, String? email});
+
+  Future<void> restoreVerify({required String username, required String code});
+
+  Future<void> userRestore({required String username, required String code, required String password, required String passwordConfirm});
 }

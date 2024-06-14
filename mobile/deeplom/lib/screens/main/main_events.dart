@@ -8,3 +8,18 @@ class OnInit extends MainEvents {
   @override
   List<Object> get props => [];
 }
+
+class GetApplicationByDate extends MainEvents {
+  GetApplicationByDate({required this.date});
+  final String date;
+
+  @override
+  List<Object> get props => [date];
+}
+
+class GetAllApplication extends MainEvents {
+  GetAllApplication();
+
+  @override
+  List<Object> get props => [];
+}

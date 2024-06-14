@@ -1,14 +1,18 @@
 import 'package:deeplom/domain/repositories/main/abstract_main_repository.dart';
+import 'package:deeplom/generated/l10n.dart';
 import 'package:deeplom/screens/add_application/add_application_bloc.dart';
 import 'package:deeplom/screens/add_application/add_application_events.dart';
 import 'package:deeplom/screens/add_application/add_application_screen.dart';
 import 'package:deeplom/screens/add_application/add_application_state.dart';
+import 'package:deeplom/screens/main/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 class ApplicationScreen extends StatefulWidget {
-  const ApplicationScreen({super.key});
+  const ApplicationScreen({super.key, required this.applicationId});
+
+  final String applicationId;
 
   @override
   State<ApplicationScreen> createState() => _ApplicationScreenState();
@@ -123,13 +127,13 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Выберите источник файла'),
+          title: Text(S.of(context).selectSourceFile),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               ListTile(
                 leading: const Icon(Icons.photo_library),
-                title: const Text('Выбрать из галереи'),
+                title: Text(S.of(context).choiceFromGallery),
                 onTap: () {
                   Navigator.of(context).pop();
                   _addApplicationBloc.add(PickFileEvent(FileSourceType.gallery, applicationId, title));
@@ -137,7 +141,7 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.camera_alt),
-                title: const Text('Сделать снимок'),
+                title: Text(S.of(context).takePictureText),
                 onTap: () {
                   Navigator.of(context).pop();
                   _addApplicationBloc.add(PickFileEvent(FileSourceType.camera, applicationId, title));
@@ -145,7 +149,7 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.attach_file),
-                title: const Text('Выбрать с устройства'),
+                title: Text(S.of(context).choiceFromDeviceText),
                 onTap: () {
                   Navigator.of(context).pop();
                   _addApplicationBloc.add(PickFileEvent(FileSourceType.device, applicationId, title));

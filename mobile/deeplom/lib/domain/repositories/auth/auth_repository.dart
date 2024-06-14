@@ -1,4 +1,3 @@
-
 import 'package:deeplom/config/api_urls.dart';
 import 'package:deeplom/config/lce.dart';
 import 'package:deeplom/data/dto/auth_dto.dart';
@@ -49,13 +48,41 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<void> restorePass({String? phone, String? email}) async {
+  Future<String> restorePass({String? phone, String? email}) async {
     var emailData = {
       'email': email,
     };
     var phoneData = {
       'phone': phone,
     };
-    await dio.post(ApiUrls.restorePass, data: phone == null ? emailData : phoneData);
+    var response = await dio.post(ApiUrls.restorePass, data: phone == null ? emailData : phoneData);
+    return response.data['username'];
+  }
+
+  @override
+  Future<void> restoreVerify({required String username, required String code}) async {
+    var data = {
+      "username": username,
+      "code": code,
+    };
+    await dio.post(ApiUrls.restoreVerify, data: data);
+  }
+
+  @override
+  Future<void> userRestore({required String username, required String code, required String password, required String passwordConfirm}) async {
+    var data = {
+      "verification": {"username": username, "code": code},
+      "passwords": {
+        "password": password,
+        "confirmation": passwordConfirm,
+      }
+    };
+    print('DATA RESTORE:: $data');
+    try {
+      var response = await dio.post(ApiUrls.restore, data: data);
+      print('USER RESTORE PASSWORD TEST:: $response');
+    } on DioException catch (e) {
+      print('RESTORE ERROR REP:: $e');
+    }
   }
 }

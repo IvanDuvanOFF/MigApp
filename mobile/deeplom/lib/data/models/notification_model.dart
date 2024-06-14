@@ -1,5 +1,5 @@
 class NotificationModel {
-  final int notificationId;
+  final String notificationId;
   final String userId;
   final String title;
   final String description;

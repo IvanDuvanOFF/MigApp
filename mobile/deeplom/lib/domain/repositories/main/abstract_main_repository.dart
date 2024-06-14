@@ -5,6 +5,7 @@ import 'package:deeplom/data/models/applications_model.dart';
 import 'package:deeplom/data/models/main_model.dart';
 import 'package:deeplom/data/models/notification_model.dart';
 import 'package:deeplom/data/models/profile_model.dart';
+import 'package:deeplom/data/models/upload_file_model.dart';
 import 'package:flutter/foundation.dart';
 
 abstract class AbstractMainRepository {
@@ -22,13 +23,19 @@ abstract class AbstractMainRepository {
 
   Future<List<NotificationModel>> getNotifications();
 
-  Future<void> deleteNotification({required int notificationId});
+  Future<void> deleteNotification({required String notificationId});
 
   Future<void> logOut();
 
-  Future<String> uploadFile({required File file});
+  Future<UploadFileModel?> uploadFile({required File file});
 
-  Future<void> addDocument({required String applicationId, required String fileName, required String title});
+  Future<DocumentModel?> addDocument({required String applicationId, required String fileName, required String title});
 
   Future<void> changePassword({required String oldPassword, required String newPassword});
+
+  Future<File?> getRemember();
+
+  Future<void> uploadAvatar({required String name, required String link});
+
+  Future<Uint8List> getFile({required String fileName});
 }

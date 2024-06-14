@@ -9,26 +9,44 @@ class AuthState extends Equatable {
   final String login;
   final String password;
   final bool passIsObscure;
-  final LanguageCode selectedLang;
+  final Locale selectedLang;
   final ResetPasswordType resetType;
   final String error;
+  final bool isRestoreSending;
+  final bool isRestoreVerify;
+  final String otpCode;
+  final String email;
+  final String phone;
+  final bool restoreReady;
 
   const AuthState({
     this.login = '',
     this.password = '',
     this.passIsObscure = true,
-    this.selectedLang = LanguageCode.ru,
+    this.selectedLang = const Locale('ru'),
     this.resetType = ResetPasswordType.choice,
     this.error = '',
+    this.isRestoreSending = false,
+    this.isRestoreVerify = false,
+    this.otpCode = '',
+    this.email = '',
+    this.phone = '',
+    this.restoreReady = false,
   });
 
   AuthState copyWith({
     String? login,
     String? password,
     bool? passIsObscure,
-    LanguageCode? selectedLang,
+    Locale? selectedLang,
     String? error,
     ResetPasswordType? resetType,
+    bool? isRestoreSending,
+    bool? isRestoreVerify,
+    String? otpCode,
+    String? email,
+    String? phone,
+    bool? restoreReady,
   }) {
     return AuthState(
       login: login ?? this.login,
@@ -37,11 +55,30 @@ class AuthState extends Equatable {
       selectedLang: selectedLang ?? this.selectedLang,
       error: error ?? this.error,
       resetType: resetType ?? this.resetType,
+      isRestoreSending: isRestoreSending ?? this.isRestoreSending,
+      isRestoreVerify: isRestoreVerify ?? this.isRestoreVerify,
+      otpCode: otpCode ?? this.otpCode,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      restoreReady: restoreReady ?? this.restoreReady,
     );
   }
 
   @override
-  List<Object?> get props => [login, password, passIsObscure, selectedLang, error, resetType];
+  List<Object?> get props => [
+        login,
+        password,
+        passIsObscure,
+        selectedLang,
+        error,
+        resetType,
+        isRestoreSending,
+        isRestoreVerify,
+        otpCode,
+        email,
+        phone,
+        restoreReady,
+      ];
 }
 
 extension LanguageCodeExtension on LanguageCode {
@@ -59,9 +96,9 @@ extension LanguageCodeExtension on LanguageCode {
   String get code {
     switch (this) {
       case LanguageCode.ru:
-        return 'RU';
+        return 'ru';
       case LanguageCode.en:
-        return 'EN';
+        return 'en';
       default:
         return '';
     }
