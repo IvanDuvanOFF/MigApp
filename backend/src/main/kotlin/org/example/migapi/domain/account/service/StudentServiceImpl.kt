@@ -14,7 +14,7 @@ import org.example.migapi.domain.account.exception.CountryNotFoundException
 import org.example.migapi.domain.account.exception.StatusNotFoundException
 import org.example.migapi.domain.account.exception.UserNotFoundException
 import org.example.migapi.domain.files.exception.NoAccessException
-import org.example.migapi.domain.files.model.File
+import org.example.migapi.domain.files.service.FileService
 import org.example.migapi.utils.MigUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -29,6 +29,8 @@ import java.time.format.DateTimeParseException
 class StudentServiceImpl(
     @Autowired
     private val userService: UserService,
+    @Autowired
+    private val fileService: FileService,
     @Autowired
     private val dtoService: DtoService,
     @Autowired
@@ -81,7 +83,7 @@ class StudentServiceImpl(
     }
 
     /**
-     * Меняет фото [photo] пользователя [username]
+     * Меняет фото фото пользователя [username] на [photoFileName]
      *
      * @throws NoAccessException нет доступа
      * @throws BadRequestException id пользователя некорректного формата
@@ -89,14 +91,11 @@ class StudentServiceImpl(
      * @throws UserNotFoundException студент не найден
      * @throws PersistenceException
      */
-    @Transactional
-    override fun changePhoto(username: String, photo: File): StudentDto {
-        val user = userService.findUserByUsername(username)
-        val file = File(
-            name = photo.name,
-            link = photo.link,
-            user = user
-        )
+//    @Transactional
+    override fun changePhoto(username: String, photoFileName: String): StudentDto {
+        val file = fileService.auth(photoFileName, username)
+        val user = file.user
+
         user.photo = file
 
         return dtoService.userToStudentDto(userService.saveUser(user))

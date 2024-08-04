@@ -11,7 +11,6 @@ import jakarta.validation.Valid
 import org.example.migapi.core.domain.dto.Error
 import org.example.migapi.domain.account.dto.*
 import org.example.migapi.domain.account.service.StudentService
-import org.example.migapi.domain.files.model.File
 import org.example.migapi.getUsernameFromContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.prepost.PreAuthorize
@@ -237,5 +236,6 @@ class ProfileController(
         ]
     )
     @SecurityRequirement(name = "JWT")
-    fun changePhoto(@RequestBody photo: File): StudentDto = studentService.changePhoto(getUsernameFromContext(), photo)
+    fun changePhoto(@RequestBody photoDto: PhotoDto): StudentDto =
+        studentService.changePhoto(getUsernameFromContext(), photoDto.fileName)
 }

@@ -28,7 +28,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/mig
       - SPRING_DATASOURCE_USERNAME=ivan
-      - SPRING_DATASOURCE_PASSWORD=pASSword
+      - SPRING_DATASOURCE_PASSWORD=password
     networks:
       app-network:
         ipv4_address: 192.168.112.3
@@ -55,7 +55,7 @@ services:
       - 'idle_in_transaction_session_timeout=10s'
     environment:
       - POSTGRES_USER=ivan
-      - POSTGRES_PASSWORD=pASSword
+      - POSTGRES_PASSWORD=password
       - POSTGRES_DB=mig
       - PGDATA=/var/lib/postgresql/data/pgdata
     networks:
@@ -80,7 +80,7 @@ services:
     container_name: pgadmin
     environment:
       - PGADMIN_DEFAULT_EMAIL=ivan.duvanov.3@gmail.com
-      - PGADMIN_DEFAULT_PASSWORD=pASSword
+      - PGADMIN_DEFAULT_PASSWORD=password
       - PGADMIN_CONFIG_SERVER_MODE=False
     networks:
       app-network:

@@ -9,7 +9,6 @@ import org.example.migapi.domain.account.exception.CountryNotFoundException
 import org.example.migapi.domain.account.exception.StatusNotFoundException
 import org.example.migapi.domain.account.exception.UserNotFoundException
 import org.example.migapi.domain.files.exception.NoAccessException
-import org.example.migapi.domain.files.model.File
 import java.time.DateTimeException
 import java.time.format.DateTimeParseException
 
@@ -51,7 +50,7 @@ interface StudentService {
             PersistenceException::class,
         ]
     )
-    fun changePhoto(username: String, photo: File): StudentDto
+    fun changePhoto(username: String, photoFileName: String): StudentDto
 
     @Throws(exceptionClasses = [UserNotFoundException::class, PersistenceException::class])
     fun updatePassword(username: String, passwordDto: PasswordDto)

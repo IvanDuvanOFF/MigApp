@@ -2,7 +2,7 @@
 .gradle/
 build/
 /backend/tmp/
-/tmp/
+/tmp/app
 /.logs/
 /backend/.logs/
 /backend/src/main/resources/firebase/firebase-key.json
